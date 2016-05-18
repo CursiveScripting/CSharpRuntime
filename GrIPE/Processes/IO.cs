@@ -8,13 +8,14 @@ namespace GrIPE.Processes
 {
     public static class IO
     {
-        public static SystemProcess<T> Print<T>(string message)
-        {
-            return new SystemProcess<T>(model =>
+        public static readonly SystemProcess Print = new SystemProcess((Model inputs, out Model outputs) =>
             {
-                Console.WriteLine(message);
+                Console.WriteLine(inputs["message"]);
+                outputs = null;
                 return string.Empty;
-            }, string.Empty);
-        }
+            },
+            new string[] { "message" },
+            null
+        );
     }
 }

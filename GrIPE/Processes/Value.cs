@@ -8,18 +8,28 @@ namespace GrIPE.Processes
 {
     public static class Value
     {
-        public static SystemProcess<T> Equals<T>(T compareTo) where T : IEquatable<T>
+        public static SystemProcess Equals<T>() where T : IEquatable<T>
         {
-            return new SystemProcess<T>(model => model.Equals(compareTo) ? "yes" : "no", "yes", "no");
+            return new SystemProcess((Model inputs, out Model outputs) =>
+                {
+                    outputs = null;
+                    return inputs["value2"].Equals(inputs["value1"]) ? "yes" : "no";
+                },
+                new string[] { "value1", "value2" },
+                null,
+                new string[] { "yes", "no" }
+            );
         }
 
-        public static SystemProcess<T> CompareTo<T>(T compareTo) where T : IComparable<T>
+        /*
+        public static SystemProcess CompareTo<T>() where T : IComparable<T>
         {
-            return new SystemProcess<T>(model =>
+            return new SystemProcess((process, model) =>
             {
-                var comparison = model.CompareTo(compareTo);
+                var comparison = model.CompareTo(process.ReadInputParameter("value"));
                 return comparison < 0 ? "less" : comparison > 0 ? "greater" : "equal";
-            }, "less", "equal", "greater");
+            }, new string[] { "value" }, null, "less", "equal", "greater");
         }
+        */
     }
 }

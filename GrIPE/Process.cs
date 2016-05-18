@@ -1,14 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace GrIPE
 {
-    public abstract class Process<Model>
+    public abstract class Process
     {
-        public abstract string Run(Model model);
-        public abstract string[] GetPossibleOutputs(); // the UI needs this, but the runtime doesn't. Perhaps it doesn't hurt to keep it around anyway...
+        public string Run(Model input)
+        {
+            Model output;
+            return Run(input, out output);
+        }
+
+        public abstract string Run(Model input, out Model output);
+        
+        public abstract ReadOnlyCollection<string> GetReturnPaths();
+
+        public abstract ReadOnlyCollection<string> ListInputs();
+
+        public abstract ReadOnlyCollection<string> ListOutputs();
     }
 }

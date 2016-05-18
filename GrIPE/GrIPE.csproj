@@ -40,6 +40,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Model.cs" />
+    <Compile Include="Processes\Date.cs" />
     <Compile Include="Processes\IO.cs" />
     <Compile Include="UserStep.cs" />
     <Compile Include="EndStep.cs" />

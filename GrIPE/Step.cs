@@ -6,8 +6,10 @@ using System.Threading.Tasks;
 
 namespace GrIPE
 {
-    public abstract class Step<Model>
+    public abstract class Step
     {
-        public abstract Step<Model> Run(Model model);
+        public abstract Step Run(Model model);
+
+        // TODO: need stuff for mapping input and output parameters
     }
 }

@@ -6,16 +6,19 @@ using System.Threading.Tasks;
 
 namespace GrIPE
 {
-    public class EndStep<Model> : Step<Model>
+    public class EndStep : Step
     {
-        public EndStep(string output)
+        public EndStep(string returnPath)
         {
-            Output = output;
+
+        }
+        
+        public string GetOutputs(out Model outputs)
+        {
+            throw new NotImplementedException("Don't know where to get the outputs from. The return path is passed to EndStep's constructor, though.");
         }
 
-        public string Output { get; private set; }
-
-        public override Step<Model> Run(Model model)
+        public override Step Run(Model model)
         {
             return null;
         }

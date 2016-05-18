@@ -1,30 +1,45 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace GrIPE
 {
-    public class SystemProcess<Model> : Process<Model>
+    public class SystemProcess : Process
     {
-        public SystemProcess(Func<Model, string> operation, params string[] possibleOutputs)
+        public SystemProcess(SystemStep operation, string[] inputNames, string[] outputNames, params string[] returnPaths)
         {
             Operation = operation;
-            PossibleOutputs = possibleOutputs;
+            ReturnPaths = returnPaths == null ? null : Array.AsReadOnly(returnPaths);
+            InputNames = inputNames == null ? null : Array.AsReadOnly(inputNames);
+            OutputNames = outputNames == null ? null : Array.AsReadOnly(outputNames);
         }
 
-        private Func<Model, string> Operation;
-        private string[] PossibleOutputs;
+        public delegate string SystemStep(Model input, out Model output);
 
-        public override string Run(Model model)
+        private SystemStep Operation;
+        private ReadOnlyCollection<string> ReturnPaths, InputNames, OutputNames;
+
+        public override string Run(Model inputs, out Model outputs)
         {
-            return Operation(model);
+            return Operation(inputs, out outputs);
         }
 
-        public override string[] GetPossibleOutputs()
+        public override ReadOnlyCollection<string> GetReturnPaths()
         {
-            return PossibleOutputs;
+            return ReturnPaths;
+        }
+
+        public override ReadOnlyCollection<string> ListInputs()
+        {
+            return InputNames;
+        }
+
+        public override ReadOnlyCollection<string> ListOutputs()
+        {
+            return OutputNames;
         }
     }
 }

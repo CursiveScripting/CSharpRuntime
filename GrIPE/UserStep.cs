@@ -6,38 +6,41 @@ using System.Threading.Tasks;
 
 namespace GrIPE
 {
-    public class UserStep<ParentModel, ChildModel> : Step<ParentModel>
+    public class UserStep : Step
     {
-        public UserStep(Process<ChildModel> childProcess, Func<ParentModel, ChildModel> adaptModel)
+        public UserStep(Process childProcess)
         {
             ChildProcess = childProcess;
-            AdaptModel = adaptModel;
         }
 
-        private Process<ChildModel> ChildProcess;
-        private Func<ParentModel, ChildModel> AdaptModel;
-        private Step<ParentModel> DefaultOutput;
+        private Process ChildProcess;
+        private Step DefaultReturnPath;
 
-        protected SortedList<string, Step<ParentModel>> outputs = new SortedList<string, Step<ParentModel>>();
+        protected SortedList<string, Step> returnPaths = new SortedList<string, Step>();
 
-        public void AddOutput(string name, Step<ParentModel> target)
+        public void AddReturnPath(string name, Step target)
         {
-            outputs.Add(name, target);
+            returnPaths.Add(name, target);
         }
 
-        public void SetDefaultOutput(Step<ParentModel> target)
+        public void SetDefaultReturnPath(Step target)
         {
-            DefaultOutput = target;
+            DefaultReturnPath = target;
         }
 
-        public override Step<ParentModel> Run(ParentModel model)
+        public override Step Run(Model model)
         {
-            ChildModel childModel = AdaptModel(model);
-            var outputName = ChildProcess.Run(childModel);
+            Model inputs = new Model(), outputs;
+            
+            // TODO: Somehow set up input parameters ... map them from model properties, or read them in from this step's configuration
 
-            Step<ParentModel> output;
-            if (outputName == null || !outputs.TryGetValue(outputName, out output))
-                return DefaultOutput;
+            var outputName = ChildProcess.Run(inputs, out outputs);
+
+            // TODO: somehow *do* something with the outputs ... map them to model properties
+
+            Step output;
+            if (outputName == null || !returnPaths.TryGetValue(outputName, out output))
+                return DefaultReturnPath;
 
             return output;
         }

@@ -13,29 +13,64 @@ namespace GripeTest
         static void Main(string[] args)
         {
             Console.WriteLine("Testing GRaphical Interactive Programming Environment");
-
-            var ageCheck = new UserStep<Person, int>(Value.CompareTo(25), p => p.Age);
-            ageCheck.AddOutput("greater", new EndStep<Person>("This person is too old"));
-
-            var ageConfirm = new UserStep<Person, Person>(IO.Print<Person>("OK, got a young person"), p => p);
-            ageCheck.SetDefaultOutput(ageConfirm);
             
-            var genderCheck = new UserStep<Person, string>(Value.Equals("M"), p => p.Gender);
-            genderCheck.AddOutput("no", new EndStep<Person>("Lady"));
-            genderCheck.AddOutput("yes", new EndStep<Person>("Gent"));
-            genderCheck.SetDefaultOutput(new EndStep<Person>("Failed to determine gender"));
+            var done = new EndStep("Done");
 
-            ageConfirm.SetDefaultOutput(genderCheck);
+            /*
+            var car = new Car();
 
-            var process = new UserProcess<Person>(ageCheck);
+            var findCar = new SystemProcess(model => car);
+
+            var getInCar = new UserStep(findCar, p => p);
+            getInCar.SetDefaultReturnPath(done);
+
+            var checkDay = new UserStep(Date.GetDayOfWeek, p => p);
+            checkDay.AddReturnPath("Saturday", done);
+            checkDay.AddReturnPath("Sunday", done);
+            checkDay.SetDefaultReturnPath(getInCar);
+            */
+            var getReady = new UserStep(IO.Print);
+            getReady.SetFixedInputParameter("message", "Get dressed, etc...");
+            getReady.SetDefaultReturnPath(/*checkDay*/done);
+            /*
+            var eatBreakfast = new UserStep(IO.Print("Eating breakfast..."), p => p);
+            eatBreakfast.SetDefaultReturnPath(getReady);
+
+            var demandBreakfast = new UserStep(IO.Print("Demanding breakfast... (young enough to get away with this)"), p => p);
+            demandBreakfast.SetDefaultReturnPath(eatBreakfast);
+
+            var makeBreakfast = new UserStep(IO.Print("Making breakfast..."), p => p);
+            makeBreakfast.SetDefaultReturnPath(eatBreakfast);
+
+            var breakfastAgeCheck = new UserStep(Value.CompareTo(10), p => p.Age);
+            breakfastAgeCheck.AddReturnPath("less", demandBreakfast);
+            breakfastAgeCheck.SetDefaultReturnPath(makeBreakfast);
+            */
+            var process = new UserProcess(/*breakfastAgeCheck*/getReady);
 
             Console.WriteLine();
             Console.WriteLine("Running with 'Alice' ...");
-            Console.WriteLine(process.Run(new Person() { Name = "Alice", Age = 21, Gender = "F" }));
+            var model = new Model();
+            model["Person"] = new Person() { Name = "Alice", Age = 3, Gender = "F" };
+            Console.WriteLine(process.Run(model));
 
             Console.WriteLine();
             Console.WriteLine("Running with 'Bob' ...");
-            Console.WriteLine(process.Run(new Person() { Name = "Bob", Age = 27, Gender = "M" }));
+            model = new Model();
+            model["Person"] = new Person() { Name = "Bob", Age = 8, Gender = "M" };
+            Console.WriteLine(process.Run(model));
+            
+            Console.WriteLine();
+            Console.WriteLine("Running with 'Carly' ...");
+            model = new Model();
+            model["Person"] = new Person() { Name = "Carly", Age = 15, Gender = "M" };
+            Console.WriteLine(process.Run(model));
+
+            Console.WriteLine();
+            Console.WriteLine("Running with 'Dave' ...");
+            model = new Model();
+            model["Person"] = new Person() { Name = "Dave", Age = 34, Gender = "M" };
+            Console.WriteLine(process.Run(model));
 
             Console.ReadKey();
         }
@@ -46,5 +81,17 @@ namespace GripeTest
             public int Age { get; set; }
             public string Gender { get; set; }
         }
+
+        class Car
+        {
+            public Car()
+            {
+                Passengers = new List<Person>();
+            }
+
+            Person Driver { get; set; }
+            List<Person> Passengers { get; set; }
+        }
+
     }
 }

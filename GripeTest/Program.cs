@@ -17,58 +17,71 @@ namespace GripeTest
             var done = new EndStep("Done");
 
             /*
-            var car = new Car();
-
             var findCar = new SystemProcess(model => car);
 
             var getInCar = new UserStep(findCar, p => p);
             getInCar.SetDefaultReturnPath(done);
+            */
 
-            var checkDay = new UserStep(Date.GetDayOfWeek, p => p);
+            var getInCar = new UserStep(IO.Print);
+            getInCar.SetInputParameter("message", "Getting in the car...");
+            getInCar.SetDefaultReturnPath(done);
+
+            var checkDay = new UserStep(Date.GetDayOfWeek);
             checkDay.AddReturnPath("Saturday", done);
             checkDay.AddReturnPath("Sunday", done);
             checkDay.SetDefaultReturnPath(getInCar);
-            */
+
             var getReady = new UserStep(IO.Print);
-            getReady.SetFixedInputParameter("message", "Get dressed, etc...");
-            getReady.SetDefaultReturnPath(/*checkDay*/done);
-            /*
-            var eatBreakfast = new UserStep(IO.Print("Eating breakfast..."), p => p);
+            getReady.SetInputParameter("message", "Get dressed, etc...");
+            getReady.SetDefaultReturnPath(checkDay);
+            
+            var eatBreakfast = new UserStep(IO.Print);
+            eatBreakfast.SetInputParameter("message", "Eating breakfast...");
             eatBreakfast.SetDefaultReturnPath(getReady);
 
-            var demandBreakfast = new UserStep(IO.Print("Demanding breakfast... (young enough to get away with this)"), p => p);
+            var demandBreakfast = new UserStep(IO.Print);
+            demandBreakfast.SetInputParameter("message", "Demanding breakfast... (young enough to get away with this)");
             demandBreakfast.SetDefaultReturnPath(eatBreakfast);
 
-            var makeBreakfast = new UserStep(IO.Print("Making breakfast..."), p => p);
+            var makeBreakfast = new UserStep(IO.Print);
+            makeBreakfast.SetInputParameter("message", "Making breakfast...");
             makeBreakfast.SetDefaultReturnPath(eatBreakfast);
 
-            var breakfastAgeCheck = new UserStep(Value.CompareTo(10), p => p.Age);
+            var breakfastAgeCheck = new UserStep(Value.CompareTo);
+            breakfastAgeCheck.MapInputParameter("value1", "age");
+            breakfastAgeCheck.SetInputParameter("value2", 10);
             breakfastAgeCheck.AddReturnPath("less", demandBreakfast);
             breakfastAgeCheck.SetDefaultReturnPath(makeBreakfast);
-            */
-            var process = new UserProcess(/*breakfastAgeCheck*/getReady);
+
+            var getAge = new UserStep(Value.GetProperty);
+            getAge.MapInputParameter("object", "Person");
+            getAge.SetInputParameter("property", "Age");
+            getAge.MapOutputParameter("value", "age");
+            getAge.SetDefaultReturnPath(breakfastAgeCheck);
+
+            var process = new UserProcess("Morning routine test", getAge);
+
+            var model = new Model();
+            model["Car"] = new Car();
 
             Console.WriteLine();
             Console.WriteLine("Running with 'Alice' ...");
-            var model = new Model();
             model["Person"] = new Person() { Name = "Alice", Age = 3, Gender = "F" };
             Console.WriteLine(process.Run(model));
 
             Console.WriteLine();
             Console.WriteLine("Running with 'Bob' ...");
-            model = new Model();
             model["Person"] = new Person() { Name = "Bob", Age = 8, Gender = "M" };
             Console.WriteLine(process.Run(model));
             
             Console.WriteLine();
             Console.WriteLine("Running with 'Carly' ...");
-            model = new Model();
             model["Person"] = new Person() { Name = "Carly", Age = 15, Gender = "M" };
             Console.WriteLine(process.Run(model));
 
             Console.WriteLine();
             Console.WriteLine("Running with 'Dave' ...");
-            model = new Model();
             model["Person"] = new Person() { Name = "Dave", Age = 34, Gender = "M" };
             Console.WriteLine(process.Run(model));
 

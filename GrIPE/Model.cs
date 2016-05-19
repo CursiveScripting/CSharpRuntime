@@ -25,5 +25,12 @@ namespace GrIPE
             }
         }
 
+        internal Model Clone()
+        {
+            Model other = new Model();
+            foreach (var kvp in elements)
+                other[kvp.Key] = kvp.Value;
+            return other;
+        }
     }
 }

@@ -9,37 +9,29 @@ namespace GrIPE
 {
     public class SystemProcess : Process
     {
-        public SystemProcess(SystemStep operation, string[] inputNames, string[] outputNames, params string[] returnPaths)
+        public SystemProcess(SystemStep operation, string description, string[] inputNames, string[] outputNames, string[] returnPaths)
         {
-            Operation = operation;
-            ReturnPaths = returnPaths == null ? null : Array.AsReadOnly(returnPaths);
-            InputNames = inputNames == null ? null : Array.AsReadOnly(inputNames);
-            OutputNames = outputNames == null ? null : Array.AsReadOnly(outputNames);
+            this.operation = operation;
+            this.Description = description;
+            this.inputNames = inputNames == null ? null : Array.AsReadOnly(inputNames);
+            this.outputNames = outputNames == null ? null : Array.AsReadOnly(outputNames);
+            this.returnPaths = returnPaths == null ? null : Array.AsReadOnly(returnPaths);
         }
 
         public delegate string SystemStep(Model input, out Model output);
 
-        private SystemStep Operation;
-        private ReadOnlyCollection<string> ReturnPaths, InputNames, OutputNames;
+        private SystemStep operation;
+        private ReadOnlyCollection<string> returnPaths, inputNames, outputNames;
 
         public override string Run(Model inputs, out Model outputs)
         {
-            return Operation(inputs, out outputs);
+            return operation(inputs, out outputs);
         }
 
-        public override ReadOnlyCollection<string> GetReturnPaths()
-        {
-            return ReturnPaths;
-        }
+        public override ReadOnlyCollection<string> ReturnPaths { get { return returnPaths; } }
 
-        public override ReadOnlyCollection<string> ListInputs()
-        {
-            return InputNames;
-        }
+        public override ReadOnlyCollection<string> Inputs { get { return inputNames; } }
 
-        public override ReadOnlyCollection<string> ListOutputs()
-        {
-            return OutputNames;
-        }
+        public override ReadOnlyCollection<string> Outputs { get { return inputNames; } }
     }
 }

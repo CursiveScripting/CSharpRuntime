@@ -15,12 +15,14 @@ namespace GrIPE
             return Run(input, out output);
         }
 
+        public string Description { get; protected set; }
+
         public abstract string Run(Model input, out Model output);
         
-        public abstract ReadOnlyCollection<string> GetReturnPaths();
+        public abstract ReadOnlyCollection<string> ReturnPaths { get; }
 
-        public abstract ReadOnlyCollection<string> ListInputs();
+        public abstract ReadOnlyCollection<string> Inputs { get; }
 
-        public abstract ReadOnlyCollection<string> ListOutputs();
+        public abstract ReadOnlyCollection<string> Outputs { get; }
     }
 }

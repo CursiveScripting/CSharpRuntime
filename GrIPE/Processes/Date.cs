@@ -8,11 +8,13 @@ namespace GrIPE.Processes
 {
     public static class Date
     {
-        public static readonly SystemProcess GetDayOfWeek = new SystemProcess((Model inputs, out Model outputs) =>
+        public static readonly SystemProcess GetDayOfWeek = new SystemProcess(
+            (Model inputs, out Model outputs) =>
             {
                 outputs = null;
                 return DateTime.Today.DayOfWeek.ToString();
             },
+            "Returns the name of the current day of the week",
             null, null,
             new string[] {
                 DayOfWeek.Monday.ToString(),

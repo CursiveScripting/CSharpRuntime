@@ -10,16 +10,25 @@ namespace GrIPE
     {
         public EndStep(string returnPath)
         {
-
-        }
-        
-        public string GetOutputs(out Model outputs)
-        {
-            throw new NotImplementedException("Don't know where to get the outputs from. The return path is passed to EndStep's constructor, though.");
+            this.returnPath = returnPath;
         }
 
-        public override Step Run(Model model)
+        private string returnPath;
+        private Model outputs;
+
+        public string GetOutputs(Model workspace, out Model outputs)
         {
+            outputs = this.outputs;
+            this.outputs = null;
+            return returnPath;
+        }
+
+        public override Step Run(Model workspace)
+        {
+            outputs = new Model();
+            foreach (var kvp in outputMapping)
+                workspace[kvp.Value] = outputs[kvp.Key];
+            
             return null;
         }
     }

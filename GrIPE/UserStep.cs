@@ -10,37 +10,47 @@ namespace GrIPE
     {
         public UserStep(Process childProcess)
         {
-            ChildProcess = childProcess;
+            this.childProcess = childProcess;
         }
 
-        private Process ChildProcess;
-        private Step DefaultReturnPath;
+        private Process childProcess;
+        private Step defaultReturnPath;
 
         protected SortedList<string, Step> returnPaths = new SortedList<string, Step>();
 
-        public void AddReturnPath(string name, Step target)
+        public void AddReturnPath(string name, Step nextStep)
         {
-            returnPaths.Add(name, target);
+            returnPaths.Add(name, nextStep);
         }
 
-        public void SetDefaultReturnPath(Step target)
+        public void SetDefaultReturnPath(Step nextStep)
         {
-            DefaultReturnPath = target;
+            defaultReturnPath = nextStep;
         }
 
-        public override Step Run(Model model)
+        public override Step Run(Model workspace)
         {
             Model inputs = new Model(), outputs;
+
+            // set up fixed input parameters
+            foreach (var kvp in fixedParameters)
+                inputs[kvp.Key] = kvp.Value;
+
+            // map any other input parameters in from the workspace
+            foreach (var kvp in inputMapping)
+                inputs[kvp.Key] = workspace[kvp.Value];
             
-            // TODO: Somehow set up input parameters ... map them from model properties, or read them in from this step's configuration
+            // actually run the process, with the inputs named as it expects
+            var outputName = childProcess.Run(inputs, out outputs);
 
-            var outputName = ChildProcess.Run(inputs, out outputs);
-
-            // TODO: somehow *do* something with the outputs ... map them to model properties
+            // map any output parameters back out into the workspace
+            if (outputs != null)
+                foreach (var kvp in outputMapping)
+                    workspace[kvp.Value] = outputs[kvp.Key];
 
             Step output;
             if (outputName == null || !returnPaths.TryGetValue(outputName, out output))
-                return DefaultReturnPath;
+                return defaultReturnPath;
 
             return output;
         }

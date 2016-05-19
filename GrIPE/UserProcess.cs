@@ -9,43 +9,62 @@ namespace GrIPE
 {
     public class UserProcess : Process
     {
-        private Step FirstStep;
+        private Step firstStep;
 
-        public UserProcess(Step firstStep)
+        public UserProcess(string description, Step firstStep)
         {
-            FirstStep = firstStep;
+            this.Description = description;
+            this.firstStep = firstStep;
         }
         
         public override string Run(Model inputs, out Model outputs)
         {
-            var currentStep = FirstStep.Run(inputs);
-            var lastStep = FirstStep;
+            Model workspace = inputs.Clone();
+
+            var currentStep = firstStep.Run(workspace);
+            var lastStep = firstStep;
 
             while (currentStep != null)
             {
                 lastStep = currentStep;
-                currentStep = currentStep.Run(inputs);
+                currentStep = currentStep.Run(workspace);
             }
 
             if (lastStep is EndStep)
-                return (lastStep as EndStep).GetOutputs(out outputs);
+                return (lastStep as EndStep).GetOutputs(workspace, out outputs);
 
             throw new InvalidOperationException("The last step of a completed process wasn't an EndStep");
         }
 
-        public override ReadOnlyCollection<string> GetReturnPaths()
+        public override ReadOnlyCollection<string> ReturnPaths
         {
-            throw new NotImplementedException("Need to work out how to calculate this... probably have to loop through all possible EndSteps.");
+            get
+            {
+                throw new NotImplementedException("Need to work out how to calculate this... probably have to loop through all possible EndSteps.");
+            }
+        }
+        
+        private List<string> inputs = new List<string>();
+        private List<string> outputs = new List<string>();
+
+        public void AddInput(string name)
+        {
+            inputs.Add(name);
         }
 
-        public override ReadOnlyCollection<string> ListInputs()
+        public void AddOutput(string name)
         {
-            throw new NotImplementedException();
+            outputs.Add(name);
         }
 
-        public override ReadOnlyCollection<string> ListOutputs()
+        public override ReadOnlyCollection<string> Inputs
         {
-            throw new NotImplementedException();
+            get { return inputs.AsReadOnly(); }
+        }
+
+        public override ReadOnlyCollection<string> Outputs
+        {
+            get { return outputs.AsReadOnly(); }
         }
     }
 }

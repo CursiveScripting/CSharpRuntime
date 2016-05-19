@@ -8,26 +8,26 @@ namespace GrIPE
 {
     public class EndStep : Step
     {
-        public EndStep(string returnPath)
+        public EndStep(string returnPath = "")
         {
-            this.returnPath = returnPath;
+            ReturnPath = returnPath;
         }
 
-        private string returnPath;
+        internal string ReturnPath { get; private set; }
         private Model outputs;
 
-        public string GetOutputs(Model workspace, out Model outputs)
+        public Model GetOutputs()
         {
-            outputs = this.outputs;
+            Model outputs = this.outputs;
             this.outputs = null;
-            return returnPath;
+            return outputs;
         }
 
         public override Step Run(Model workspace)
         {
             outputs = new Model();
             foreach (var kvp in outputMapping)
-                workspace[kvp.Value] = outputs[kvp.Key];
+                outputs[kvp.Value] = workspace[kvp.Key];
             
             return null;
         }

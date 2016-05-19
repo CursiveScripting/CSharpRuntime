@@ -1,0 +1,89 @@
+{
+	"name": "Test.MorningRoutine",
+	"description": "Runs a test morning routine sequence",
+	"firstStep": "getAge",
+	
+	"inputs": [
+		"Person",
+		"Car"
+	],
+	
+	"outputs": [],
+	
+	"steps": {
+		"getAge": {
+			"process": "Value.GetProperty",
+			"fixedInputs": {
+				"property": "Age"
+			},
+			"mapInputs": {
+				"object": "Person"
+			},
+			"mapOutputs": {
+				"value": "age"
+			},
+			"defaultReturnPath": "breakfastAgeCheck"
+		},
+		"breakfastAgeCheck": {
+			"process": "Value.Compare",
+			"fixedInputs": {
+				"value2": 10
+			},
+			"mapInputs": {
+				"value1": "age"
+			},
+			"returnPaths": {
+				"less": "demandBreakfast"
+			},
+			"defaultReturnPath": "makeBreakfast"
+		},
+		"makeBreakfast": {
+			"process": "IO.Print",
+			"fixedInputs": {
+				"message": "Making breakfast..."
+			},
+			"defaultReturnPath": "eatBreakfast"
+		},
+		"demandBreakfast": {
+			"process": "IO.Print",
+			"fixedInputs": {
+				"message": "Demanding breakfast... (young enough to get away with this)"
+			},
+			"defaultReturnPath": "eatBreakfast"
+		},
+		"eatBreakfast": {
+			"process": "IO.Print",
+			"fixedInputs": {
+				"message": "Eating breakfast..."
+			},
+			"defaultReturnPath": "getReady"
+		},
+		"getReady": {
+			"process": "IO.Print",
+			"fixedInputs": {
+				"message": "Getting dressed etc..."
+			},
+			"defaultReturnPath": "checkDay"
+		},
+		"checkDay": {
+			"process": "Date.GetDayOfWeek",
+			"returnPaths": {
+				"Saturday": "done",
+				"Sunday": "done"
+			},
+			"defaultReturnPath": "getInCar"
+		},
+		"getInCar": {
+			"process": "IO.Print",
+			"fixedInputs": {
+				"message": "Getting in the car..."
+			},
+			"defaultReturnPath": "done"
+		},
+		"done": {
+			"mapOutputs": {
+				"age": "Age of Person"
+			},
+		}
+	}
+}

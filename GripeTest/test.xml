@@ -1,0 +1,58 @@
+<Process name="Test.MorningRoutine">
+	<Description>Runs a test morning routine sequence</Description>
+	<Input>Person</Input>
+	<Input>Car</Input>
+	
+	<Steps firstStep="getAge">
+		<Step name="getAge">
+			<Process>Value.GetProperty</Process>
+			<FixedInput name="property" value="Age" />
+			<MapInput name="object" source="Person" />
+			<MapOutput name="value" destination="age" />
+			<ReturnPaths default="breakfastAgeCheck" />
+		</Step>
+		<Step name="breakfastAgeCheck">
+			<Process>Value.Compare</Process>
+			<MapInput name="value1" source="age" />
+			<FixedInput name="value2" value="10" />
+			<ReturnPaths default="makeBreakfast">
+				<Path name="less" value="demandBreakfast" />
+			</ReturnPaths>
+		</Step>
+		<Step name="makeBreakfast">
+			<Process>IO.Print</Process>
+			<FixedInput name="message" value="Making breakfast..." />
+			<ReturnPaths default="eatBreakfast" />
+		</Step>
+		<Step name="demandBreakfast">
+			<Process>IO.Print</Process>
+			<FixedInput name="message" value="Demanding breakfast... (young enough to get away with this)" />
+			<ReturnPaths default="eatBreakfast" />
+		</Step>
+		<Step name="eatBreakfast">
+			<Process>IO.Print</Process>
+			<FixedInput name="message" value="Eating breakfast..." />
+			<ReturnPaths default="getReady" />
+		</Step>
+		<Step name="getReady">
+			<Process>IO.Print</Process>
+			<FixedInput name="message" value="Getting dressed etc..." />
+			<ReturnPaths default="checkDay" />
+		</Step>
+		<Step name="checkDay">
+			<Process>Date.GetDayOfWeek</Process>
+			<ReturnPaths default="getInCar">
+				<Path name="Saturday" value="done" />
+				<Path name="Sunday" value="done" />
+			</ReturnPaths>
+		</Step>
+		<Step name="getInCar">
+			<Process>IO.Print</Process>
+			<FixedInput name="message" value="Getting in the car..." />
+			<ReturnPaths default="done" />
+		</Step>
+		<EndStep name="done">
+			<MapOutput name="age" destination="Age of Person" />
+		</EndStep>
+	</Steps>
+</Process>

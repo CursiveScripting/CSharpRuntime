@@ -16,8 +16,20 @@ namespace GrIPE
         private Process childProcess;
         private Step defaultReturnPath;
 
+        protected SortedList<string, object> fixedParameters = new SortedList<string, object>();
+        protected internal SortedList<string, string> inputMapping = new SortedList<string, string>();
         protected SortedList<string, Step> returnPaths = new SortedList<string, Step>();
 
+        public void SetInputParameter(string parameterName, object value)
+        {
+            fixedParameters[parameterName] = value;
+        }
+
+        public void MapInputParameter(string parameterName, string sourceName)
+        {
+            inputMapping[parameterName] = sourceName;
+        }
+        
         public void AddReturnPath(string name, Step nextStep)
         {
             returnPaths.Add(name, nextStep);

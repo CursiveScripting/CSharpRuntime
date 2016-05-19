@@ -14,8 +14,8 @@ namespace GripeTest
         {
             Console.WriteLine("Testing GRaphical Interactive Programming Environment");
             
-            var done = new EndStep("Done");
-
+            var done = new EndStep();
+            
             /*
             var findCar = new SystemProcess(model => car);
 
@@ -48,7 +48,7 @@ namespace GripeTest
             makeBreakfast.SetInputParameter("message", "Making breakfast...");
             makeBreakfast.SetDefaultReturnPath(eatBreakfast);
 
-            var breakfastAgeCheck = new UserStep(Value.CompareTo);
+            var breakfastAgeCheck = new UserStep(Value.Compare);
             breakfastAgeCheck.MapInputParameter("value1", "age");
             breakfastAgeCheck.SetInputParameter("value2", 10);
             breakfastAgeCheck.AddReturnPath("less", demandBreakfast);
@@ -61,6 +61,14 @@ namespace GripeTest
             getAge.SetDefaultReturnPath(breakfastAgeCheck);
 
             var process = new UserProcess("Morning routine test", getAge);
+
+            string error;
+            if (!process.Validate(out error))
+            {
+                Console.WriteLine("Process failed to validate:");
+                Console.WriteLine(error);
+                return;
+            }
 
             var model = new Model();
             model["Car"] = new Car();

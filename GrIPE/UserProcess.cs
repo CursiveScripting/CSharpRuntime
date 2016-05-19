@@ -31,7 +31,11 @@ namespace GrIPE
             }
 
             if (lastStep is EndStep)
-                return (lastStep as EndStep).GetOutputs(workspace, out outputs);
+            {
+                var end = lastStep as EndStep;
+                outputs = end.GetOutputs();
+                return end.ReturnPath;
+            }
 
             throw new InvalidOperationException("The last step of a completed process wasn't an EndStep");
         }
@@ -40,10 +44,34 @@ namespace GrIPE
         {
             get
             {
-                throw new NotImplementedException("Need to work out how to calculate this... probably have to loop through all possible EndSteps.");
+                List<string> paths = new List<string>();
+                foreach (var endStep in GetAllEndSteps())
+                    paths.Add(endStep.ReturnPath);
+
+                return paths.AsReadOnly();
             }
         }
-        
+
+        public bool Validate(out string error)
+        {
+            // what validation rules should we have?
+
+            // 1. every mapped parameter mapped into a step should first have been set by every path that could lead to that point
+
+            // 2. every step with multiple return paths must either have EVERY path mapped, or have a default return path mapped.
+
+            // 3. every output must be set by each end step
+
+            error = null;
+            return true;
+        }
+
+        internal IEnumerable<EndStep> GetAllEndSteps()
+        {
+            // should all steps not be stored directly by this process?
+            throw new NotImplementedException();
+        }
+
         private List<string> inputs = new List<string>();
         private List<string> outputs = new List<string>();
 

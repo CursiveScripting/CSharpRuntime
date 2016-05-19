@@ -19,7 +19,7 @@ namespace GrIPE.Processes
             new string[] { "yes", "no" }
         );
 
-        public static SystemProcess CompareTo = new SystemProcess((Model inputs, out Model outputs) =>
+        public static SystemProcess Compare = new SystemProcess((Model inputs, out Model outputs) =>
             {
                 outputs = null;
                 var value1 = inputs["value1"];

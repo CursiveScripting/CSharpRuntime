@@ -9,8 +9,9 @@ namespace GrIPE
 {
     public abstract class Process
     {
-        protected Process(string name, string description)
+        protected Process(Workspace workspace, string name, string description)
         {
+            this.Workspace = workspace;
             this.Name = name;
             this.Description = description;
         }
@@ -21,6 +22,7 @@ namespace GrIPE
             return Run(input, out output);
         }
 
+        public Workspace Workspace { get; private set; }
         public string Name { get; protected set; }
         public string Description { get; protected set; }
 

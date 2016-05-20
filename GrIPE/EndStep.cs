@@ -8,7 +8,8 @@ namespace GrIPE
 {
     public class EndStep : Step
     {
-        public EndStep(string returnPath = "")
+        public EndStep(string name, string returnPath = "")
+            : base(name)
         {
             ReturnPath = returnPath;
         }
@@ -26,7 +27,7 @@ namespace GrIPE
         public override Step Run(Model workspace)
         {
             outputs = new Model();
-            foreach (var kvp in outputMapping)
+            foreach (var kvp in inputMapping)
                 outputs[kvp.Key] = workspace[kvp.Value];
             
             return null;

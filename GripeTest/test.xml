@@ -2,11 +2,12 @@
 	<Description>Runs a test morning routine sequence</Description>
 	<Input type="Person">Me</Input>
 	<Input type="Car">Car</Input>
+	<Output type="integer">My age</Output>
 	
 	<Steps firstStep="getAge">
 		<Step name="getAge">
 			<Process>Value.GetProperty</Process>
-			<FixedInput name="property" value="Age" /> <!-- how would you ensure that this was the type this input expects? Can THAT be done with validation? -->
+			<FixedInput name="property" value="Age" />
 			<MapInput name="object" source="Me" />
 			<MapOutput name="value" destination="age" />
 			<ReturnPaths default="breakfastAgeCheck" />
@@ -52,7 +53,7 @@
 			<ReturnPaths default="done" />
 		</Step>
 		<EndStep name="done">
-			<MapOutput name="age" destination="My age" />
+			<MapInput name="age" destination="My age" />
 		</EndStep>
 	</Steps>
 </Process>

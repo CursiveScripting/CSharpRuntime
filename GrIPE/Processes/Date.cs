@@ -8,7 +8,8 @@ namespace GrIPE.Processes
 {
     public static class Date
     {
-        public static readonly SystemProcess GetDayOfWeek = new SystemProcess(
+        public static readonly Func<Workspace,SystemProcess> GetDayOfWeek = workspace => new SystemProcess(
+            workspace,
             (Model inputs, out Model outputs) =>
             {
                 outputs = null;

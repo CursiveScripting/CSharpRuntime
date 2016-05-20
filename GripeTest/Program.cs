@@ -13,9 +13,16 @@ namespace GripeTest
         static void Main(string[] args)
         {
             Console.WriteLine("Testing GRaphical Interactive Programming Environment");
-            
-            var done = new EndStep();
-            
+
+            Workspace w = new Workspace(
+                new FixedType<string>("text", s => s, s => s),
+                new FixedType<int>("integer", s => int.Parse(s), i => i.ToString()),
+                new DataType<Person>("person"),
+                new DataType<Car>("car")
+            );
+
+            var done = new EndStep("done");
+
             /*
             var findCar = new SystemProcess(model => car);
 
@@ -23,46 +30,51 @@ namespace GripeTest
             getInCar.SetDefaultReturnPath(done);
             */
 
-            var getInCar = new UserStep(IO.Print);
+            var print = IO.Print(w);
+
+            var getInCar = new UserStep("getInCar", print);
             getInCar.SetInputParameter("message", "Getting in the car...");
             getInCar.SetDefaultReturnPath(done);
 
-            var checkDay = new UserStep(Date.GetDayOfWeek);
+            var checkDay = new UserStep("checkDay", Date.GetDayOfWeek(w));
             checkDay.AddReturnPath("Saturday", done);
             checkDay.AddReturnPath("Sunday", done);
             checkDay.SetDefaultReturnPath(getInCar);
 
-            var getReady = new UserStep(IO.Print);
+            var getReady = new UserStep("getReady", print);
             getReady.SetInputParameter("message", "Get dressed, etc...");
             getReady.SetDefaultReturnPath(checkDay);
             
-            var eatBreakfast = new UserStep(IO.Print);
+            var eatBreakfast = new UserStep("eatBreakfast", print);
             eatBreakfast.SetInputParameter("message", "Eating breakfast...");
             eatBreakfast.SetDefaultReturnPath(getReady);
 
-            var demandBreakfast = new UserStep(IO.Print);
+            var demandBreakfast = new UserStep("demandBreakfast", print);
             demandBreakfast.SetInputParameter("message", "Demanding breakfast... (young enough to get away with this)");
             demandBreakfast.SetDefaultReturnPath(eatBreakfast);
 
-            var makeBreakfast = new UserStep(IO.Print);
+            var makeBreakfast = new UserStep("makeBreakfast", print);
             makeBreakfast.SetInputParameter("message", "Making breakfast...");
             makeBreakfast.SetDefaultReturnPath(eatBreakfast);
 
-            var breakfastAgeCheck = new UserStep(Value.CompareIntegers);
+            var breakfastAgeCheck = new UserStep("breakfastAgeCheck", Value.CompareIntegers(w));
             breakfastAgeCheck.MapInputParameter("value1", "age");
             breakfastAgeCheck.SetInputParameter("value2", 10);
             breakfastAgeCheck.AddReturnPath("less", demandBreakfast);
             breakfastAgeCheck.SetDefaultReturnPath(makeBreakfast);
 
-            var getAge = new UserStep(Value.GetPropertyInteger);
+            var getAge = new UserStep("getAge", Value.GetPropertyInteger(w));
             getAge.MapInputParameter("object", "Person");
             getAge.SetInputParameter("property", "Age");
             getAge.MapOutputParameter("value", "age");
             getAge.SetDefaultReturnPath(breakfastAgeCheck);
 
-            var process = new UserProcess("Morning routine test", "Runs a dummy morning routine, to see if any of this can work", getAge,
+            var process = new UserProcess(w, "Morning routine test", "Runs a dummy morning routine, to see if any of this can work", getAge,
                 getAge, breakfastAgeCheck, makeBreakfast, demandBreakfast, eatBreakfast, checkDay, getInCar);
 
+            process.AddInput("Person", "person");
+            process.AddInput("Car", "car");
+            
             List<string> errors;
             if (!process.Validate(out errors))
             {

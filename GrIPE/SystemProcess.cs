@@ -9,8 +9,8 @@ namespace GrIPE
 {
     public class SystemProcess : Process
     {
-        public SystemProcess(SystemStep operation, string name, string description, Parameter[] inputs, Parameter[] outputs, string[] returnPaths)
-            : base(name, description)
+        public SystemProcess(Workspace workspace, SystemStep operation, string name, string description, Parameter[] inputs, Parameter[] outputs, string[] returnPaths)
+            : base(workspace, name, description)
         {
             this.operation = operation;
             this.inputs = inputs == null ? null : Array.AsReadOnly(inputs);

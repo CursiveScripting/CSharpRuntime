@@ -8,26 +8,21 @@ namespace GrIPE
 {
     public class UserStep : Step
     {
-        public UserStep(Process childProcess)
+        public UserStep(string name, Process childProcess)
+            : base(name)
         {
-            this.ChildProcess = childProcess;
+            ChildProcess = childProcess;
         }
 
         protected internal Process ChildProcess { get; private set; }
         protected internal Step DefaultReturnPath { get; private set; }
 
-        protected internal SortedList<string, object> fixedInputs = new SortedList<string, object>();
-        protected internal SortedList<string, string> inputMapping = new SortedList<string, string>();
+        protected internal SortedList<string, string> outputMapping = new SortedList<string, string>();
         protected internal SortedList<string, Step> returnPaths = new SortedList<string, Step>();
 
-        public void SetInputParameter(string parameterName, object value)
+        public void MapOutputParameter(string parameterName, string destinationName)
         {
-            fixedInputs[parameterName] = value;
-        }
-
-        public void MapInputParameter(string parameterName, string sourceName)
-        {
-            inputMapping[parameterName] = sourceName;
+            outputMapping[parameterName] = destinationName;
         }
         
         public void AddReturnPath(string name, Step nextStep)

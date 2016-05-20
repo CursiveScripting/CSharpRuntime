@@ -8,13 +8,13 @@ namespace GrIPE
 {
     public class Parameter
     {
-        public Parameter(string name, string type)
+        public Parameter(string name, Type type)
         {
             this.Name = name;
             this.Type = type;
         }
 
         public string Name { get; private set; }
-        public string Type { get; private set; }
+        public Type Type { get; private set; }
     }
 }

@@ -8,13 +8,25 @@ namespace GrIPE
 {
     public abstract class Step
     {
+        protected Step(string name)
+        {
+            Name = name;
+        }
+
         public abstract Step Run(Model model);
 
-        protected internal SortedList<string, string> outputMapping = new SortedList<string, string>();
+        public string Name { get; private set; }
+        protected internal SortedList<string, object> fixedInputs = new SortedList<string, object>();
+        protected internal SortedList<string, string> inputMapping = new SortedList<string, string>();
 
-        public void MapOutputParameter(string parameterName, string destinationName)
+        public void SetInputParameter(string parameterName, object value)
         {
-            outputMapping[parameterName] = destinationName;
+            fixedInputs[parameterName] = value;
+        }
+
+        public void MapInputParameter(string parameterName, string sourceName)
+        {
+            inputMapping[parameterName] = sourceName;
         }
     }
 }

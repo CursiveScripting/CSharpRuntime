@@ -12,8 +12,8 @@ namespace GrIPE
         private Step firstStep;
         private Step[] allSteps;
 
-        public UserProcess(string name, string description, Step firstStep, params Step[] allSteps)
-            : base(name, description)
+        public UserProcess(Workspace workspace, string name, string description, Step firstStep, params Step[] allSteps)
+            : base(workspace, name, description)
         {
             this.firstStep = firstStep;
             this.allSteps = allSteps;
@@ -59,6 +59,16 @@ namespace GrIPE
             var success = true;
             errors = new List<string>();
 
+            // 0. all steps must have unique names
+            var names = new SortedSet<string>();
+            foreach (var step in allSteps)
+                if (names.Contains(step.Name))
+                {
+                    errors.Add(string.Format("More than one step uses the name '{0}' - names must be unique", step.Name));
+                    success = false;
+                }
+
+
             // 1a. any input/output parameter being mapped into/out of a child process must be present in that child process.
             // 1b. any input parameter can only be mapped in OR have a fixed value, not both.
             // 1c. any child process must have all the input parameters mapped that it expects.
@@ -68,12 +78,12 @@ namespace GrIPE
                 {
                     if (step.ChildProcess.Inputs.FirstOrDefault(p => p.Name == kvp.Key) == null)
                     {
-                        errors.Add(string.Format("The '{0}' step sets the '{1}' input parameter, which isn't defined for the '{0}' process.", step.ChildProcess.Name, kvp.Key));
+                        errors.Add(string.Format("The '{0}' step sets the '{1}' input parameter, which isn't defined for the '{0}' process.", step.Name, kvp.Key));
                         success = false;
                     }
                     if (step.inputMapping.ContainsKey(kvp.Key))
                     {
-                        errors.Add(string.Format("The '{0}' step sets the '{1}' input parameter twice - mapping it in and also setting a fixed value.", step.ChildProcess.Name, kvp.Key));
+                        errors.Add(string.Format("The '{0}' step sets the '{1}' input parameter twice - mapping it in and also setting a fixed value.", step.Name, kvp.Key));
                         success = false;
                     }
                 }
@@ -81,14 +91,14 @@ namespace GrIPE
                 foreach (var kvp in step.inputMapping)
                     if (step.ChildProcess.Inputs.FirstOrDefault(p => p.Name == kvp.Key) == null)
                     {
-                        errors.Add(string.Format("The '{0}' step maps the '{1}' input parameter, which isn't defined for the '{0}' process.", step.ChildProcess.Name, kvp.Key));
+                        errors.Add(string.Format("The '{0}' step maps the '{1}' input parameter, which isn't defined for the '{0}' process.", step.Name, kvp.Key));
                         success = false;
                     }
 
                 foreach (var kvp in step.outputMapping)
                     if (step.ChildProcess.Outputs.FirstOrDefault(p => p.Name == kvp.Key) == null)
                     {
-                        errors.Add(string.Format("The '{0}' step maps the '{1}' output parameter, which isn't defined for the '{0}' process.", step.ChildProcess.Name, kvp.Key));
+                        errors.Add(string.Format("The '{0}' step maps the '{1}' output parameter, which isn't defined for the '{0}' process.", step.Name, kvp.Key));
                         success = false;
                     }
 
@@ -96,7 +106,7 @@ namespace GrIPE
                     foreach (var parameter in step.ChildProcess.Inputs)
                         if (!step.fixedInputs.ContainsKey(parameter.Name) && !step.inputMapping.ContainsKey(parameter.Name))
                         {
-                            errors.Add(string.Format("The '{0}' step requires the '{1}' input parameter, which has not been set.", step.ChildProcess.Name, parameter.Name));
+                            errors.Add(string.Format("The '{0}' step requires the '{1}' input parameter, which has not been set.", step.Name, parameter.Name));
                             success = false;
                         }
             }
@@ -106,13 +116,13 @@ namespace GrIPE
             foreach (var step in EndSteps)
             {
                 foreach (var output in outputs)
-                    if (!step.outputMapping.ContainsKey(output.Name))
+                    if (!step.inputMapping.ContainsKey(output.Name))
                     {
                         errors.Add(string.Format("The '{0}' end step doesn't set the '{1}' output.", step.ReturnPath, output.Name));
                         success = false;
                     }
 
-                foreach (var kvp in step.outputMapping)
+                foreach (var kvp in step.inputMapping)
                     if (Outputs.FirstOrDefault(p => p.Name == kvp.Value) == null)
                     {
                         errors.Add(string.Format("The '{0}' end step set the '{1}' output, which is not defined for this process.", step.ReturnPath, kvp.Value));
@@ -127,13 +137,13 @@ namespace GrIPE
                     foreach (var path in step.ChildProcess.ReturnPaths)
                         if (!step.returnPaths.ContainsKey(path))
                         {
-                            errors.Add(string.Format("The '{0}' step doesn't have a default return path, but doesn't map every possible output of it's function.", step.ChildProcess.Name));
+                            errors.Add(string.Format("The '{0}' step doesn't have a default return path, but doesn't map every possible output of it's function.", step.Name));
                             success = false;
                         }
             }
 
             // 4. every workspace variable must always be treated as the same type by everything that reads from it or writes to it.
-            var variableTypes = new SortedList<string, string>();
+            var variableTypes = new SortedList<string, Type>();
             foreach (var input in inputs)
                 variableTypes[input.Name] = input.Type;
 
@@ -142,14 +152,14 @@ namespace GrIPE
                 foreach (var kvp in step.inputMapping)
                 {
                     string varName = kvp.Value;
-                    string varType = step.ChildProcess.Inputs.Single(p => p.Name == kvp.Key).Type;
+                    Type varType = step.ChildProcess.Inputs.Single(p => p.Name == kvp.Key).Type;
 
-                    string prevType;
+                    Type prevType;
                     if (variableTypes.TryGetValue(varName, out prevType))
                     {
-                        if (prevType != varType)
+                        if (prevType != varType && !prevType.IsAssignableFrom(varType) && !varType.IsAssignableFrom(prevType))
                         {
-                            errors.Add(string.Format("The '{0}' step expects the '{1}' input parameter to be '{2}', but it has been declared as '{3}' elsewhere.", step.ChildProcess.Name, varName, varType, prevType));
+                            errors.Add(string.Format("The '{0}' step expects the '{1}' input parameter to be '{2}', but it has been declared as '{3}' elsewhere.", step.Name, varName, Workspace.ResolveName(varType), Workspace.ResolveName(prevType)));
                             success = false;
                         }
                     }
@@ -160,14 +170,14 @@ namespace GrIPE
                 foreach (var kvp in step.outputMapping)
                 {
                     string varName = kvp.Value;
-                    string varType = step.ChildProcess.Outputs.Single(p => p.Name == kvp.Key).Type;
+                    Type varType = step.ChildProcess.Outputs.Single(p => p.Name == kvp.Key).Type;
 
-                    string prevType;
+                    Type prevType;
                     if (variableTypes.TryGetValue(varName, out prevType))
                     {
                         if (prevType != varType)
                         {
-                            errors.Add(string.Format("The '{0}' step expects the '{1}' output parameter to be '{2}', but it has been declared as '{3}' elsewhere.", step.ChildProcess.Name, varName, varType, prevType));
+                            errors.Add(string.Format("The '{0}' step expects the '{1}' output parameter to be '{2}', but it has been declared as '{3}' elsewhere.", step.Name, varName, Workspace.ResolveName(varType), Workspace.ResolveName(prevType)));
                             success = false;
                         }
                     }
@@ -177,17 +187,17 @@ namespace GrIPE
             }
             foreach (var step in EndSteps)
             {
-                foreach (var kvp in step.outputMapping)
+                foreach (var kvp in step.inputMapping)
                 {
                     string varName = kvp.Value;
-                    string varType = Outputs.First(p => p.Name == kvp.Key).Type;
+                    Type varType = Outputs.First(p => p.Name == kvp.Key).Type;
 
-                    string prevType;
+                    Type prevType;
                     if (variableTypes.TryGetValue(varName, out prevType))
                     {
                         if (prevType != varType)
                         {
-                            errors.Add(string.Format("The '{0}' end step expects the '{1}' output parameter to be '{2}' (this is how the process declares it), but it has been declared as '{3}' elsewhere.", step.ReturnPath, varName, varType, prevType));
+                            errors.Add(string.Format("The '{0}' end step expects the '{1}' output parameter to be '{2}' (this is how the process declares it), but it has been declared as '{3}' elsewhere.", step.ReturnPath, varName, Workspace.ResolveName(varType), Workspace.ResolveName(prevType)));
                             success = false;
                         }
                     }
@@ -221,18 +231,20 @@ namespace GrIPE
                         yield return step as UserStep;
             }
         }
-
+        
         private List<Parameter> inputs = new List<Parameter>();
         private List<Parameter> outputs = new List<Parameter>();
 
-        public void AddInput(Parameter param)
+        public void AddInput(string name, string typeName)
         {
-            inputs.Add(param);
+            var type = Workspace.ResolveType(typeName);
+            inputs.Add(new Parameter(name, type));
         }
 
-        public void AddOutput(Parameter param)
+        public void AddOutput(string name, string typeName)
         {
-            outputs.Add(param);
+            var type = Workspace.ResolveType(typeName);
+            outputs.Add(new Parameter(name, type));
         }
 
         public override ReadOnlyCollection<Parameter> Inputs

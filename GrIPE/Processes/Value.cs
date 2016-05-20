@@ -8,19 +8,23 @@ namespace GrIPE.Processes
 {
     public static class Value
     {
-        public static SystemProcess EqualsText = new SystemProcess((Model inputs, out Model outputs) =>
+        public static Func<Workspace, SystemProcess> EqualsText = workspace => new SystemProcess(
+            workspace, 
+            (Model inputs, out Model outputs) =>
             {
                 outputs = null;
                 return inputs["value1"].Equals(inputs["value2"]) ? "yes" : "no";
             },
             "Value.EqualsText",
             "Test to see if two values are equal.",
-            new Parameter[] { new Parameter("value1", "text"), new Parameter("value2", "text") },
+            new Parameter[] { new Parameter("value1", typeof(string)), new Parameter("value2", typeof(string)) },
             null,
             new string[] { "yes", "no" }
         );
 
-        public static SystemProcess CompareIntegers = new SystemProcess((Model inputs, out Model outputs) =>
+        public static Func<Workspace, SystemProcess> CompareIntegers = workspace => new SystemProcess(
+            workspace, 
+            (Model inputs, out Model outputs) =>
             {
                 outputs = null;
                 var value1 = inputs["value1"];
@@ -34,12 +38,14 @@ namespace GrIPE.Processes
             },
             "Value.CompareIntegers",
             "Compare two integers. Returns 'error' if either value doesn't implement IComparable.",
-            new Parameter[] { new Parameter("value1", "integer"), new Parameter("value2", "integer") },
+            new Parameter[] { new Parameter("value1", typeof(int)), new Parameter("value2", typeof(int)) },
             null,
             new string[] { "less", "greater", "equal", "error" }
         );
 
-        public static SystemProcess GetPropertyInteger = new SystemProcess((Model inputs, out Model outputs) =>
+        public static Func<Workspace, SystemProcess> GetPropertyInteger = workspace => new SystemProcess(
+            workspace,
+            (Model inputs, out Model outputs) =>
             {
                 outputs = new Model();
 
@@ -60,12 +66,13 @@ namespace GrIPE.Processes
             },
             "Value.GetPropertyInteger",
             "Output the named property of a given object. Returns 'error' if the property does not exist, or if getting it fails.",
-            new Parameter[] { new Parameter("object", "object"), new Parameter("property", "text") },
-            new Parameter[] { new Parameter("value", "integer") },
+            new Parameter[] { new Parameter("object", typeof(object)), new Parameter("property", typeof(string)) },
+            new Parameter[] { new Parameter("value", typeof(int)) },
             new string[] { "ok", "error" }
         );
 
-        public static SystemProcess SetPropertyInteger = new SystemProcess(
+        public static Func<Workspace, SystemProcess> SetPropertyInteger = workspace => new SystemProcess(
+            workspace,
             (Model inputs, out Model outputs) =>
             {
                 outputs = null;
@@ -86,7 +93,7 @@ namespace GrIPE.Processes
             },
             "Value.SetPropertyInteger",
             "Set the named property of a given object to the value specified. Returns 'error' if the property does not exist, or if setting it fails.",
-            new Parameter[] { new Parameter("object", "object"), new Parameter("property", "text"), new Parameter("value", "integer") },
+            new Parameter[] { new Parameter("object", typeof(object)), new Parameter("property", typeof(string)), new Parameter("value", typeof(int)) },
             null,
             new string[] { "ok", "error" }
         );

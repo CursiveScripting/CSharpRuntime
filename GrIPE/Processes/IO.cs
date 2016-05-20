@@ -8,7 +8,8 @@ namespace GrIPE.Processes
 {
     public static class IO
     {
-        public static readonly SystemProcess Print = new SystemProcess(
+        public static readonly Func<Workspace, SystemProcess> Print = workspace => new SystemProcess(
+             workspace, 
             (Model inputs, out Model outputs) =>
             {
                 Console.WriteLine(inputs["message"]);
@@ -17,7 +18,7 @@ namespace GrIPE.Processes
             },
             "IO.Print",
             "Write a message to the system console.",
-            new Parameter[] { new Parameter("message", "text") },
+            new Parameter[] { new Parameter("message", typeof(string)) },
             null,
             null
         );

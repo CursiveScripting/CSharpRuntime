@@ -27,7 +27,7 @@ namespace GrIPE
         {
             outputs = new Model();
             foreach (var kvp in outputMapping)
-                outputs[kvp.Value] = workspace[kvp.Key];
+                outputs[kvp.Key] = workspace[kvp.Value];
             
             return null;
         }

@@ -28,8 +28,8 @@ namespace GrIPE
         
         public abstract ReadOnlyCollection<string> ReturnPaths { get; }
 
-        public abstract ReadOnlyCollection<string> Inputs { get; }
+        public abstract ReadOnlyCollection<Parameter> Inputs { get; }
 
-        public abstract ReadOnlyCollection<string> Outputs { get; }
+        public abstract ReadOnlyCollection<Parameter> Outputs { get; }
     }
 }

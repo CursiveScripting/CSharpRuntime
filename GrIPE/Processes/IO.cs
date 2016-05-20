@@ -17,7 +17,7 @@ namespace GrIPE.Processes
             },
             "IO.Print",
             "Write a message to the system console.",
-            new string[] { "message" },
+            new Parameter[] { new Parameter("message", "text") },
             null,
             null
         );

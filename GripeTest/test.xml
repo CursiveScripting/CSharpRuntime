@@ -6,7 +6,7 @@
 	<Steps firstStep="getAge">
 		<Step name="getAge">
 			<Process>Value.GetProperty</Process>
-			<FixedInput name="property" value="Age" />
+			<FixedInput name="property" value="Age" /> <!-- how would you ensure that this was the type this input expects? Can THAT be done with validation? -->
 			<MapInput name="object" source="Me" />
 			<MapOutput name="value" destination="age" />
 			<ReturnPaths default="breakfastAgeCheck" />

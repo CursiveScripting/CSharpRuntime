@@ -16,13 +16,13 @@ namespace GrIPE
         protected internal Process ChildProcess { get; private set; }
         protected internal Step DefaultReturnPath { get; private set; }
 
-        protected SortedList<string, object> fixedParameters = new SortedList<string, object>();
+        protected internal SortedList<string, object> fixedInputs = new SortedList<string, object>();
         protected internal SortedList<string, string> inputMapping = new SortedList<string, string>();
         protected internal SortedList<string, Step> returnPaths = new SortedList<string, Step>();
 
         public void SetInputParameter(string parameterName, object value)
         {
-            fixedParameters[parameterName] = value;
+            fixedInputs[parameterName] = value;
         }
 
         public void MapInputParameter(string parameterName, string sourceName)
@@ -45,7 +45,7 @@ namespace GrIPE
             Model inputs = new Model(), outputs;
 
             // set up fixed input parameters
-            foreach (var kvp in fixedParameters)
+            foreach (var kvp in fixedInputs)
                 inputs[kvp.Key] = kvp.Value;
 
             // map any other input parameters in from the workspace

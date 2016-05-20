@@ -48,13 +48,13 @@ namespace GripeTest
             makeBreakfast.SetInputParameter("message", "Making breakfast...");
             makeBreakfast.SetDefaultReturnPath(eatBreakfast);
 
-            var breakfastAgeCheck = new UserStep(Value.Compare);
+            var breakfastAgeCheck = new UserStep(Value.CompareIntegers);
             breakfastAgeCheck.MapInputParameter("value1", "age");
             breakfastAgeCheck.SetInputParameter("value2", 10);
             breakfastAgeCheck.AddReturnPath("less", demandBreakfast);
             breakfastAgeCheck.SetDefaultReturnPath(makeBreakfast);
 
-            var getAge = new UserStep(Value.GetProperty);
+            var getAge = new UserStep(Value.GetPropertyInteger);
             getAge.MapInputParameter("object", "Person");
             getAge.SetInputParameter("property", "Age");
             getAge.MapOutputParameter("value", "age");
@@ -69,6 +69,8 @@ namespace GripeTest
                 Console.WriteLine("Process failed to validate:");
                 foreach(var error in errors)
                     Console.WriteLine(error);
+
+                Console.ReadKey();
                 return;
             }
 

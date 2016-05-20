@@ -10,11 +10,13 @@ namespace GrIPE
     public class UserProcess : Process
     {
         private Step firstStep;
+        private Step[] allSteps;
 
-        public UserProcess(string description, Step firstStep)
+        public UserProcess(string name, string description, Step firstStep, params Step[] allSteps)
+            : base(name, description)
         {
-            this.Description = description;
             this.firstStep = firstStep;
+            this.allSteps = allSteps;
         }
         
         public override string Run(Model inputs, out Model outputs)
@@ -45,31 +47,69 @@ namespace GrIPE
             get
             {
                 List<string> paths = new List<string>();
-                foreach (var endStep in GetAllEndSteps())
+                foreach (var endStep in EndSteps)
                     paths.Add(endStep.ReturnPath);
 
                 return paths.AsReadOnly();
             }
         }
 
-        public bool Validate(out string error)
+        public bool Validate(out List<string> errors)
         {
-            // what validation rules should we have?
+            var success = true;
+            errors = new List<string>();
 
-            // 1. every mapped parameter mapped into a step should first have been set by every path that could lead to that point
+            // any input/output parameter being mapped into/out of a child process must be present in that child process
+            // any child process must have all the input/output parameters mapped that it expects
 
-            // 2. every step with multiple return paths must either have EVERY path mapped, or have a default return path mapped.
+            // 2. each end step must set every output.
+            foreach (var step in EndSteps)
+            {
+                foreach (var output in outputs)
+                    if (!step.outputMapping.ContainsKey(output))
+                    {
+                        errors.Add(string.Format("The '{0}' end step doesn't set the '{1}' output.", step.ReturnPath, output));
+                        success = false;
+                    }
+            }
 
-            // 3. every output must be set by each end step
+            // 3. every step with multiple return paths must either have EVERY path mapped, or have a default return path mapped.
+            foreach (var step in UserSteps)
+            {
+                if (step.DefaultReturnPath == null)
+                    foreach (var path in step.ChildProcess.ReturnPaths)
+                        if (!step.returnPaths.ContainsKey(path))
+                        {
+                            errors.Add(string.Format("The '{0}' step doesn't have a default return path, but doesn't map every possible output of it's function.", step.ChildProcess.Name));
+                            success = false;
+                        }
+            }
 
-            error = null;
-            return true;
+            // 4. every workspace variable must always be treated as the same type by everything that reads from it or writes to it.
+
+            // 5. every mapped parameter mapped into a step should first have been set by every path that could lead to that point.
+            // [hard]
+
+            return success;
         }
 
-        internal IEnumerable<EndStep> GetAllEndSteps()
+        private IEnumerable<EndStep> EndSteps
         {
-            // should all steps not be stored directly by this process?
-            throw new NotImplementedException();
+            get
+            {
+                foreach (var step in allSteps)
+                    if (step is EndStep)
+                        yield return step as EndStep;
+            }
+        }
+        private IEnumerable<UserStep> UserSteps
+        {
+            get
+            {
+                foreach (var step in allSteps)
+                    if (step is UserStep)
+                        yield return step as UserStep;
+            }
         }
 
         private List<string> inputs = new List<string>();

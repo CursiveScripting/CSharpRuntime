@@ -9,12 +9,19 @@ namespace GrIPE
 {
     public abstract class Process
     {
+        protected Process(string name, string description)
+        {
+            this.Name = name;
+            this.Description = description;
+        }
+
         public string Run(Model input)
         {
             Model output;
             return Run(input, out output);
         }
 
+        public string Name { get; protected set; }
         public string Description { get; protected set; }
 
         public abstract string Run(Model input, out Model output);

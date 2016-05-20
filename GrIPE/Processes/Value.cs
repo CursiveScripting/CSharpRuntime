@@ -13,6 +13,7 @@ namespace GrIPE.Processes
                 outputs = null;
                 return inputs["value1"].Equals(inputs["value2"]) ? "yes" : "no";
             },
+            "Value.Equals",
             "Test to see if two values are equal.",
             new string[] { "value1", "value2" },
             null,
@@ -31,6 +32,7 @@ namespace GrIPE.Processes
                 var comparison = (value1 as IComparable).CompareTo(value2 as IComparable);
                 return comparison < 0 ? "less" : comparison > 0 ? "greater" : "equal";
             },
+            "Value.Compare",
             "Compare two values. Returns 'error' if either value doesn't implement IComparable.",
             new string[] { "value1", "value2" },
             null,
@@ -56,6 +58,7 @@ namespace GrIPE.Processes
                 }
                 return "ok";
             },
+            "Value.GetProperty",
             "Output the named property of a given object. Returns 'error' if the property does not exist, or if getting it fails.",
             new string[] { "object", "property" },
             new string[] { "value" },
@@ -81,6 +84,7 @@ namespace GrIPE.Processes
                 }
                 return "ok";
             },
+            "Value.SetProperty",
             "Set the named property of a given object to the value specified. Returns 'error' if the property does not exist, or if setting it fails.",
             new string[] { "object", "property", "value" },
             null,

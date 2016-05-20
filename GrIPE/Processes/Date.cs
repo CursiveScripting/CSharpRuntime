@@ -14,6 +14,7 @@ namespace GrIPE.Processes
                 outputs = null;
                 return DateTime.Today.DayOfWeek.ToString();
             },
+            "Date.GetDayOfWeek",
             "Returns the name of the current day of the week",
             null, null,
             new string[] {

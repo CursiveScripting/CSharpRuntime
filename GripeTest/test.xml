@@ -1,13 +1,13 @@
 <Process name="Test.MorningRoutine">
 	<Description>Runs a test morning routine sequence</Description>
-	<Input>Person</Input>
-	<Input>Car</Input>
+	<Input type="Person">Me</Input>
+	<Input type="Car">Car</Input>
 	
 	<Steps firstStep="getAge">
 		<Step name="getAge">
 			<Process>Value.GetProperty</Process>
 			<FixedInput name="property" value="Age" />
-			<MapInput name="object" source="Person" />
+			<MapInput name="object" source="Me" />
 			<MapOutput name="value" destination="age" />
 			<ReturnPaths default="breakfastAgeCheck" />
 		</Step>
@@ -52,7 +52,7 @@
 			<ReturnPaths default="done" />
 		</Step>
 		<EndStep name="done">
-			<MapOutput name="age" destination="Age of Person" />
+			<MapOutput name="age" destination="My age" />
 		</EndStep>
 	</Steps>
 </Process>

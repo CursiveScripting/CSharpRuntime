@@ -9,10 +9,10 @@ namespace GrIPE
 {
     public class SystemProcess : Process
     {
-        public SystemProcess(SystemStep operation, string description, string[] inputNames, string[] outputNames, string[] returnPaths)
+        public SystemProcess(SystemStep operation, string name, string description, string[] inputNames, string[] outputNames, string[] returnPaths)
+            : base(name, description)
         {
             this.operation = operation;
-            this.Description = description;
             this.inputNames = inputNames == null ? null : Array.AsReadOnly(inputNames);
             this.outputNames = outputNames == null ? null : Array.AsReadOnly(outputNames);
             this.returnPaths = returnPaths == null ? null : Array.AsReadOnly(returnPaths);

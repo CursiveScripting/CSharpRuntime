@@ -10,15 +10,15 @@ namespace GrIPE
     {
         public UserStep(Process childProcess)
         {
-            this.childProcess = childProcess;
+            this.ChildProcess = childProcess;
         }
 
-        private Process childProcess;
-        private Step defaultReturnPath;
+        protected internal Process ChildProcess { get; private set; }
+        protected internal Step DefaultReturnPath { get; private set; }
 
         protected SortedList<string, object> fixedParameters = new SortedList<string, object>();
         protected internal SortedList<string, string> inputMapping = new SortedList<string, string>();
-        protected SortedList<string, Step> returnPaths = new SortedList<string, Step>();
+        protected internal SortedList<string, Step> returnPaths = new SortedList<string, Step>();
 
         public void SetInputParameter(string parameterName, object value)
         {
@@ -37,7 +37,7 @@ namespace GrIPE
 
         public void SetDefaultReturnPath(Step nextStep)
         {
-            defaultReturnPath = nextStep;
+            DefaultReturnPath = nextStep;
         }
 
         public override Step Run(Model workspace)
@@ -53,7 +53,7 @@ namespace GrIPE
                 inputs[kvp.Key] = workspace[kvp.Value];
             
             // actually run the process, with the inputs named as it expects
-            var outputName = childProcess.Run(inputs, out outputs);
+            var outputName = ChildProcess.Run(inputs, out outputs);
 
             // map any output parameters back out into the workspace
             if (outputs != null)
@@ -62,7 +62,7 @@ namespace GrIPE
 
             Step output;
             if (outputName == null || !returnPaths.TryGetValue(outputName, out output))
-                return defaultReturnPath;
+                return DefaultReturnPath;
 
             return output;
         }

@@ -60,13 +60,15 @@ namespace GripeTest
             getAge.MapOutputParameter("value", "age");
             getAge.SetDefaultReturnPath(breakfastAgeCheck);
 
-            var process = new UserProcess("Morning routine test", getAge);
+            var process = new UserProcess("Morning routine test", "Runs a dummy morning routine, to see if any of this can work", getAge,
+                getAge, breakfastAgeCheck, makeBreakfast, demandBreakfast, eatBreakfast, checkDay, getInCar);
 
-            string error;
-            if (!process.Validate(out error))
+            List<string> errors;
+            if (!process.Validate(out errors))
             {
                 Console.WriteLine("Process failed to validate:");
-                Console.WriteLine(error);
+                foreach(var error in errors)
+                    Console.WriteLine(error);
                 return;
             }
 

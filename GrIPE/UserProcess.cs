@@ -9,15 +9,19 @@ namespace GrIPE
 {
     public class UserProcess : Process
     {
-        private Step firstStep;
-        private Step[] allSteps;
-
         public UserProcess(Workspace workspace, string name, string description, Step firstStep, params Step[] allSteps)
-            : base(workspace, name, description)
+            : base(description)
         {
+            this.Name = name;
             this.firstStep = firstStep;
             this.allSteps = allSteps;
+
+            workspace.AddUserProcess(this);
         }
+
+        public string Name { get; private set; }
+        private Step firstStep;
+        private Step[] allSteps;
         
         public override string Run(Model inputs, out Model outputs)
         {
@@ -54,7 +58,7 @@ namespace GrIPE
             }
         }
 
-        public bool Validate(out List<string> errors)
+        internal bool Validate(Workspace workspace, out List<string> errors)
         {
             var success = true;
             errors = new List<string>();
@@ -159,7 +163,7 @@ namespace GrIPE
                     {
                         if (prevType != varType && !prevType.IsAssignableFrom(varType) && !varType.IsAssignableFrom(prevType))
                         {
-                            errors.Add(string.Format("The '{0}' step expects the '{1}' input parameter to be '{2}', but it has been declared as '{3}' elsewhere.", step.Name, varName, Workspace.ResolveName(varType), Workspace.ResolveName(prevType)));
+                            errors.Add(string.Format("The '{0}' step expects the '{1}' input parameter to be '{2}', but it has been declared as '{3}' elsewhere.", step.Name, varName, workspace.GetNameOfType(varType), workspace.GetNameOfType(prevType)));
                             success = false;
                         }
                     }
@@ -177,7 +181,7 @@ namespace GrIPE
                     {
                         if (prevType != varType)
                         {
-                            errors.Add(string.Format("The '{0}' step expects the '{1}' output parameter to be '{2}', but it has been declared as '{3}' elsewhere.", step.Name, varName, Workspace.ResolveName(varType), Workspace.ResolveName(prevType)));
+                            errors.Add(string.Format("The '{0}' step expects the '{1}' output parameter to be '{2}', but it has been declared as '{3}' elsewhere.", step.Name, varName, workspace.GetNameOfType(varType), workspace.GetNameOfType(prevType)));
                             success = false;
                         }
                     }
@@ -197,7 +201,7 @@ namespace GrIPE
                     {
                         if (prevType != varType)
                         {
-                            errors.Add(string.Format("The '{0}' end step expects the '{1}' output parameter to be '{2}' (this is how the process declares it), but it has been declared as '{3}' elsewhere.", step.ReturnPath, varName, Workspace.ResolveName(varType), Workspace.ResolveName(prevType)));
+                            errors.Add(string.Format("The '{0}' end step expects the '{1}' output parameter to be '{2}' (this is how the process declares it), but it has been declared as '{3}' elsewhere.", step.ReturnPath, varName, workspace.GetNameOfType(varType), workspace.GetNameOfType(prevType)));
                             success = false;
                         }
                     }
@@ -235,15 +239,15 @@ namespace GrIPE
         private List<Parameter> inputs = new List<Parameter>();
         private List<Parameter> outputs = new List<Parameter>();
 
-        public void AddInput(string name, string typeName)
+        public void AddInput(Workspace workspace, string name, string typeName)
         {
-            var type = Workspace.ResolveType(typeName);
+            var type = workspace.GetType(typeName);
             inputs.Add(new Parameter(name, type));
         }
 
-        public void AddOutput(string name, string typeName)
+        public void AddOutput(Workspace workspace, string name, string typeName)
         {
-            var type = Workspace.ResolveType(typeName);
+            var type = workspace.GetType(typeName);
             outputs.Add(new Parameter(name, type));
         }
 

@@ -14,12 +14,16 @@ namespace GripeTest
         {
             Console.WriteLine("Testing GRaphical Interactive Programming Environment");
 
-            Workspace w = new Workspace(
-                new FixedType<string>("text", s => s, s => s),
-                new FixedType<int>("integer", s => int.Parse(s), i => i.ToString()),
-                new DataType<Person>("person"),
-                new DataType<Car>("car")
-            );
+            Workspace w = new Workspace();
+            w.AddDataType(new FixedType<string>("text", s => s, s => s));
+            w.AddDataType(new FixedType<int>("integer", s => int.Parse(s), i => i.ToString()));
+            w.AddDataType(new DataType<Person>("person"));
+            w.AddDataType(new DataType<Car>("car"));
+
+            w.AddSystemProcess("print", IO.Print);
+            w.AddSystemProcess("getDay", Date.GetDayOfWeek);
+            w.AddSystemProcess("compare", Value.CompareIntegers);
+            w.AddSystemProcess("get", Value.GetPropertyInteger);
 
             var done = new EndStep("done");
 
@@ -30,40 +34,38 @@ namespace GripeTest
             getInCar.SetDefaultReturnPath(done);
             */
 
-            var print = IO.Print(w);
-
-            var getInCar = new UserStep("getInCar", print);
+            var getInCar = new UserStep(w, "getInCar", "print");
             getInCar.SetInputParameter("message", "Getting in the car...");
             getInCar.SetDefaultReturnPath(done);
 
-            var checkDay = new UserStep("checkDay", Date.GetDayOfWeek(w));
+            var checkDay = new UserStep(w, "checkDay", "getDay");
             checkDay.AddReturnPath("Saturday", done);
             checkDay.AddReturnPath("Sunday", done);
             checkDay.SetDefaultReturnPath(getInCar);
 
-            var getReady = new UserStep("getReady", print);
+            var getReady = new UserStep(w, "getReady", "print");
             getReady.SetInputParameter("message", "Get dressed, etc...");
             getReady.SetDefaultReturnPath(checkDay);
-            
-            var eatBreakfast = new UserStep("eatBreakfast", print);
+
+            var eatBreakfast = new UserStep(w, "eatBreakfast", "print");
             eatBreakfast.SetInputParameter("message", "Eating breakfast...");
             eatBreakfast.SetDefaultReturnPath(getReady);
 
-            var demandBreakfast = new UserStep("demandBreakfast", print);
+            var demandBreakfast = new UserStep(w, "demandBreakfast", "print");
             demandBreakfast.SetInputParameter("message", "Demanding breakfast... (young enough to get away with this)");
             demandBreakfast.SetDefaultReturnPath(eatBreakfast);
 
-            var makeBreakfast = new UserStep("makeBreakfast", print);
+            var makeBreakfast = new UserStep(w, "makeBreakfast", "print");
             makeBreakfast.SetInputParameter("message", "Making breakfast...");
             makeBreakfast.SetDefaultReturnPath(eatBreakfast);
 
-            var breakfastAgeCheck = new UserStep("breakfastAgeCheck", Value.CompareIntegers(w));
+            var breakfastAgeCheck = new UserStep(w, "breakfastAgeCheck", "compare");
             breakfastAgeCheck.MapInputParameter("value1", "age");
             breakfastAgeCheck.SetInputParameter("value2", 10);
             breakfastAgeCheck.AddReturnPath("less", demandBreakfast);
             breakfastAgeCheck.SetDefaultReturnPath(makeBreakfast);
 
-            var getAge = new UserStep("getAge", Value.GetPropertyInteger(w));
+            var getAge = new UserStep(w, "getAge", "get");
             getAge.MapInputParameter("object", "Person");
             getAge.SetInputParameter("property", "Age");
             getAge.MapOutputParameter("value", "age");
@@ -72,13 +74,13 @@ namespace GripeTest
             var process = new UserProcess(w, "Morning routine test", "Runs a dummy morning routine, to see if any of this can work", getAge,
                 getAge, breakfastAgeCheck, makeBreakfast, demandBreakfast, eatBreakfast, checkDay, getInCar);
 
-            process.AddInput("Person", "person");
-            process.AddInput("Car", "car");
+            process.AddInput(w, "Person", "person");
+            process.AddInput(w, "Car", "car");
             
             List<string> errors;
-            if (!process.Validate(out errors))
+            if (!w.Validate(out errors))
             {
-                Console.WriteLine("Process failed to validate:");
+                Console.WriteLine("Failed to validate workspace:");
                 foreach(var error in errors)
                     Console.WriteLine(error);
 

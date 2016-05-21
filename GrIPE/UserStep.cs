@@ -8,10 +8,10 @@ namespace GrIPE
 {
     public class UserStep : Step
     {
-        public UserStep(string name, Process childProcess)
+        public UserStep(Workspace workspace, string name, string processName)
             : base(name)
         {
-            ChildProcess = childProcess;
+            ChildProcess = workspace.GetProcess(processName);
         }
 
         protected internal Process ChildProcess { get; private set; }

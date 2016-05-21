@@ -16,7 +16,6 @@ namespace GrIPE.Processes
                 outputs = null;
                 return string.Empty;
             },
-            "IO.Print",
             "Write a message to the system console.",
             new Parameter[] { new Parameter("message", typeof(string)) },
             null,

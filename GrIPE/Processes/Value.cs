@@ -15,7 +15,6 @@ namespace GrIPE.Processes
                 outputs = null;
                 return inputs["value1"].Equals(inputs["value2"]) ? "yes" : "no";
             },
-            "Value.EqualsText",
             "Test to see if two values are equal.",
             new Parameter[] { new Parameter("value1", typeof(string)), new Parameter("value2", typeof(string)) },
             null,
@@ -36,7 +35,6 @@ namespace GrIPE.Processes
                 var comparison = (value1 as IComparable).CompareTo(value2 as IComparable);
                 return comparison < 0 ? "less" : comparison > 0 ? "greater" : "equal";
             },
-            "Value.CompareIntegers",
             "Compare two integers. Returns 'error' if either value doesn't implement IComparable.",
             new Parameter[] { new Parameter("value1", typeof(int)), new Parameter("value2", typeof(int)) },
             null,
@@ -64,7 +62,6 @@ namespace GrIPE.Processes
                 }
                 return "ok";
             },
-            "Value.GetPropertyInteger",
             "Output the named property of a given object. Returns 'error' if the property does not exist, or if getting it fails.",
             new Parameter[] { new Parameter("object", typeof(object)), new Parameter("property", typeof(string)) },
             new Parameter[] { new Parameter("value", typeof(int)) },
@@ -91,7 +88,6 @@ namespace GrIPE.Processes
                 }
                 return "ok";
             },
-            "Value.SetPropertyInteger",
             "Set the named property of a given object to the value specified. Returns 'error' if the property does not exist, or if setting it fails.",
             new Parameter[] { new Parameter("object", typeof(object)), new Parameter("property", typeof(string)), new Parameter("value", typeof(int)) },
             null,

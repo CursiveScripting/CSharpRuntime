@@ -22,16 +22,27 @@ namespace GrIPE
         public override Type SystemType { get { return typeof(T); } }
     }
 
-    public class FixedType<T> : DataType<T>
+    public abstract class FixedType : DataType
+    {
+        public abstract object Deserialize(string value);
+    }
+
+    public class FixedType<T> : FixedType
     {
         public FixedType(string name, Func<string, T> deserialize, Func<T, string> serialize)
-            : base(name)
         {
-            Deserialize = deserialize;
+            Name = name;
+            DeserializationFunction = deserialize;
             Serialize = serialize;
         }
 
-        public Func<string, T> Deserialize { get; private set; }
+        public override object Deserialize(string value)
+        {
+            return DeserializationFunction(value);
+        }
+
+        public override Type SystemType { get { return typeof(T); } }
+        private Func<string, T> DeserializationFunction { get; set; }
         public Func<T, string> Serialize { get; private set; }
     }
 }

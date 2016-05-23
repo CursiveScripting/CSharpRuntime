@@ -9,19 +9,17 @@ namespace GrIPE
 {
     public class UserProcess : Process
     {
-        public UserProcess(Workspace workspace, string name, string description, Step firstStep, params Step[] allSteps)
+        public UserProcess(string name, string description, Step firstStep, IEnumerable<Step> allSteps)
             : base(description)
         {
             this.Name = name;
             this.firstStep = firstStep;
             this.allSteps = allSteps;
-
-            workspace.AddUserProcess(this);
         }
 
         public string Name { get; private set; }
         private Step firstStep;
-        private Step[] allSteps;
+        private IEnumerable<Step> allSteps;
         
         public override string Run(Model inputs, out Model outputs)
         {
@@ -40,7 +38,7 @@ namespace GrIPE
             {
                 var end = lastStep as EndStep;
                 outputs = end.GetOutputs();
-                return end.ReturnPath;
+                return end.ReturnValue;
             }
 
             throw new InvalidOperationException("The last step of a completed process wasn't an EndStep");
@@ -52,7 +50,7 @@ namespace GrIPE
             {
                 List<string> paths = new List<string>();
                 foreach (var endStep in EndSteps)
-                    paths.Add(endStep.ReturnPath);
+                    paths.Add(endStep.ReturnValue);
 
                 return paths.AsReadOnly();
             }
@@ -122,14 +120,14 @@ namespace GrIPE
                 foreach (var output in outputs)
                     if (!step.inputMapping.ContainsKey(output.Name))
                     {
-                        errors.Add(string.Format("The '{0}' end step doesn't set the '{1}' output.", step.ReturnPath, output.Name));
+                        errors.Add(string.Format("The '{0}' end step doesn't set the '{1}' output.", step.ReturnValue, output.Name));
                         success = false;
                     }
 
                 foreach (var kvp in step.inputMapping)
                     if (Outputs.FirstOrDefault(p => p.Name == kvp.Value) == null)
                     {
-                        errors.Add(string.Format("The '{0}' end step set the '{1}' output, which is not defined for this process.", step.ReturnPath, kvp.Value));
+                        errors.Add(string.Format("The '{0}' end step set the '{1}' output, which is not defined for this process.", step.ReturnValue, kvp.Value));
                         success = false;
                     }
             }
@@ -163,7 +161,7 @@ namespace GrIPE
                     {
                         if (prevType != varType && !prevType.IsAssignableFrom(varType) && !varType.IsAssignableFrom(prevType))
                         {
-                            errors.Add(string.Format("The '{0}' step expects the '{1}' input parameter to be '{2}', but it has been declared as '{3}' elsewhere.", step.Name, varName, workspace.GetNameOfType(varType), workspace.GetNameOfType(prevType)));
+                            errors.Add(string.Format("The '{0}' step expects the '{1}' input parameter to be '{2}', but it has been declared as '{3}' elsewhere.", step.Name, varName, workspace.GetType(varType).Name, workspace.GetType(prevType).Name));
                             success = false;
                         }
                     }
@@ -181,7 +179,7 @@ namespace GrIPE
                     {
                         if (prevType != varType)
                         {
-                            errors.Add(string.Format("The '{0}' step expects the '{1}' output parameter to be '{2}', but it has been declared as '{3}' elsewhere.", step.Name, varName, workspace.GetNameOfType(varType), workspace.GetNameOfType(prevType)));
+                            errors.Add(string.Format("The '{0}' step expects the '{1}' output parameter to be '{2}', but it has been declared as '{3}' elsewhere.", step.Name, varName, workspace.GetType(varType).Name, workspace.GetType(prevType).Name));
                             success = false;
                         }
                     }
@@ -201,7 +199,7 @@ namespace GrIPE
                     {
                         if (prevType != varType)
                         {
-                            errors.Add(string.Format("The '{0}' end step expects the '{1}' output parameter to be '{2}' (this is how the process declares it), but it has been declared as '{3}' elsewhere.", step.ReturnPath, varName, workspace.GetNameOfType(varType), workspace.GetNameOfType(prevType)));
+                            errors.Add(string.Format("The '{0}' end step expects the '{1}' output parameter to be '{2}' (this is how the process declares it), but it has been declared as '{3}' elsewhere.", step.ReturnValue, varName, workspace.GetType(varType).Name, workspace.GetType(prevType).Name));
                             success = false;
                         }
                     }
@@ -242,13 +240,13 @@ namespace GrIPE
         public void AddInput(Workspace workspace, string name, string typeName)
         {
             var type = workspace.GetType(typeName);
-            inputs.Add(new Parameter(name, type));
+            inputs.Add(new Parameter(name, type.SystemType));
         }
 
         public void AddOutput(Workspace workspace, string name, string typeName)
         {
             var type = workspace.GetType(typeName);
-            outputs.Add(new Parameter(name, type));
+            outputs.Add(new Parameter(name, type.SystemType));
         }
 
         public override ReadOnlyCollection<Parameter> Inputs

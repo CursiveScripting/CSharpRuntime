@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml;
 
 namespace GripeTest
 {
@@ -25,7 +26,23 @@ namespace GripeTest
             w.AddSystemProcess("compare", Value.CompareIntegers);
             w.AddSystemProcess("get", Value.GetPropertyInteger);
 
+            XmlDocument doc = new XmlDocument();
+            doc.Load("../../test.xml");
+
+            if (!w.LoadUserProcesses(doc))
+                Console.WriteLine("Error loading processes from XML");
+            else
+            {
+                Console.WriteLine("Loaded processes OK from XML");
+                Run(w.GetProcess("Test.MorningRoutine"));
+                Console.ReadKey();
+            }
+
+            w.Clear();
+
             var done = new EndStep("done");
+
+            var print = IO.Print(w);
 
             /*
             var findCar = new SystemProcess(model => car);
@@ -34,48 +51,49 @@ namespace GripeTest
             getInCar.SetDefaultReturnPath(done);
             */
 
-            var getInCar = new UserStep(w, "getInCar", "print");
+            var getInCar = new UserStep("getInCar", print);
             getInCar.SetInputParameter("message", "Getting in the car...");
             getInCar.SetDefaultReturnPath(done);
 
-            var checkDay = new UserStep(w, "checkDay", "getDay");
+            var checkDay = new UserStep("checkDay", Date.GetDayOfWeek(w));
             checkDay.AddReturnPath("Saturday", done);
             checkDay.AddReturnPath("Sunday", done);
             checkDay.SetDefaultReturnPath(getInCar);
 
-            var getReady = new UserStep(w, "getReady", "print");
+            var getReady = new UserStep("getReady", print);
             getReady.SetInputParameter("message", "Get dressed, etc...");
             getReady.SetDefaultReturnPath(checkDay);
 
-            var eatBreakfast = new UserStep(w, "eatBreakfast", "print");
+            var eatBreakfast = new UserStep("eatBreakfast", print);
             eatBreakfast.SetInputParameter("message", "Eating breakfast...");
             eatBreakfast.SetDefaultReturnPath(getReady);
 
-            var demandBreakfast = new UserStep(w, "demandBreakfast", "print");
+            var demandBreakfast = new UserStep("demandBreakfast", print);
             demandBreakfast.SetInputParameter("message", "Demanding breakfast... (young enough to get away with this)");
             demandBreakfast.SetDefaultReturnPath(eatBreakfast);
 
-            var makeBreakfast = new UserStep(w, "makeBreakfast", "print");
+            var makeBreakfast = new UserStep("makeBreakfast", print);
             makeBreakfast.SetInputParameter("message", "Making breakfast...");
             makeBreakfast.SetDefaultReturnPath(eatBreakfast);
 
-            var breakfastAgeCheck = new UserStep(w, "breakfastAgeCheck", "compare");
+            var breakfastAgeCheck = new UserStep("breakfastAgeCheck", Value.CompareIntegers(w));
             breakfastAgeCheck.MapInputParameter("value1", "age");
             breakfastAgeCheck.SetInputParameter("value2", 10);
             breakfastAgeCheck.AddReturnPath("less", demandBreakfast);
             breakfastAgeCheck.SetDefaultReturnPath(makeBreakfast);
 
-            var getAge = new UserStep(w, "getAge", "get");
+            var getAge = new UserStep("getAge", Value.GetPropertyInteger(w));
             getAge.MapInputParameter("object", "Person");
             getAge.SetInputParameter("property", "Age");
             getAge.MapOutputParameter("value", "age");
             getAge.SetDefaultReturnPath(breakfastAgeCheck);
 
-            var process = new UserProcess(w, "Morning routine test", "Runs a dummy morning routine, to see if any of this can work", getAge,
-                getAge, breakfastAgeCheck, makeBreakfast, demandBreakfast, eatBreakfast, checkDay, getInCar);
+            var process = new UserProcess("Morning routine test", "Runs a dummy morning routine, to see if any of this can work", getAge,
+                new Step[] { getAge, breakfastAgeCheck, makeBreakfast, demandBreakfast, eatBreakfast, checkDay, getInCar });
 
             process.AddInput(w, "Person", "person");
             process.AddInput(w, "Car", "car");
+            w.AddUserProcess(process);
             
             List<string> errors;
             if (!w.Validate(out errors))
@@ -88,6 +106,13 @@ namespace GripeTest
                 return;
             }
 
+            Run(process);
+
+            Console.ReadKey();
+        }
+
+        private static void Run(Process process)
+        {
             var model = new Model();
             model["Car"] = new Car();
 
@@ -100,7 +125,7 @@ namespace GripeTest
             Console.WriteLine("Running with 'Bob' ...");
             model["Person"] = new Person() { Name = "Bob", Age = 8, Gender = "M" };
             Console.WriteLine(process.Run(model));
-            
+
             Console.WriteLine();
             Console.WriteLine("Running with 'Carly' ...");
             model["Person"] = new Person() { Name = "Carly", Age = 15, Gender = "M" };
@@ -110,8 +135,6 @@ namespace GripeTest
             Console.WriteLine("Running with 'Dave' ...");
             model["Person"] = new Person() { Name = "Dave", Age = 34, Gender = "M" };
             Console.WriteLine(process.Run(model));
-
-            Console.ReadKey();
         }
 
         class Person

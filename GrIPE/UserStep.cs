@@ -8,13 +8,13 @@ namespace GrIPE
 {
     public class UserStep : Step
     {
-        public UserStep(Workspace workspace, string name, string processName)
+        public UserStep(string name, Process process)
             : base(name)
         {
-            ChildProcess = workspace.GetProcess(processName);
+            ChildProcess = process;
         }
 
-        protected internal Process ChildProcess { get; private set; }
+        protected internal Process ChildProcess { get; internal set; }
         protected internal Step DefaultReturnPath { get; private set; }
 
         protected internal SortedList<string, string> outputMapping = new SortedList<string, string>();

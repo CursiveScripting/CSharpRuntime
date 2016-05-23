@@ -8,13 +8,13 @@ namespace GrIPE
 {
     public class EndStep : Step
     {
-        public EndStep(string name, string returnPath = "")
+        public EndStep(string name, string returnValue = "")
             : base(name)
         {
-            ReturnPath = returnPath;
+            ReturnValue = returnValue;
         }
 
-        internal string ReturnPath { get; private set; }
+        internal string ReturnValue { get; private set; }
         private Model outputs;
 
         public Model GetOutputs()

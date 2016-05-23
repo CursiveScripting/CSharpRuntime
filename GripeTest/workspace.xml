@@ -1,0 +1,20 @@
+<Workspace>
+	<Type name="integer" />
+	<Type name="text" />
+	<Type name="Person" />
+	<Type name="Car" />
+	
+	<SystemProcess name="print">
+		<Input name="message" type="text" />
+	</SystemProcess>
+	
+	<SystemProcess name="get">
+		<Input name="property" type="text" />
+		<Input name="object" type="Person" />
+		<Output name="value" type="integer" />
+		<ReturnPaths>
+			<Path name="ok" />
+			<Path name="error" />
+		</ReturnPaths>
+	</SystemProcess>
+</Workspace>

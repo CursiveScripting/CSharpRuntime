@@ -85,17 +85,19 @@ namespace GrIPE
                 processes.Remove(key);
         }
 
-        public bool LoadUserProcesses(XmlDocument doc)
+        public bool LoadUserProcesses(XmlDocument doc, out List<string> errors)
         {
+            var success = true;
+            errors = new List<string>();
+
             // TODO: check doc is valid (we need a schema!)
 
-            var success = true;
             var processes = doc.SelectNodes("/Processes/Process");
             var allUserSteps = new List<Tuple<UserStep, XmlElement>>();
             foreach (XmlElement process in processes)
             {
                 List<Tuple<UserStep, XmlElement>> userSteps;
-                if (!LoadUserProcess(process, out userSteps))
+                if (!LoadUserProcess(process, out userSteps, errors))
                     success = false;
 
                 allUserSteps.AddRange(userSteps);
@@ -103,43 +105,13 @@ namespace GrIPE
 
             foreach (var step in allUserSteps)
             {
-                if (!LinkChildProcess(step.Item1, step.Item2))
+                if (!LinkChildProcess(step.Item1, step.Item2, errors))
                     success = false;
             }
             return success;
         }
 
-        private bool LinkChildProcess(UserStep step, XmlElement stepNode)
-        {
-            var processName = stepNode.GetAttribute("process");
-            Process process;
-            if (!processes.TryGetValue(processName, out process))
-                return false;
-
-            step.ChildProcess = process;
-
-            var fixedInputs = stepNode.SelectNodes("FixedInput");
-            foreach (XmlElement inputNode in fixedInputs)
-            {
-                var name = inputNode.GetAttribute("name");
-                var strValue = inputNode.GetAttribute("value");
-                var processInput = process.Inputs.FirstOrDefault(i => i.Name == name);
-                if (processInput == null)
-                    return false;
-
-                var type = GetType(processInput.Type);
-
-                if (!(type is FixedType))
-                    return false; // only fixed types can be fixed parameters
-
-                object value = (type as FixedType).Deserialize(strValue);
-                step.SetInputParameter(name, value);
-            }
-
-            return true;
-        }
-
-        private bool LoadUserProcess(XmlElement processNode, out List<Tuple<UserStep, XmlElement>> stepsAndNodes)
+        private bool LoadUserProcess(XmlElement processNode, out List<Tuple<UserStep, XmlElement>> stepsAndNodes, List<string> errors)
         {
             var name = processNode.GetAttribute("name");
             var desc = processNode.SelectSingleNode("Description").InnerText;
@@ -151,9 +123,6 @@ namespace GrIPE
             foreach (XmlElement stepNode in steps.ChildNodes)
             {
                 var step = LoadProcessStep(stepNode);
-                if (step == null)
-                    return false;
-                
                 stepsByName.Add(step.Name, step);
                 
                 if (step is UserStep)
@@ -162,14 +131,17 @@ namespace GrIPE
 
             foreach (var step in stepsAndNodes)
             {
-                if (!LoadStepLinks(step.Item1, step.Item2, stepsByName))
+                if (!LoadStepLinks(step.Item1, step.Item2, stepsByName, errors))
                     return false;
             }
 
             var firstStepName = steps.GetAttribute("firstStep");
             Step firstStep;
             if (!stepsByName.TryGetValue(firstStepName, out firstStep))
+            {
+                errors.Add(string.Format("firstStep name not recognised for '{0}' process: {1}", name, firstStepName));
                 return false;
+            }
 
             UserProcess process = new UserProcess(name, desc, firstStep, stepsByName.Values);
 
@@ -182,6 +154,45 @@ namespace GrIPE
                 process.AddOutput(this, output.InnerText, output.GetAttribute("type"));
 
             this.processes.Add(name, process);
+            return true;
+        }
+
+        private bool LinkChildProcess(UserStep step, XmlElement stepNode, List<string> errors)
+        {
+            var processName = stepNode.GetAttribute("process");
+            Process process;
+            if (!processes.TryGetValue(processName, out process))
+            {
+                errors.Add(string.Format("Child process name not recognised for '{0}' step: {1}", step.Name, processName));
+                return false;
+            }
+
+            step.ChildProcess = process;
+
+            var fixedInputs = stepNode.SelectNodes("FixedInput");
+            foreach (XmlElement inputNode in fixedInputs)
+            {
+                var name = inputNode.GetAttribute("name");
+                var strValue = inputNode.GetAttribute("value");
+                var processInput = process.Inputs.FirstOrDefault(i => i.Name == name);
+                if (processInput == null)
+                {
+                    errors.Add(string.Format("Input name not recognised for '{0}' step calling '{1}' process: {2}", step.Name, processName, name));
+                    return false;
+                }
+
+                var type = GetType(processInput.Type);
+
+                if (!(type is FixedType))
+                {
+                    errors.Add(string.Format("Only a FixedType can be used as a fixed input parameter. '{0}' type used for '{1}' step's '{2}' parameter is not a FixedType.", type.Name, step.Name, name));
+                    return false;
+                }
+
+                object value = (type as FixedType).Deserialize(strValue);
+                step.SetInputParameter(name, value);
+            }
+
             return true;
         }
 
@@ -213,14 +224,17 @@ namespace GrIPE
             }
         }
 
-        private bool LoadStepLinks(UserStep step, XmlElement stepNode, SortedList<string, Step> stepsByName)
+        private bool LoadStepLinks(UserStep step, XmlElement stepNode, SortedList<string, Step> stepsByName, List<string> errors)
         {
             var returnPaths = stepNode.SelectSingleNode("ReturnPaths") as XmlElement;
 
             var defaultReturnStepName = returnPaths.GetAttribute("default");
             Step returnStep;
             if (!stepsByName.TryGetValue(defaultReturnStepName, out returnStep))
+            {
+                errors.Add(string.Format("Default return path of '{0}' step not recognised: {1}", step.Name, defaultReturnStepName));
                 return false;
+            }
             step.SetDefaultReturnPath(returnStep);
 
             foreach (XmlElement path in returnPaths.ChildNodes)
@@ -229,7 +243,10 @@ namespace GrIPE
                 var pathStepName = path.GetAttribute("value");
 
                 if (!stepsByName.TryGetValue(pathStepName, out returnStep))
+                {
+                    errors.Add(string.Format("'{0}' return path of '{1}' step not recognised: {2}", pathName, step.Name, pathStepName));
                     return false;
+                }
 
                 step.AddReturnPath(pathName, returnStep);
             }

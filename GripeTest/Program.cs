@@ -29,12 +29,18 @@ namespace GripeTest
             XmlDocument doc = new XmlDocument();
             doc.Load("../../test.xml");
 
-            if (!w.LoadUserProcesses(doc))
-                Console.WriteLine("Error loading processes from XML");
+            List<string> errors;
+            if (!w.LoadUserProcesses(doc, out errors))
+            {
+                Console.WriteLine("Error loading processes from XML:");
+                foreach (var error in errors)
+                    Console.WriteLine(error);
+            }
             else
             {
                 Console.WriteLine("Loaded processes OK from XML");
-                Run(w.GetProcess("Test.MorningRoutine"));
+                if (Validate(w))
+                    Run(w.GetProcess("Test.MorningRoutine"));
                 Console.ReadKey();
             }
 
@@ -83,7 +89,7 @@ namespace GripeTest
             breakfastAgeCheck.SetDefaultReturnPath(makeBreakfast);
 
             var getAge = new UserStep("getAge", Value.GetPropertyInteger(w));
-            getAge.MapInputParameter("object", "Person");
+            getAge.MapInputParameter("object", "Me");
             getAge.SetInputParameter("property", "Age");
             getAge.MapOutputParameter("value", "age");
             getAge.SetDefaultReturnPath(breakfastAgeCheck);
@@ -94,21 +100,24 @@ namespace GripeTest
             process.AddInput(w, "Person", "person");
             process.AddInput(w, "Car", "car");
             w.AddUserProcess(process);
-            
+
+            if (Validate(w))
+                Run(process);
+
+            Console.ReadKey();
+        }
+
+        private static bool Validate(Workspace w)
+        {
             List<string> errors;
             if (!w.Validate(out errors))
             {
                 Console.WriteLine("Failed to validate workspace:");
-                foreach(var error in errors)
+                foreach (var error in errors)
                     Console.WriteLine(error);
-
-                Console.ReadKey();
-                return;
+                return false;
             }
-
-            Run(process);
-
-            Console.ReadKey();
+            return true;
         }
 
         private static void Run(Process process)
@@ -118,22 +127,22 @@ namespace GripeTest
 
             Console.WriteLine();
             Console.WriteLine("Running with 'Alice' ...");
-            model["Person"] = new Person() { Name = "Alice", Age = 3, Gender = "F" };
+            model["Me"] = new Person() { Name = "Alice", Age = 3, Gender = "F" };
             Console.WriteLine(process.Run(model));
 
             Console.WriteLine();
             Console.WriteLine("Running with 'Bob' ...");
-            model["Person"] = new Person() { Name = "Bob", Age = 8, Gender = "M" };
+            model["Me"] = new Person() { Name = "Bob", Age = 8, Gender = "M" };
             Console.WriteLine(process.Run(model));
 
             Console.WriteLine();
             Console.WriteLine("Running with 'Carly' ...");
-            model["Person"] = new Person() { Name = "Carly", Age = 15, Gender = "M" };
+            model["Me"] = new Person() { Name = "Carly", Age = 15, Gender = "M" };
             Console.WriteLine(process.Run(model));
 
             Console.WriteLine();
             Console.WriteLine("Running with 'Dave' ...");
-            model["Person"] = new Person() { Name = "Dave", Age = 34, Gender = "M" };
+            model["Me"] = new Person() { Name = "Dave", Age = 34, Gender = "M" };
             Console.WriteLine(process.Run(model));
         }
 

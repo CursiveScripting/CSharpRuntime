@@ -35,7 +35,7 @@
 			<FixedInput name="message" value="Getting dressed etc..." />
 			<ReturnPaths default="checkDay" />
 		</Step>
-		<Step name="checkDay" process="print">
+		<Step name="checkDay" process="getDay">
 			<ReturnPaths default="getInCar">
 				<Path name="Saturday" value="done" />
 				<Path name="Sunday" value="done" />

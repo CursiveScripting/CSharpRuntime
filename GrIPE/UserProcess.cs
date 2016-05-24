@@ -191,8 +191,8 @@ namespace GrIPE
             {
                 foreach (var kvp in step.inputMapping)
                 {
-                    string varName = kvp.Value;
-                    Type varType = Outputs.First(p => p.Name == kvp.Key).Type;
+                    string varName = kvp.Key;
+                    Type varType = Outputs.First(p => p.Name == kvp.Value).Type;
 
                     Type prevType;
                     if (variableTypes.TryGetValue(varName, out prevType))

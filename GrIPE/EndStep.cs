@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace GrIPE
 {
-    public class EndStep : Step
+    class EndStep : Step
     {
         public EndStep(string name, string returnValue = "")
             : base(name)

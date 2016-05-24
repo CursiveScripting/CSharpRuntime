@@ -25,11 +25,6 @@ namespace GrIPE
             processes.Add(name, process(this));
         }
 
-        public void AddUserProcess(UserProcess process)
-        {
-            processes.Add(process.Name, process);
-        }
-
         internal DataType GetType(string name)
         {
             DataType dt;
@@ -85,7 +80,7 @@ namespace GrIPE
                 processes.Remove(key);
         }
 
-        public bool LoadUserProcesses(XmlDocument doc, out List<string> errors)
+        public bool LoadProcesses(XmlDocument doc, out List<string> errors)
         {
             var success = true;
             errors = new List<string>();
@@ -252,6 +247,67 @@ namespace GrIPE
             }
 
             return true;
+        }
+
+        public XmlDocument WriteForClient()
+        {
+            var doc = new XmlDocument();
+
+            var root = doc.CreateElement("Workspace");
+            doc.AppendChild(root);
+
+            foreach (var type in typesByName)
+            {
+                var node = doc.CreateElement("Type");
+                node.Attributes.Append(doc.CreateAttribute("name", type.Key));
+                root.AppendChild(node);
+            }
+
+            foreach (var kvp in processes)
+            {
+                var process = kvp.Value;
+                if (!(process is SystemProcess))
+                    continue;
+
+                var processNode = doc.CreateElement("SystemProcess");
+                processNode.Attributes.Append(doc.CreateAttribute("name", kvp.Key));
+                root.AppendChild(processNode);
+
+                foreach (var input in process.Inputs)
+                {
+                    var inputNode = doc.CreateElement("Input");
+                    inputNode.Attributes.Append(doc.CreateAttribute("name", input.Name));
+
+                    var type = GetType(input.Type);
+                    inputNode.Attributes.Append(doc.CreateAttribute("type", type.Name));
+                    processNode.AppendChild(inputNode);
+                }
+
+                foreach (var output in process.Outputs)
+                {
+                    var outputNode = doc.CreateElement("Output");
+                    outputNode.Attributes.Append(doc.CreateAttribute("name", output.Name));
+
+                    var type = GetType(output.Type);
+                    outputNode.Attributes.Append(doc.CreateAttribute("type", type.Name));
+                    processNode.AppendChild(outputNode);
+                }
+
+                if (process.ReturnPaths.Count == 0)
+                    continue;
+
+                var returnPathsNode = doc.CreateElement("ReturnPaths");
+                processNode.AppendChild(returnPathsNode);
+
+                foreach (var path in process.ReturnPaths)
+                {
+                    var pathNode = doc.CreateElement("Path");
+                    pathNode.Attributes.Append(doc.CreateAttribute("name", path));
+                    processNode.AppendChild(pathNode);
+                }
+            }
+
+            return doc;
         }
     }
 }

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace GrIPE
 {
-    public class UserStep : Step
+    class UserStep : Step
     {
         public UserStep(string name, Process process)
             : base(name)

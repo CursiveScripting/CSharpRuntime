@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace GrIPE
 {
-    public abstract class Step
+    abstract class Step
     {
         protected Step(string name)
         {

@@ -1,9 +1,9 @@
 <Processes>
 <Process name="Test.MorningRoutine">
 	<Description>Runs a test morning routine sequence</Description>
-	<Input type="person">Me</Input>
-	<Input type="car">Car</Input>
-	<Output type="integer">My age</Output>
+	<Input name="Me" type="person" />
+	<Input name="Car" type="car" />
+	<Output name="My Age" type="integer" />
 	
 	<Steps firstStep="getAge">
 		<Step name="getAge" process="get">

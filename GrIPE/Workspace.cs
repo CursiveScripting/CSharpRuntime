@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
+using System.Xml.Schema;
 
 namespace GrIPE
 {
@@ -65,7 +66,10 @@ namespace GrIPE
             var success = true;
             errors = new List<string>();
 
-            // TODO: check doc is valid (we need a schema!)
+            validationErrors = errors;
+            doc.Schemas.Add("http://gripe.ftwinston.com", "processes.xsd");
+            doc.Validate(ValidationEventHandler);
+            validationErrors = null;
 
             var processNodes = doc.SelectNodes("/Processes/Process");
             var loadedProcesses = new List<UserProcess>();
@@ -102,6 +106,12 @@ namespace GrIPE
             }
 
             return success;
+        }
+
+        private static List<string> validationErrors = null;
+        private static void ValidationEventHandler(object sender, ValidationEventArgs e)
+        {
+            validationErrors.Add(string.Format("schema validation error: {0}", e.Message));
         }
 
         private UserProcess LoadUserProcess(XmlElement processNode, out List<Tuple<UserStep, XmlElement>> stepsAndNodes, List<string> errors)
@@ -142,9 +152,9 @@ namespace GrIPE
             var outputs = processNode.SelectNodes("Output");
 
             foreach (XmlElement input in inputs)
-                process.AddInput(this, input.InnerText, input.GetAttribute("type"));
+                process.AddInput(this, input.GetAttribute("name"), input.GetAttribute("type"));
             foreach (XmlElement output in outputs)
-                process.AddOutput(this, output.InnerText, output.GetAttribute("type"));
+                process.AddOutput(this, output.GetAttribute("name"), output.GetAttribute("type"));
 
             this.processes.Add(name, process);
             return process;

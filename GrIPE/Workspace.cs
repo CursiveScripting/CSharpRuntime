@@ -49,26 +49,6 @@ namespace GrIPE
             return process;
         }
 
-        public bool Validate(out List<string> errors)
-        {
-            bool valid = true;
-            List<string> processErrors;
-
-            errors = new List<string>();
-            foreach (var process in processes.Values)
-            {
-                if (!(process is UserProcess))
-                    continue;
-
-                var userProcess = process as UserProcess;
-                if (!userProcess.Validate(this, out processErrors))
-                    foreach (var error in processErrors)
-                        errors.Add(string.Format("{0}: {1}", userProcess.Name, error));
-            }
-
-            return valid;
-        }
-
         public void Clear()
         {
             var toRemove = new List<string>();
@@ -87,14 +67,20 @@ namespace GrIPE
 
             // TODO: check doc is valid (we need a schema!)
 
-            var processes = doc.SelectNodes("/Processes/Process");
+            var processNodes = doc.SelectNodes("/Processes/Process");
+            var loadedProcesses = new List<UserProcess>();
             var allUserSteps = new List<Tuple<UserStep, XmlElement>>();
-            foreach (XmlElement process in processes)
+            foreach (XmlElement processNode in processNodes)
             {
                 List<Tuple<UserStep, XmlElement>> userSteps;
-                if (!LoadUserProcess(process, out userSteps, errors))
+                var process = LoadUserProcess(processNode, out userSteps, errors);
+                if (processes == null)
+                {
                     success = false;
+                    continue;
+                }
 
+                loadedProcesses.Add(process);
                 allUserSteps.AddRange(userSteps);
             }
 
@@ -103,10 +89,22 @@ namespace GrIPE
                 if (!LinkChildProcess(step.Item1, step.Item2, errors))
                     success = false;
             }
+
+            foreach (var process in loadedProcesses)
+            {
+                List<string> processErrors;
+                if (!process.Validate(this, out processErrors))
+                {
+                    success = false;
+                    foreach (var error in processErrors)
+                        errors.Add(string.Format("{0}: {1}", process.Name, error));
+                }
+            }
+
             return success;
         }
 
-        private bool LoadUserProcess(XmlElement processNode, out List<Tuple<UserStep, XmlElement>> stepsAndNodes, List<string> errors)
+        private UserProcess LoadUserProcess(XmlElement processNode, out List<Tuple<UserStep, XmlElement>> stepsAndNodes, List<string> errors)
         {
             var name = processNode.GetAttribute("name");
             var desc = processNode.SelectSingleNode("Description").InnerText;
@@ -127,7 +125,7 @@ namespace GrIPE
             foreach (var step in stepsAndNodes)
             {
                 if (!LoadStepLinks(step.Item1, step.Item2, stepsByName, errors))
-                    return false;
+                    return null;
             }
 
             var firstStepName = steps.GetAttribute("firstStep");
@@ -135,7 +133,7 @@ namespace GrIPE
             if (!stepsByName.TryGetValue(firstStepName, out firstStep))
             {
                 errors.Add(string.Format("firstStep name not recognised for '{0}' process: {1}", name, firstStepName));
-                return false;
+                return null;
             }
 
             UserProcess process = new UserProcess(name, desc, firstStep, stepsByName.Values);
@@ -149,7 +147,7 @@ namespace GrIPE
                 process.AddOutput(this, output.InnerText, output.GetAttribute("type"));
 
             this.processes.Add(name, process);
-            return true;
+            return process;
         }
 
         private bool LinkChildProcess(UserStep step, XmlElement stepNode, List<string> errors)

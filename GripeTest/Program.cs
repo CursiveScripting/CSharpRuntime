@@ -27,11 +27,11 @@ namespace GripeTest
                 foreach (var error in errors)
                     Console.WriteLine(error);
 
+                Console.ReadKey();
                 return;
             }
              
-            if (Validate(w))
-                Run(w.GetProcess("Test.MorningRoutine"));
+            Run(w.GetProcess("Test.MorningRoutine"));
 
             Console.ReadKey();
         }
@@ -50,19 +50,6 @@ namespace GripeTest
             w.AddSystemProcess("get", Value.GetPropertyInteger);
 
             return w;
-        }
-
-        private static bool Validate(Workspace w)
-        {
-            List<string> errors;
-            if (!w.Validate(out errors))
-            {
-                Console.WriteLine("Failed to validate workspace:");
-                foreach (var error in errors)
-                    Console.WriteLine(error);
-                return false;
-            }
-            return true;
         }
 
         private static void Run(Process process)

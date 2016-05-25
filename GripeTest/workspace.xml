@@ -1,8 +1,8 @@
 <Workspace>
 	<Type name="integer" />
 	<Type name="text" />
-	<Type name="Person" />
-	<Type name="Car" />
+	<Type name="person" />
+	<Type name="car" />
 	
 	<SystemProcess name="print">
 		<Input name="message" type="text" />
@@ -10,7 +10,7 @@
 	
 	<SystemProcess name="get">
 		<Input name="property" type="text" />
-		<Input name="object" type="Person" />
+		<Input name="object" type="person" />
 		<Output name="value" type="integer" />
 		<ReturnPaths>
 			<Path name="ok" />

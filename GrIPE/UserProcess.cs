@@ -118,9 +118,9 @@ namespace GrIPE
             foreach (var step in EndSteps)
             {
                 foreach (var output in outputs)
-                    if (!step.inputMapping.ContainsKey(output.Name))
+                    if (!step.inputMapping.ContainsValue(output.Name))
                     {
-                        errors.Add(string.Format("The '{0}' end step doesn't set the '{1}' output.", step.ReturnValue, output.Name));
+                        errors.Add(string.Format("The {0} end step doesn't set the '{1}' output.", string.IsNullOrEmpty(step.ReturnValue) ? "default" : "'" + step.ReturnValue + "'", output.Name));
                         success = false;
                     }
 

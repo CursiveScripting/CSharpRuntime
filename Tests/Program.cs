@@ -1,5 +1,5 @@
-﻿using GrIPE;
-using GrIPE.Processes;
+﻿using Cursive;
+using Cursive.Processes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
 
-namespace GripeTest
+namespace Tests
 {
     class Program
     {
@@ -30,7 +30,7 @@ namespace GripeTest
                 Console.ReadKey();
                 return;
             }
-             
+
             Run(w.GetProcess("Test.MorningRoutine"));
 
             Console.ReadKey();
@@ -95,6 +95,5 @@ namespace GripeTest
             Person Driver { get; set; }
             List<Person> Passengers { get; set; }
         }
-
     }
 }

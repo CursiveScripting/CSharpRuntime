@@ -3,7 +3,7 @@
 	<Description>Runs a test morning routine sequence</Description>
 	<Input name="Me" type="person" />
 	<Input name="Car" type="car" />
-	<Output name="My Age" type="integer" />
+	<Output name="My age" type="integer" />
 	
 	<Steps firstStep="getAge">
 		<Step name="getAge" process="get">

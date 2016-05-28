@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GrIPE
+namespace Cursive
 {
     class UserProcess : Process
     {
@@ -127,7 +127,7 @@ namespace GrIPE
                 foreach (var kvp in step.inputMapping)
                     if (Outputs.FirstOrDefault(p => p.Name == kvp.Value) == null)
                     {
-                        errors.Add(string.Format("The '{0}' end step set the '{1}' output, which is not defined for this process.", step.ReturnValue, kvp.Value));
+                        errors.Add(string.Format("The {0} end step sets the '{1}' output, which is not defined for this process.", string.IsNullOrEmpty(step.ReturnValue) ? "default" : "'" + step.ReturnValue + "'", kvp.Value));
                         success = false;
                     }
             }
@@ -192,7 +192,10 @@ namespace GrIPE
                 foreach (var kvp in step.inputMapping)
                 {
                     string varName = kvp.Key;
-                    Type varType = Outputs.First(p => p.Name == kvp.Value).Type;
+                    var output = Outputs.FirstOrDefault(p => p.Name == kvp.Value);
+                    if (output == null)
+                        continue;
+                    Type varType = output.Type;
 
                     Type prevType;
                     if (variableTypes.TryGetValue(varName, out prevType))

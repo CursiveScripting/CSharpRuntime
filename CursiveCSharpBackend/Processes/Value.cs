@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GrIPE.Processes
+namespace Cursive.Processes
 {
     public static class Value
     {

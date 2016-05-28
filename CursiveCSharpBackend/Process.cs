@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GrIPE
+namespace Cursive
 {
     public abstract class Process
     {

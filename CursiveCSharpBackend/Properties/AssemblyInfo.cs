@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("GripeTest")]
+[assembly: AssemblyTitle("CursiveCSharpBackend")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("GripeTest")]
+[assembly: AssemblyProduct("CursiveCSharpBackend")]
 [assembly: AssemblyCopyright("Copyright ©  2016")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("4b6105c2-b877-41de-97a7-b3b0eb5572ea")]
+[assembly: Guid("2b53e9fb-3bf3-414f-8650-5671f6a9992a")]
 
 // Version information for an assembly consists of the following four values:
 //

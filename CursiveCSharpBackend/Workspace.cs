@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Schema;
 
-namespace GrIPE
+namespace Cursive
 {
     public class Workspace
     {
@@ -67,7 +67,7 @@ namespace GrIPE
             errors = new List<string>();
 
             validationErrors = errors;
-            doc.Schemas.Add("http://gripe.ftwinston.com", "processes.xsd");
+            doc.Schemas.Add("http://cursive.ftwinston.com", "processes.xsd");
             doc.Validate(ValidationEventHandler);
             validationErrors = null;
 

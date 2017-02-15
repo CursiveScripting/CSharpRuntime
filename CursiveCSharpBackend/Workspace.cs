@@ -268,6 +268,13 @@ namespace Cursive
             {
                 var node = doc.CreateElement("Type");
                 node.Attributes.Append(doc.CreateAttribute("name", type.Key));
+
+                if (type.Value.Validation != null)
+                {
+                    var regex = type.Value.Validation.ToString();
+                    node.Attributes.Append(doc.CreateAttribute("validation", regex));
+                }
+
                 root.AppendChild(node);
             }
 

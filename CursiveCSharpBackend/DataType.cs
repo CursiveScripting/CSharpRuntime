@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Cursive
@@ -9,6 +10,7 @@ namespace Cursive
     public abstract class DataType
     {
         public string Name { get; protected set; }
+        public Regex Validation { get; protected set; }
         public abstract Type SystemType { get; }
     }
 
@@ -29,9 +31,10 @@ namespace Cursive
 
     public class FixedType<T> : FixedType
     {
-        public FixedType(string name, Func<string, T> deserialize, Func<T, string> serialize)
+        public FixedType(string name, Regex validation, Func<string, T> deserialize, Func<T, string> serialize)
         {
             Name = name;
+            Validation = validation;
             DeserializationFunction = deserialize;
             Serialize = serialize;
         }

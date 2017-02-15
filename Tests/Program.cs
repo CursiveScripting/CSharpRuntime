@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Xml;
 
@@ -39,8 +40,8 @@ namespace Tests
         private static Workspace CreateWorkspace()
         {
             Workspace w = new Workspace();
-            w.AddDataType(new FixedType<string>("text", s => s, s => s));
-            w.AddDataType(new FixedType<int>("integer", s => int.Parse(s), i => i.ToString()));
+            w.AddDataType(new FixedType<string>("text", new Regex(".*"), s => s, s => s));
+            w.AddDataType(new FixedType<int>("integer", new Regex("[0-9]+"), s => int.Parse(s), i => i.ToString()));
             w.AddDataType(new DataType<Person>("person"));
             w.AddDataType(new DataType<Car>("car"));
 

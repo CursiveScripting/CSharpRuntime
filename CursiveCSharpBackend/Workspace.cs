@@ -123,9 +123,17 @@ namespace Cursive
             var stepsByName = new SortedList<string, Step>();
             stepsAndNodes = new List<Tuple<UserStep, XmlElement>>();
 
+            string firstStepName = null;
             foreach (XmlElement stepNode in steps.ChildNodes)
             {
                 var step = LoadProcessStep(stepNode);
+                if (step is StartStep)
+                {
+                    var firstReturnPath = stepNode.SelectSingleNode("ReturnPath") as XmlElement;
+                    firstStepName = firstReturnPath.GetAttribute("targetStepID");
+                    continue;
+                }
+
                 stepsByName.Add(step.Name, step);
                 
                 if (step is UserStep)
@@ -138,11 +146,10 @@ namespace Cursive
                     return null;
             }
 
-            var firstStepName = steps.GetAttribute("firstStep");
             Step firstStep;
             if (!stepsByName.TryGetValue(firstStepName, out firstStep))
             {
-                errors.Add(string.Format("firstStep name not recognised for '{0}' process: {1}", name, firstStepName));
+                errors.Add(string.Format("Return path target of Start step not recognised: {0}", firstStepName));
                 return null;
             }
 
@@ -203,19 +210,27 @@ namespace Cursive
         {
             var name = stepNode.GetAttribute("ID");
             var mapInputs = stepNode.SelectNodes("MapInput");
+            var mapOutputs = stepNode.SelectNodes("MapOutput");
 
-            if (stepNode.Name == "EndStep")
+            if (stepNode.Name == "Start")
             {
-                var returnValue = stepNode.GetAttribute("returnValue");
+                var step = new StartStep(name);
+                // TODO: use start step's output parameters ... somehow
+                foreach (XmlElement output in mapOutputs)
+                    ;//step.MapOutputParameter(output.GetAttribute("name"), output.GetAttribute("destination"));
+                return step;
+            }
+            else if (stepNode.Name == "Stop")
+            {
+                var returnValue = stepNode.GetAttribute("name");
 
-                var step = new EndStep(name, returnValue);
+                var step = new StopStep(name, returnValue);
                 foreach (XmlElement input in mapInputs)
-                    step.MapInputParameter(input.GetAttribute("name"), input.GetAttribute("destination"));
+                    step.MapInputParameter(input.GetAttribute("name"), input.GetAttribute("source"));
                 return step;
             }
             else
             {
-                var mapOutputs = stepNode.SelectNodes("MapOutput");
                 var step = new UserStep(name, null);
 
                 foreach (XmlElement input in mapInputs)
@@ -229,29 +244,50 @@ namespace Cursive
 
         private bool LoadStepLinks(UserStep step, XmlElement stepNode, SortedList<string, Step> stepsByName, List<string> errors)
         {
-            var returnPaths = stepNode.SelectSingleNode("ReturnPaths") as XmlElement;
-            
-            foreach (XmlElement path in returnPaths.ChildNodes)
+            var singlePathNode = stepNode.SelectSingleNode("ReturnPath") as XmlElement;
+            if (singlePathNode != null)
             {
-                var pathStepName = path.GetAttribute("targetStepID");
-
+                // this step has a single, unnamed return path
+                var pathStepName = singlePathNode.GetAttribute("targetStepID");
+                
                 Step returnStep;
                 if (!stepsByName.TryGetValue(pathStepName, out returnStep))
                 {
                     errors.Add(string.Format("Return path target of '{0}' step not recognised: {1}", step.Name, pathStepName));
                     return false;
                 }
-                
-                if (path.Name == "Single")
-                    step.SetDefaultReturnPath(returnStep);
-                else
-                {
-                    var pathName = path.GetAttribute("name");
-                    step.AddReturnPath(pathName, returnStep);
-                }
+
+                step.SetDefaultReturnPath(returnStep);
+                return true;
             }
 
-            return true;
+            var pathNodes = stepNode.SelectNodes("NamedReturnPath");
+            bool success = true;
+
+            foreach (XmlElement pathNode in pathNodes)
+            {
+                var pathName = pathNode.GetAttribute("name");
+                var pathStepName = pathNode.GetAttribute("targetStepID");
+
+                Step returnStep;
+                if (!stepsByName.TryGetValue(pathStepName, out returnStep))
+                {
+                    errors.Add(string.Format("'{0}' return path target of '{1}' step not recognised: {2}", pathName, step.Name, pathStepName));
+                    success = false;
+                    continue;
+                }
+
+                if (step.returnPaths.ContainsKey(pathName))
+                {
+                    errors.Add(string.Format("Step '{0}' contains multiple '{1}' return paths. Return path names must be unique.", step.Name, pathName));
+                    success = false;
+                    continue;
+                }
+                
+                step.AddReturnPath(pathName, returnStep);
+            }
+
+            return success;
         }
 
         public XmlDocument WriteForClient()

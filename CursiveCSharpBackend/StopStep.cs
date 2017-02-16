@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace Cursive
 {
-    class EndStep : Step
+    class StopStep : Step
     {
-        public EndStep(string name, string returnValue = "")
+        public StopStep(string name, string returnValue = "")
             : base(name)
         {
             ReturnValue = returnValue;

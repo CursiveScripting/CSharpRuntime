@@ -41,7 +41,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DataType.cs" />
-    <Compile Include="EndStep.cs" />
+    <Compile Include="StartStep.cs" />
+    <Compile Include="StopStep.cs" />
     <Compile Include="Model.cs" />
     <Compile Include="Parameter.cs" />
     <Compile Include="Process.cs" />

@@ -34,9 +34,9 @@ namespace Cursive
                 currentStep = currentStep.Run(workspace);
             }
 
-            if (lastStep is EndStep)
+            if (lastStep is StopStep)
             {
-                var end = lastStep as EndStep;
+                var end = lastStep as StopStep;
                 outputs = end.GetOutputs();
                 return end.ReturnValue;
             }
@@ -218,13 +218,13 @@ namespace Cursive
             return success;
         }
 
-        private IEnumerable<EndStep> EndSteps
+        private IEnumerable<StopStep> EndSteps
         {
             get
             {
                 foreach (var step in allSteps)
-                    if (step is EndStep)
-                        yield return step as EndStep;
+                    if (step is StopStep)
+                        yield return step as StopStep;
             }
         }
         private IEnumerable<UserStep> UserSteps

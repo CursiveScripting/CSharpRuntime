@@ -6,48 +6,50 @@
 	<Output name="My age" type="integer" />
 	
 	<Steps firstStep="getAge">
-		<Step name="getAge" process="get">
+		<Step ID="getAge" process="get">
 			<FixedInput name="property" value="Age" />
 			<MapInput name="object" source="Me" />
 			<MapOutput name="value" destination="age" />
-			<ReturnPaths default="breakfastAgeCheck" />
+      <ReturnPath targetStepID="breakfastAgeCheck" />
 		</Step>
-		<Step name="breakfastAgeCheck" process="compare">
+		<Step ID="breakfastAgeCheck" process="compare">
 			<MapInput name="value1" source="age" />
 			<FixedInput name="value2" value="10" />
-			<ReturnPaths default="makeBreakfast">
-				<Path name="less" value="demandBreakfast" />
-			</ReturnPaths>
+      <NamedReturnPath name="pass" targetStepID="makeBreakfast" />
+			<NamedReturnPath name="less" targetStepID="demandBreakfast" />
 		</Step>
-		<Step name="makeBreakfast" process="print">
+		<Step ID="makeBreakfast" process="print">
 			<FixedInput name="message" value="Making breakfast..." />
-			<ReturnPaths default="eatBreakfast" />
+			<ReturnPath targetStepID="eatBreakfast" />
 		</Step>
-		<Step name="demandBreakfast" process="print">
+		<Step ID="demandBreakfast" process="print">
 			<FixedInput name="message" value="Demanding breakfast... (young enough to get away with this)" />
-			<ReturnPaths default="eatBreakfast" />
+			<ReturnPath targetStepID="eatBreakfast" />
 		</Step>
-		<Step name="eatBreakfast" process="print">
+		<Step ID="eatBreakfast" process="print">
 			<FixedInput name="message" value="Eating breakfast..." />
-			<ReturnPaths default="getReady" />
+      <ReturnPath targetStepID="getReady" />
 		</Step>
-		<Step name="getReady" process="print">
+		<Step ID="getReady" process="print">
 			<FixedInput name="message" value="Getting dressed etc..." />
-			<ReturnPaths default="checkDay" />
+      <ReturnPath targetStepID="checkDay" />
 		</Step>
-		<Step name="checkDay" process="getDay">
-			<ReturnPaths default="getInCar">
-				<Path name="Saturday" value="done" />
-				<Path name="Sunday" value="done" />
-			</ReturnPaths>
+		<Step ID="checkDay" process="getDay">
+      <NamedReturnPath name="Saturday" targetStepID="done" />
+      <NamedReturnPath name="Sunday" targetStepID="done" />
+      <NamedReturnPath name="Monday" targetStepID="getInCar" />
+      <NamedReturnPath name="Tuesday" targetStepID="getInCar" />
+      <NamedReturnPath name="Wednesday" targetStepID="getInCar" />
+      <NamedReturnPath name="Thursday" targetStepID="getInCar" />
+      <NamedReturnPath name="Friday" targetStepID="getInCar" />
 		</Step>
-		<Step name="getInCar" process="print">
+		<Step ID="getInCar" process="print">
 			<FixedInput name="message" value="Getting in the car..." />
-			<ReturnPaths default="done" />
+			<ReturnPath targetStepID="done" />
 		</Step>
-		<EndStep name="done">
-			<MapInput name="age" destination="My age" />
-		</EndStep>
+		<Stop ID="done">
+			<MapInput name="age" source="My age" />
+		</Stop>
 	</Steps>
 </Process>
 </Processes>

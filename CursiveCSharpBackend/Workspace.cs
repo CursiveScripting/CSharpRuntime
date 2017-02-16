@@ -201,7 +201,7 @@ namespace Cursive
 
         private Step LoadProcessStep(XmlElement stepNode)
         {
-            var name = stepNode.GetAttribute("name");
+            var name = stepNode.GetAttribute("ID");
             var mapInputs = stepNode.SelectNodes("MapInput");
 
             if (stepNode.Name == "EndStep")
@@ -230,28 +230,25 @@ namespace Cursive
         private bool LoadStepLinks(UserStep step, XmlElement stepNode, SortedList<string, Step> stepsByName, List<string> errors)
         {
             var returnPaths = stepNode.SelectSingleNode("ReturnPaths") as XmlElement;
-
-            var defaultReturnStepName = returnPaths.GetAttribute("default");
-            Step returnStep;
-            if (!stepsByName.TryGetValue(defaultReturnStepName, out returnStep))
-            {
-                errors.Add(string.Format("Default return path of '{0}' step not recognised: {1}", step.Name, defaultReturnStepName));
-                return false;
-            }
-            step.SetDefaultReturnPath(returnStep);
-
+            
             foreach (XmlElement path in returnPaths.ChildNodes)
             {
-                var pathName = path.GetAttribute("name");
-                var pathStepName = path.GetAttribute("value");
+                var pathStepName = path.GetAttribute("targetStepID");
 
+                Step returnStep;
                 if (!stepsByName.TryGetValue(pathStepName, out returnStep))
                 {
-                    errors.Add(string.Format("'{0}' return path of '{1}' step not recognised: {2}", pathName, step.Name, pathStepName));
+                    errors.Add(string.Format("Return path target of '{0}' step not recognised: {1}", step.Name, pathStepName));
                     return false;
                 }
-
-                step.AddReturnPath(pathName, returnStep);
+                
+                if (path.Name == "Single")
+                    step.SetDefaultReturnPath(returnStep);
+                else
+                {
+                    var pathName = path.GetAttribute("name");
+                    step.AddReturnPath(pathName, returnStep);
+                }
             }
 
             return true;

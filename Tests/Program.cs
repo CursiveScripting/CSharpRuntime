@@ -14,7 +14,7 @@ namespace Tests
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Testing GRaphical Interactive Programming Environment");
+            Console.WriteLine("Testing Cursive Scripting");
 
             Workspace w = CreateWorkspace();
 

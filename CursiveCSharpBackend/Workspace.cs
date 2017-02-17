@@ -157,11 +157,14 @@ namespace Cursive
 
             var inputs = processNode.SelectNodes("Input");
             var outputs = processNode.SelectNodes("Output");
+            var variables = processNode.SelectNodes("Variable");
 
             foreach (XmlElement input in inputs)
                 process.AddInput(this, input.GetAttribute("name"), input.GetAttribute("type"));
             foreach (XmlElement output in outputs)
                 process.AddOutput(this, output.GetAttribute("name"), output.GetAttribute("type"));
+            foreach (XmlElement variable in variables)
+                process.AddVariable(this, variable.GetAttribute("name"), variable.GetAttribute("type"), variable.GetAttribute("initialValue"));
 
             this.processes.Add(name, process);
             return process;

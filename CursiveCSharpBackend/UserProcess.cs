@@ -252,6 +252,12 @@ namespace Cursive
             outputs.Add(new Parameter(name, type.SystemType));
         }
 
+        public void AddVariable(Workspace workspace, string name, string typeName, string initialValue = null)
+        {
+            var type = workspace.GetType(typeName);
+            // TODO: initialise internal variable
+        }
+
         public override ReadOnlyCollection<Parameter> Inputs
         {
             get { return inputs.AsReadOnly(); }

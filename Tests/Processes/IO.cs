@@ -1,15 +1,15 @@
-﻿using System;
+﻿using Cursive;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Cursive.Processes
+namespace Tests.Processes
 {
     public static class IO
     {
-        public static readonly Func<Workspace, SystemProcess> Print = workspace => new SystemProcess(
-             workspace, 
+        public static readonly SystemProcess Print = new SystemProcess(
             (Model inputs, out Model outputs) =>
             {
                 Console.WriteLine(inputs["message"]);

@@ -46,9 +46,6 @@
     <Compile Include="Model.cs" />
     <Compile Include="Parameter.cs" />
     <Compile Include="Process.cs" />
-    <Compile Include="Processes\Date.cs" />
-    <Compile Include="Processes\IO.cs" />
-    <Compile Include="Processes\Value.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Step.cs" />
     <Compile Include="SystemProcess.cs" />

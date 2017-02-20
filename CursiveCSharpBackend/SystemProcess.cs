@@ -9,7 +9,7 @@ namespace Cursive
 {
     public class SystemProcess : Process
     {
-        public SystemProcess(Workspace workspace, SystemStep operation, string description, Parameter[] inputs, Parameter[] outputs, string[] returnPaths)
+        public SystemProcess(SystemStep operation, string description, Parameter[] inputs, Parameter[] outputs, string[] returnPaths)
             : base(description)
         {
             this.operation = operation;

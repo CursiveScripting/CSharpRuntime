@@ -21,9 +21,9 @@ namespace Cursive
             typesByType.Add(dt.SystemType.FullName, dt);
         }
 
-        public void AddSystemProcess(string name, Func<Workspace, SystemProcess> process)
+        public void AddSystemProcess(string name, SystemProcess process)
         {
-            processes.Add(name, process(this));
+            processes.Add(name, process);
         }
 
         internal DataType GetType(string name)

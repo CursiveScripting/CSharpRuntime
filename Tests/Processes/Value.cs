@@ -1,15 +1,15 @@
-﻿using System;
+﻿using Cursive;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Cursive.Processes
+namespace Tests.Processes
 {
     public static class Value
     {
-        public static Func<Workspace, SystemProcess> EqualsText = workspace => new SystemProcess(
-            workspace, 
+        public static SystemProcess EqualsText = new SystemProcess(
             (Model inputs, out Model outputs) =>
             {
                 outputs = null;
@@ -21,8 +21,7 @@ namespace Cursive.Processes
             new string[] { "yes", "no" }
         );
 
-        public static Func<Workspace, SystemProcess> CompareIntegers = workspace => new SystemProcess(
-            workspace, 
+        public static SystemProcess CompareIntegers = new SystemProcess(
             (Model inputs, out Model outputs) =>
             {
                 outputs = null;
@@ -41,8 +40,7 @@ namespace Cursive.Processes
             new string[] { "less", "greater", "equal", "error" }
         );
 
-        public static Func<Workspace, SystemProcess> GetPropertyInteger = workspace => new SystemProcess(
-            workspace,
+        public static SystemProcess GetPropertyInteger = new SystemProcess(
             (Model inputs, out Model outputs) =>
             {
                 outputs = new Model();
@@ -68,8 +66,7 @@ namespace Cursive.Processes
             new string[] { "ok", "error" }
         );
 
-        public static Func<Workspace, SystemProcess> SetPropertyInteger = workspace => new SystemProcess(
-            workspace,
+        public static SystemProcess SetPropertyInteger = new SystemProcess(
             (Model inputs, out Model outputs) =>
             {
                 outputs = null;

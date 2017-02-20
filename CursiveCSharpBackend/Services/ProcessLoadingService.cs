@@ -47,7 +47,7 @@ namespace CursiveCSharpBackend.Services
             foreach (var process in loadedProcesses)
             {
                 List<string> processErrors;
-                if (!process.Validate(workspace, out processErrors))
+                if (!ProcessValidationService.ValidateProcess(workspace, process, out processErrors))
                 {
                     success = false;
                     foreach (var error in processErrors)

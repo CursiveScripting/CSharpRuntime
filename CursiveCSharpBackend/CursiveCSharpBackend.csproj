@@ -41,6 +41,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DataType.cs" />
+    <Compile Include="Services\ProcessValidationService.cs" />
     <Compile Include="Services\WorkspaceSavingService.cs" />
     <Compile Include="Services\ProcessService.cs" />
     <Compile Include="Services\ProcessLoadingService.cs" />

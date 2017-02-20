@@ -8,7 +8,7 @@ namespace Cursive
 {
     class StopStep : Step
     {
-        public StopStep(string name, string returnValue = "")
+        public StopStep(string name, string returnValue = null)
             : base(name)
         {
             ReturnValue = returnValue;

@@ -16,7 +16,8 @@ namespace Tests
         {
             Console.WriteLine("Testing Cursive Scripting");
 
-            Workspace w = CreateWorkspace();
+            RequiredProcess requiredProcess;
+            Workspace w = CreateWorkspace(out requiredProcess);
 
             XmlDocument doc = new XmlDocument();
             doc.Load("../../test.xml");
@@ -32,12 +33,12 @@ namespace Tests
                 return;
             }
 
-            Run(w.GetProcess("Test.MorningRoutine"));
+            Run(requiredProcess);
 
             Console.ReadKey();
         }
 
-        private static Workspace CreateWorkspace()
+        private static Workspace CreateWorkspace(out RequiredProcess required)
         {
             Workspace w = new Workspace();
             w.AddDataType(new FixedType<string>("text", new Regex(".*"), s => s, s => s));
@@ -49,6 +50,16 @@ namespace Tests
             w.AddSystemProcess("getDay", Date.GetDayOfWeek);
             w.AddSystemProcess("compare", Value.CompareIntegers);
             w.AddSystemProcess("get", Value.GetPropertyInteger);
+
+            required = new RequiredProcess("Run basic tests",
+                new Parameter[] {
+                    new Parameter("Me", typeof(Person)),
+                    new Parameter("Car", typeof(Car))
+                },
+                new Parameter[] {
+                    new Parameter("My age", typeof(int))
+                }, null);
+            w.AddRequiredProcess("Test.MorningRoutine", required);
 
             return w;
         }

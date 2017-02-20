@@ -14,6 +14,7 @@ namespace Cursive
         private SortedList<string, DataType> typesByName = new SortedList<string, DataType>();
         private SortedList<string, DataType> typesByType = new SortedList<string, DataType>();
         private SortedList<string, Process> processes = new SortedList<string, Process>();
+        private SortedList<string, RequiredProcess> requiredProcesses = new SortedList<string, RequiredProcess>();
 
         public void AddDataType(DataType dt)
         {
@@ -24,6 +25,11 @@ namespace Cursive
         public void AddSystemProcess(string name, SystemProcess process)
         {
             processes.Add(name, process);
+        }
+
+        public void AddRequiredProcess(string name, RequiredProcess process)
+        {
+            requiredProcesses.Add(name, process);
         }
 
         internal DataType GetType(string name)
@@ -42,16 +48,11 @@ namespace Cursive
             return dt;
         }
 
-        public Process GetProcess(string name)
-        {
-            Process process;
-            if (!processes.TryGetValue(name, out process))
-                return null;
-            return process;
-        }
-
         public void Clear()
         {
+            foreach (var process in requiredProcesses.Values)
+                process.ActualProcess = null;
+
             var toRemove = new List<string>();
             foreach (var kvp in processes)
                 if (kvp.Value is UserProcess)
@@ -93,7 +94,7 @@ namespace Cursive
                 if (!LinkChildProcess(step.Item1, step.Item2, errors))
                     success = false;
             }
-
+            
             foreach (var process in loadedProcesses)
             {
                 List<string> processErrors;
@@ -103,6 +104,32 @@ namespace Cursive
                     foreach (var error in processErrors)
                         errors.Add(string.Format("{0}: {1}", process.Name, error));
                 }
+            }
+
+            foreach (var required in requiredProcesses)
+            {
+                UserProcess actual;
+                Process lookup;
+                if (!processes.TryGetValue(required.Key, out lookup))
+                    actual = null;
+                else
+                    actual = lookup as UserProcess;
+
+                if (actual == null)
+                {
+                    success = false;
+                    errors.Add(string.Format("{0}: No implementation of this required process", required.Key));
+                    continue;
+                }
+
+                if (!Process.SignaturesMatch(required.Value, actual))
+                {
+                    success = false;
+                    errors.Add(string.Format("{0}: Signature of this required process doesn't match the requirements", required.Key));
+                    continue;
+                }
+
+                required.Value.ActualProcess = actual;
             }
 
             return success;
@@ -226,6 +253,8 @@ namespace Cursive
             else if (stepNode.Name == "Stop")
             {
                 var returnValue = stepNode.GetAttribute("name");
+                if (returnValue == string.Empty)
+                    returnValue = null;
 
                 var step = new StopStep(name, returnValue);
                 foreach (XmlElement input in mapInputs)

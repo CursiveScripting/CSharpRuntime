@@ -5,7 +5,10 @@
 	<Input name="Car" type="car" />
 	<Output name="My age" type="integer" />
 	
-	<Steps firstStep="getAge">
+	<Steps>
+    <Start ID="start">
+      <ReturnPath targetStepID="getAge" />
+    </Start>
 		<Step ID="getAge" process="get">
 			<FixedInput name="property" value="Age" />
 			<MapInput name="object" source="Me" />
@@ -15,7 +18,9 @@
 		<Step ID="breakfastAgeCheck" process="compare">
 			<MapInput name="value1" source="age" />
 			<FixedInput name="value2" value="10" />
-      <NamedReturnPath name="pass" targetStepID="makeBreakfast" />
+      <NamedReturnPath name="greater" targetStepID="makeBreakfast" />
+      <NamedReturnPath name="equal" targetStepID="makeBreakfast" />
+      <NamedReturnPath name="error" targetStepID="demandBreakfast" />
 			<NamedReturnPath name="less" targetStepID="demandBreakfast" />
 		</Step>
 		<Step ID="makeBreakfast" process="print">

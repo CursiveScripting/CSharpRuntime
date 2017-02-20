@@ -145,7 +145,7 @@ namespace Cursive
             }
 
             // 4. every workspace variable must always be treated as the same type by everything that reads from it or writes to it.
-            var variableTypes = new SortedList<string, Type>();
+            var variableTypes = new Dictionary<string, Type>();
             foreach (var input in inputs)
                 variableTypes[input.Name] = input.Type;
 

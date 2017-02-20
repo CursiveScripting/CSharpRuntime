@@ -16,8 +16,8 @@ namespace Cursive
         public abstract Step Run(Model model);
 
         public string Name { get; private set; }
-        protected internal SortedList<string, object> fixedInputs = new SortedList<string, object>();
-        protected internal SortedList<string, string> inputMapping = new SortedList<string, string>();
+        protected internal Dictionary<string, object> fixedInputs = new Dictionary<string, object>();
+        protected internal Dictionary<string, string> inputMapping = new Dictionary<string, string>();
 
         public void SetInputParameter(string parameterName, object value)
         {

@@ -8,7 +8,7 @@ namespace Cursive
 {
     public class Model
     {
-        SortedList<string, object> elements = new SortedList<string, object>();
+        Dictionary<string, object> elements = new Dictionary<string, object>();
 
         public object this[string key]
         {

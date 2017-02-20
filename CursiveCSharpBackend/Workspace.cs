@@ -11,10 +11,10 @@ namespace Cursive
 {
     public class Workspace
     {
-        private SortedList<string, DataType> typesByName = new SortedList<string, DataType>();
-        private SortedList<string, DataType> typesByType = new SortedList<string, DataType>();
-        private SortedList<string, Process> processes = new SortedList<string, Process>();
-        private SortedList<string, RequiredProcess> requiredProcesses = new SortedList<string, RequiredProcess>();
+        private Dictionary<string, DataType> typesByName = new Dictionary<string, DataType>();
+        private Dictionary<string, DataType> typesByType = new Dictionary<string, DataType>();
+        private Dictionary<string, Process> processes = new Dictionary<string, Process>();
+        private Dictionary<string, RequiredProcess> requiredProcesses = new Dictionary<string, RequiredProcess>();
 
         public void AddDataType(DataType dt)
         {
@@ -147,7 +147,7 @@ namespace Cursive
             var desc = processNode.SelectSingleNode("Description").InnerText;
 
             XmlElement steps = processNode.SelectSingleNode("Steps") as XmlElement;
-            var stepsByName = new SortedList<string, Step>();
+            var stepsByName = new Dictionary<string, Step>();
             stepsAndNodes = new List<Tuple<UserStep, XmlElement>>();
 
             string firstStepName = null;
@@ -274,7 +274,7 @@ namespace Cursive
             }
         }
 
-        private bool LoadStepLinks(UserStep step, XmlElement stepNode, SortedList<string, Step> stepsByName, List<string> errors)
+        private bool LoadStepLinks(UserStep step, XmlElement stepNode, Dictionary<string, Step> stepsByName, List<string> errors)
         {
             var singlePathNode = stepNode.SelectSingleNode("ReturnPath") as XmlElement;
             if (singlePathNode != null)

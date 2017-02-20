@@ -17,8 +17,8 @@ namespace Cursive
         protected internal Process ChildProcess { get; internal set; }
         protected internal Step DefaultReturnPath { get; private set; }
 
-        protected internal SortedList<string, string> outputMapping = new SortedList<string, string>();
-        protected internal SortedList<string, Step> returnPaths = new SortedList<string, Step>();
+        protected internal Dictionary<string, string> outputMapping = new Dictionary<string, string>();
+        protected internal Dictionary<string, Step> returnPaths = new Dictionary<string, Step>();
 
         public void MapOutputParameter(string parameterName, string destinationName)
         {

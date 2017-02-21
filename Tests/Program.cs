@@ -66,7 +66,7 @@ namespace Tests
 
         private static void Run(Process process)
         {
-            var model = new Model();
+            var model = new ValueSet();
             model["Car"] = new Car();
 
             Console.WriteLine();

@@ -13,14 +13,14 @@ namespace Cursive
             ReturnPaths = returnPaths;
         }
 
-        public delegate string SystemStep(Model input, out Model output);
+        public delegate string SystemStep(ValueSet input, out ValueSet output);
 
         private SystemStep Operation { get; }
         public override IReadOnlyCollection<string> ReturnPaths { get; }
         public override IReadOnlyCollection<Parameter> Inputs { get; }
         public override IReadOnlyCollection<Parameter> Outputs { get; }
 
-        public override string Run(Model inputs, out Model outputs)
+        public override string Run(ValueSet inputs, out ValueSet outputs)
         {
             return Operation(inputs, out outputs);
         }

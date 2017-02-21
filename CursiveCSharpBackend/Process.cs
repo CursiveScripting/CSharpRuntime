@@ -10,9 +10,9 @@ namespace Cursive
             this.Description = description;
         }
 
-        public string Run(Model input)
+        public string Run(ValueSet input)
         {
-            Model output;
+            ValueSet output;
             return Run(input, out output);
         }
 
@@ -21,6 +21,6 @@ namespace Cursive
         public abstract IReadOnlyCollection<Parameter> Inputs { get; }
         public abstract IReadOnlyCollection<Parameter> Outputs { get; }
 
-        public abstract string Run(Model input, out Model output);
+        public abstract string Run(ValueSet input, out ValueSet output);
     }
 }

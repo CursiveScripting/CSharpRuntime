@@ -10,7 +10,7 @@ namespace Tests.Processes
     public static class IO
     {
         public static readonly SystemProcess Print = new SystemProcess(
-            (Model inputs, out Model outputs) =>
+            (ValueSet inputs, out ValueSet outputs) =>
             {
                 Console.WriteLine(inputs["message"]);
                 outputs = null;

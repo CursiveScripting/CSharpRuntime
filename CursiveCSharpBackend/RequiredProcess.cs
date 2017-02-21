@@ -17,7 +17,7 @@ namespace Cursive
         public override IReadOnlyCollection<Parameter> Inputs { get; }
         public override IReadOnlyCollection<Parameter> Outputs { get; }
 
-        public override string Run(Model inputs, out Model outputs)
+        public override string Run(ValueSet inputs, out ValueSet outputs)
         {
             return ActualProcess.Run(inputs, out outputs);
         }

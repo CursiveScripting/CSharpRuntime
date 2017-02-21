@@ -10,7 +10,7 @@ namespace Tests.Processes
     public static class Value
     {
         public static SystemProcess EqualsText = new SystemProcess(
-            (Model inputs, out Model outputs) =>
+            (ValueSet inputs, out ValueSet outputs) =>
             {
                 outputs = null;
                 return inputs["value1"].Equals(inputs["value2"]) ? "yes" : "no";
@@ -22,7 +22,7 @@ namespace Tests.Processes
         );
 
         public static SystemProcess CompareIntegers = new SystemProcess(
-            (Model inputs, out Model outputs) =>
+            (ValueSet inputs, out ValueSet outputs) =>
             {
                 outputs = null;
                 var value1 = inputs["value1"];
@@ -41,9 +41,9 @@ namespace Tests.Processes
         );
 
         public static SystemProcess GetPropertyInteger = new SystemProcess(
-            (Model inputs, out Model outputs) =>
+            (ValueSet inputs, out ValueSet outputs) =>
             {
-                outputs = new Model();
+                outputs = new ValueSet();
 
                 var source = inputs["object"];
                 var prop = source.GetType().GetProperty(inputs["property"].ToString());
@@ -67,7 +67,7 @@ namespace Tests.Processes
         );
 
         public static SystemProcess SetPropertyInteger = new SystemProcess(
-            (Model inputs, out Model outputs) =>
+            (ValueSet inputs, out ValueSet outputs) =>
             {
                 outputs = null;
                 var destination = inputs["object"];

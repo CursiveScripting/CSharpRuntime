@@ -10,26 +10,26 @@ namespace Cursive
         public UserProcess(string name, string description, Step firstStep, IEnumerable<Step> allSteps)
             : base(description)
         {
-            this.Name = name;
-            this.firstStep = firstStep;
-            this.Steps = allSteps;
+            Name = name;
+            FirstStep = firstStep;
+            Steps = allSteps;
         }
 
-        public string Name { get; private set; }
-        private Step firstStep;
-        internal IEnumerable<Step> Steps { get; private set; }
+        public string Name { get; }
+        private Step FirstStep { get; }
+        internal IEnumerable<Step> Steps { get; }
         
-        public override string Run(Model inputs, out Model outputs)
+        public override string Run(ValueSet inputs, out ValueSet outputs)
         {
-            Model workspace = inputs.Clone();
+            ValueSet variables = inputs.Clone(); // TODO: actually, map these
 
-            var currentStep = firstStep.Run(workspace);
-            var lastStep = firstStep;
+            var currentStep = FirstStep.Run(variables);
+            var lastStep = FirstStep;
 
             while (currentStep != null)
             {
                 lastStep = currentStep;
-                currentStep = currentStep.Run(workspace);
+                currentStep = currentStep.Run(variables);
             }
 
             if (lastStep is StopStep)
@@ -52,6 +52,9 @@ namespace Cursive
                 return paths;
             }
         }
+
+        public override IReadOnlyCollection<Parameter> Inputs { get { return inputs; } }
+        public override IReadOnlyCollection<Parameter> Outputs { get { return outputs; } }
 
         internal IEnumerable<StopStep> EndSteps
         {
@@ -91,16 +94,6 @@ namespace Cursive
         {
             var type = workspace.GetType(typeName);
             // TODO: initialise internal variable
-        }
-
-        public override IReadOnlyCollection<Parameter> Inputs
-        {
-            get { return inputs; }
-        }
-
-        public override IReadOnlyCollection<Parameter> Outputs
-        {
-            get { return outputs; }
         }
     }
 }

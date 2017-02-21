@@ -10,7 +10,7 @@ namespace Tests.Processes
     public static class Date
     {
         public static readonly SystemProcess GetDayOfWeek = new SystemProcess(
-            (Model inputs, out Model outputs) =>
+            (ValueSet inputs, out ValueSet outputs) =>
             {
                 outputs = null;
                 return DateTime.Today.DayOfWeek.ToString();

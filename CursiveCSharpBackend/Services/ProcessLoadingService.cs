@@ -256,7 +256,7 @@ namespace CursiveCSharpBackend.Services
                     continue;
                 }
 
-                if (step.returnPaths.ContainsKey(pathName))
+                if (step.ReturnPaths.ContainsKey(pathName))
                 {
                     errors.Add(string.Format("Step '{0}' contains multiple '{1}' return paths. Return path names must be unique.", step.Name, pathName));
                     success = false;

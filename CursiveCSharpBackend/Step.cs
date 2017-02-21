@@ -9,20 +9,20 @@ namespace Cursive
             Name = name;
         }
 
-        public abstract Step Run(Model model);
+        public abstract Step Run(ValueSet variables);
 
-        public string Name { get; private set; }
-        protected internal Dictionary<string, object> fixedInputs = new Dictionary<string, object>();
-        protected internal Dictionary<string, string> inputMapping = new Dictionary<string, string>();
+        public string Name { get; }
+        protected internal ValueSet FixedInputs { get; } = new ValueSet();
+        protected internal Dictionary<string, string> InputMapping { get; } = new Dictionary<string, string>();
 
         public void SetInputParameter(string parameterName, object value)
         {
-            fixedInputs[parameterName] = value;
+            FixedInputs[parameterName] = value;
         }
 
         public void MapInputParameter(string parameterName, string sourceName)
         {
-            inputMapping[parameterName] = sourceName;
+            InputMapping[parameterName] = sourceName;
         }
     }
 }

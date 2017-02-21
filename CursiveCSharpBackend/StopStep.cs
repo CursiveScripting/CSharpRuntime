@@ -9,20 +9,20 @@
         }
 
         internal string ReturnValue { get; private set; }
-        private Model outputs;
+        private ValueSet outputs;
 
-        public Model GetOutputs()
+        public ValueSet GetOutputs()
         {
-            Model outputs = this.outputs;
+            ValueSet outputs = this.outputs;
             this.outputs = null;
             return outputs;
         }
 
-        public override Step Run(Model workspace)
+        public override Step Run(ValueSet variables)
         {
-            outputs = new Model();
-            foreach (var kvp in inputMapping)
-                outputs[kvp.Key] = workspace[kvp.Value];
+            outputs = new ValueSet();
+            foreach (var kvp in InputMapping)
+                outputs[kvp.Key] = variables[kvp.Value]; // TODO: actually, these should be mapped
             
             return null;
         }

@@ -47,7 +47,7 @@
     <Compile Include="Services\ProcessLoadingService.cs" />
     <Compile Include="StartStep.cs" />
     <Compile Include="StopStep.cs" />
-    <Compile Include="Model.cs" />
+    <Compile Include="ValueSet.cs" />
     <Compile Include="Parameter.cs" />
     <Compile Include="Process.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -4,14 +4,19 @@
 	<Input name="Me" type="person" />
 	<Input name="Car" type="car" />
 	<Output name="My age" type="integer" />
-	
+  
+  <Variable name="who" type="person" />
+  <Variable name="car" type="Car" />
+  <Variable name="age" type="integer" initialValue="99" />
 	<Steps>
     <Start ID="start">
+      <MapOutput name="Me" destination="who" />
+      <MapOutput name="Car" destination="car" />
       <ReturnPath targetStepID="getAge" />
     </Start>
 		<Step ID="getAge" process="get">
 			<FixedInput name="property" value="Age" />
-			<MapInput name="object" source="Me" />
+			<MapInput name="object" source="who" />
 			<MapOutput name="value" destination="age" />
       <ReturnPath targetStepID="breakfastAgeCheck" />
 		</Step>

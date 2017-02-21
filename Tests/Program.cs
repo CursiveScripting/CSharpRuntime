@@ -66,28 +66,28 @@ namespace Tests
 
         private static void Run(Process process)
         {
-            var model = new ValueSet();
-            model["Car"] = new Car();
+            var inputs = new ValueSet();
+            inputs["Car"] = new Car();
 
             Console.WriteLine();
             Console.WriteLine("Running with 'Alice' ...");
-            model["Me"] = new Person() { Name = "Alice", Age = 3, Gender = "F" };
-            Console.WriteLine(process.Run(model));
+            inputs["Me"] = new Person() { Name = "Alice", Age = 3, Gender = "F" };
+            Console.WriteLine(process.Run(inputs));
 
             Console.WriteLine();
             Console.WriteLine("Running with 'Bob' ...");
-            model["Me"] = new Person() { Name = "Bob", Age = 8, Gender = "M" };
-            Console.WriteLine(process.Run(model));
+            inputs["Me"] = new Person() { Name = "Bob", Age = 8, Gender = "M" };
+            Console.WriteLine(process.Run(inputs));
 
             Console.WriteLine();
             Console.WriteLine("Running with 'Carly' ...");
-            model["Me"] = new Person() { Name = "Carly", Age = 15, Gender = "M" };
-            Console.WriteLine(process.Run(model));
+            inputs["Me"] = new Person() { Name = "Carly", Age = 15, Gender = "M" };
+            Console.WriteLine(process.Run(inputs));
 
             Console.WriteLine();
             Console.WriteLine("Running with 'Dave' ...");
-            model["Me"] = new Person() { Name = "Dave", Age = 34, Gender = "M" };
-            Console.WriteLine(process.Run(model));
+            inputs["Me"] = new Person() { Name = "Dave", Age = 34, Gender = "M" };
+            Console.WriteLine(process.Run(inputs));
         }
 
         class Person

@@ -7,7 +7,7 @@ namespace Cursive
 {
     class UserProcess : Process
     {
-        public UserProcess(string name, string description, Step firstStep, IEnumerable<Step> allSteps)
+        public UserProcess(string name, string description, StartStep firstStep, IEnumerable<Step> allSteps)
             : base(description)
         {
             Name = name;
@@ -16,15 +16,15 @@ namespace Cursive
         }
 
         public string Name { get; }
-        private Step FirstStep { get; }
+        internal StartStep FirstStep { get; }
         internal IEnumerable<Step> Steps { get; }
         
         public override string Run(ValueSet inputs, out ValueSet outputs)
         {
-            ValueSet variables = inputs.Clone(); // TODO: actually, map these
+            ValueSet variables = InitializeVariables();
 
-            var currentStep = FirstStep.Run(variables);
-            var lastStep = FirstStep;
+            FirstStep.SetInputs(inputs);
+            Step currentStep = FirstStep, lastStep = null;
 
             while (currentStep != null)
             {
@@ -94,6 +94,13 @@ namespace Cursive
         {
             var type = workspace.GetType(typeName);
             // TODO: initialise internal variable
+        }
+
+        private ValueSet InitializeVariables()
+        {
+            var values = new ValueSet();
+            // TODO: default values, based on the above AddVariable method
+            return values;
         }
     }
 }

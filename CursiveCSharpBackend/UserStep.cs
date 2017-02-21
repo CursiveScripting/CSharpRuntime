@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Cursive
 {
-    class UserStep : Step
+    class UserStep : ReturningStep
     {
         public UserStep(string name, Process process)
             : base(name)
@@ -11,25 +11,13 @@ namespace Cursive
             ChildProcess = process;
         }
 
-        protected internal Process ChildProcess { get; internal set; }
-        protected internal Step DefaultReturnPath { get; private set; }
-
-        protected internal Dictionary<string, string> OutputMapping { get; } = new Dictionary<string, string>();
-        protected internal Dictionary<string, Step> ReturnPaths { get; } = new Dictionary<string, Step>();
-
-        public void MapOutputParameter(string parameterName, string destinationName)
-        {
-            OutputMapping[parameterName] = destinationName;
-        }
+        internal Process ChildProcess { get; set; }
         
+        internal Dictionary<string, Step> ReturnPaths { get; } = new Dictionary<string, Step>();
+
         public void AddReturnPath(string name, Step nextStep)
         {
             ReturnPaths.Add(name, nextStep);
-        }
-
-        public void SetDefaultReturnPath(Step nextStep)
-        {
-            DefaultReturnPath = nextStep;
         }
 
         public override Step Run(ValueSet variables)
@@ -37,14 +25,14 @@ namespace Cursive
             // set up fixed input parameters
             ValueSet inputs = FixedInputs.Clone(), outputs;
 
-            // map any other input parameters in from the workspace
+            // map any other input parameters in from variables
             foreach (var kvp in InputMapping)
                 inputs[kvp.Key] = variables[kvp.Value];
             
             // actually run the process, with the inputs named as it expects
             var returnPath = ChildProcess.Run(inputs, out outputs);
 
-            // map any output parameters back out into the workspace
+            // map any output parameters back out into variables
             if (outputs != null)
                 foreach (var kvp in OutputMapping)
                     variables[kvp.Value] = outputs[kvp.Key];

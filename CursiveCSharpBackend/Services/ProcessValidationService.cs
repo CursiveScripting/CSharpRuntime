@@ -24,7 +24,7 @@ namespace CursiveCSharpBackend.Services
 
             // 1a. any input/output parameter being mapped into/out of a child process must be present in that child process.
             // 1b. any input parameter can only be mapped in OR have a fixed value, not both.
-            // 1c. any child process must have all the input parameters mapped that it expects.
+            // 1c. any child process must have all the input and output parameters mapped that it expects.
             foreach (var step in process.UserSteps)
             {
                 foreach (var kvp in step.FixedInputs)
@@ -62,10 +62,34 @@ namespace CursiveCSharpBackend.Services
                             errors.Add(string.Format("The '{0}' step requires the '{1}' input parameter, which has not been set.", step.Name, parameter.Name));
                             success = false;
                         }
+
+                if (step.ChildProcess.Outputs != null)
+                    foreach (var parameter in step.ChildProcess.Outputs)
+                        if (!step.OutputMapping.ContainsKey(parameter.Name))
+                        {
+                            errors.Add(string.Format("The '{0}' step requires the '{1}' output parameter, which has not been set.", step.Name, parameter.Name));
+                            success = false;
+                        }
             }
 
-            // 2a. each end step must set every output defined for its process.
-            // 2b. each end step must not set any output not defined for its process.
+            // 2a. each start step must map every input defined for its process.
+            // 2b. each start step must not map any input not defined for its process.
+            foreach (var input in process.Inputs)
+                if (!process.FirstStep.OutputMapping.ContainsValue(input.Name))
+                {
+                    errors.Add(string.Format("The start step doesn't map the '{0}' input.", input.Name));
+                    success = false;
+                }
+
+            foreach (var kvp in process.FirstStep.OutputMapping)
+                if (process.Inputs.FirstOrDefault(p => p.Name == kvp.Value) == null)
+                {
+                    errors.Add(string.Format("The start step maps the '{0}' input, which is not defined for this process.", kvp.Value));
+                    success = false;
+                }
+
+            // 3a. each end step must set every output defined for its process.
+            // 3b. each end step must not set any output not defined for its process.
             foreach (var step in process.EndSteps)
             {
                 foreach (var output in process.Outputs)
@@ -83,7 +107,7 @@ namespace CursiveCSharpBackend.Services
                     }
             }
 
-            // 3. every step with multiple return paths must either have EVERY path mapped, or have a default return path mapped.
+            // 4. every step with multiple return paths must either have EVERY path mapped, or have a default return path mapped.
             foreach (var step in process.UserSteps)
             {
                 if (step.DefaultReturnPath == null)
@@ -95,7 +119,7 @@ namespace CursiveCSharpBackend.Services
                         }
             }
 
-            // 4. every workspace variable must always be treated as the same type by everything that reads from it or writes to it.
+            // 5. every variable must always be treated as the same type by everything that reads from it or writes to it.
             var variableTypes = new Dictionary<string, Type>();
             foreach (var input in process.Inputs)
                 variableTypes[input.Name] = input.Type;
@@ -138,6 +162,23 @@ namespace CursiveCSharpBackend.Services
                         variableTypes[varName] = varType;
                 }
             }
+            foreach (var kvp in process.FirstStep.OutputMapping)
+            {
+                string varName = kvp.Value;
+                Type varType = process.Inputs.Single(p => p.Name == kvp.Key).Type;
+
+                Type prevType;
+                if (variableTypes.TryGetValue(varName, out prevType))
+                {
+                    if (prevType != varType)
+                    {
+                        errors.Add(string.Format("The start step expects the '{0}' output parameter to be '{1}', but it has been declared as '{2}' elsewhere.", varName, workspace.GetType(varType).Name, workspace.GetType(prevType).Name));
+                        success = false;
+                    }
+                }
+                else
+                    variableTypes[varName] = varType;
+            }
             foreach (var step in process.EndSteps)
             {
                 foreach (var kvp in step.InputMapping)
@@ -163,7 +204,7 @@ namespace CursiveCSharpBackend.Services
             }
 
 
-            // 5. every mapped parameter mapped into a step should first have been set by every path that could lead to that point.
+            // 6. every variable mapped into a step should either have a default, or should first have been set by every path that could lead to that point.
             // ...this is likely to be challenging
 
             return success;

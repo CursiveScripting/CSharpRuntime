@@ -97,36 +97,35 @@ namespace CursiveCSharpBackend.Services
             var stepsByName = new Dictionary<string, Step>();
             stepsAndNodes = new List<Tuple<UserStep, XmlElement>>();
 
-            string firstStepName = null;
+            StartStep firstStep = null; XmlElement firstStepNode = null;
             foreach (XmlElement stepNode in steps.ChildNodes)
             {
                 var step = LoadProcessStep(stepNode);
                 if (step is StartStep)
                 {
-                    var firstReturnPath = stepNode.SelectSingleNode("ReturnPath") as XmlElement;
-                    firstStepName = firstReturnPath.GetAttribute("targetStepID");
-                    continue;
+                    firstStep = step as StartStep;
+                    firstStepNode = stepNode;
                 }
-
-                stepsByName.Add(step.Name, step);
-
+                else
+                    stepsByName.Add(step.Name, step);
+                
                 if (step is UserStep)
                     stepsAndNodes.Add(new Tuple<UserStep, XmlElement>(step as UserStep, stepNode));
             }
 
-            foreach (var step in stepsAndNodes)
+            if (firstStep == null)
             {
-                if (!LoadStepLinks(step.Item1, step.Item2, stepsByName, errors))
-                    return null;
-            }
-
-            Step firstStep;
-            if (!stepsByName.TryGetValue(firstStepName, out firstStep))
-            {
-                errors.Add(string.Format("Return path target of Start step not recognised: {0}", firstStepName));
+                errors.Add(string.Format("Process '{0}' lacks a Start step", name));
                 return null;
             }
 
+            if (!LoadReturnPaths(firstStep, firstStepNode, stepsByName, errors))
+                return null;
+
+            foreach (var step in stepsAndNodes)
+                if (!LoadReturnPaths(step.Item1, step.Item2, stepsByName, errors))
+                    return null;
+            
             UserProcess process = new UserProcess(name, desc, firstStep, stepsByName.Values);
 
             var inputs = processNode.SelectNodes("Input");
@@ -192,9 +191,8 @@ namespace CursiveCSharpBackend.Services
             if (stepNode.Name == "Start")
             {
                 var step = new StartStep(name);
-                // TODO: use start step's output parameters ... somehow
                 foreach (XmlElement output in mapOutputs)
-                    ;//step.MapOutputParameter(output.GetAttribute("name"), output.GetAttribute("destination"));
+                    step.MapOutputParameter(output.GetAttribute("name"), output.GetAttribute("destination"));
                 return step;
             }
             else if (stepNode.Name == "Stop")
@@ -221,7 +219,7 @@ namespace CursiveCSharpBackend.Services
             }
         }
 
-        private static bool LoadStepLinks(UserStep step, XmlElement stepNode, Dictionary<string, Step> stepsByName, List<string> errors)
+        private static bool LoadReturnPaths(ReturningStep step, XmlElement stepNode, Dictionary<string, Step> stepsByName, List<string> errors)
         {
             var singlePathNode = stepNode.SelectSingleNode("ReturnPath") as XmlElement;
             if (singlePathNode != null)
@@ -236,10 +234,17 @@ namespace CursiveCSharpBackend.Services
                     return false;
                 }
 
-                step.SetDefaultReturnPath(returnStep);
+                step.DefaultReturnPath = returnStep;
                 return true;
             }
 
+            if (step is StartStep)
+            {
+                errors.Add(string.Format("Start step '{0}' doesn't have a single, unnamed return path", step.Name));
+                return false;
+            }
+
+            var userStep = step as UserStep;
             var pathNodes = stepNode.SelectNodes("NamedReturnPath");
             bool success = true;
 
@@ -256,14 +261,14 @@ namespace CursiveCSharpBackend.Services
                     continue;
                 }
 
-                if (step.ReturnPaths.ContainsKey(pathName))
+                if (userStep.ReturnPaths.ContainsKey(pathName))
                 {
                     errors.Add(string.Format("Step '{0}' contains multiple '{1}' return paths. Return path names must be unique.", step.Name, pathName));
                     success = false;
                     continue;
                 }
 
-                step.AddReturnPath(pathName, returnStep);
+                userStep.AddReturnPath(pathName, returnStep);
             }
 
             return success;

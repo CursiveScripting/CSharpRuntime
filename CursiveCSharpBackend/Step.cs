@@ -14,6 +14,7 @@ namespace Cursive
         public string Name { get; }
         protected internal ValueSet FixedInputs { get; } = new ValueSet();
         protected internal Dictionary<string, string> InputMapping { get; } = new Dictionary<string, string>();
+        protected internal Dictionary<string, string> OutputMapping { get; } = new Dictionary<string, string>();
 
         public void SetInputParameter(string parameterName, object value)
         {
@@ -23,6 +24,11 @@ namespace Cursive
         public void MapInputParameter(string parameterName, string sourceName)
         {
             InputMapping[parameterName] = sourceName;
+        }
+
+        public void MapOutputParameter(string parameterName, string sourceName)
+        {
+            OutputMapping[parameterName] = sourceName;
         }
     }
 }

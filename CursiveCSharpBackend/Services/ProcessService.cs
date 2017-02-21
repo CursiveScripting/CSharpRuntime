@@ -24,7 +24,7 @@ namespace CursiveCSharpBackend.Services
             return true;
         }
 
-        private static bool CollectionsMatch<T>(ICollection<T> p1s, ICollection<T> p2s)
+        private static bool CollectionsMatch<T>(IReadOnlyCollection<T> p1s, IReadOnlyCollection<T> p2s)
             where T : IComparable<T>, IEquatable<T>
         {
             if (p1s != null)

@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Cursive
 {
@@ -44,15 +42,14 @@ namespace Cursive
             throw new InvalidOperationException("The last step of a completed process wasn't an EndStep");
         }
 
-        public override ReadOnlyCollection<string> ReturnPaths
+        public override IReadOnlyCollection<string> ReturnPaths
         {
             get
             {
                 List<string> paths = new List<string>();
                 foreach (var endStep in EndSteps)
                     paths.Add(endStep.ReturnValue);
-
-                return paths.AsReadOnly();
+                return paths;
             }
         }
 
@@ -96,14 +93,14 @@ namespace Cursive
             // TODO: initialise internal variable
         }
 
-        public override ReadOnlyCollection<Parameter> Inputs
+        public override IReadOnlyCollection<Parameter> Inputs
         {
-            get { return inputs.AsReadOnly(); }
+            get { return inputs; }
         }
 
-        public override ReadOnlyCollection<Parameter> Outputs
+        public override IReadOnlyCollection<Parameter> Outputs
         {
-            get { return outputs.AsReadOnly(); }
+            get { return outputs; }
         }
     }
 }

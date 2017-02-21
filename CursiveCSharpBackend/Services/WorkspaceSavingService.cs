@@ -11,7 +11,6 @@ namespace CursiveCSharpBackend.Services
 {
     internal static class WorkspaceSavingService
     {
-
         internal static XmlDocument WriteDefinition(Workspace workspace)
         {
             var doc = new XmlDocument();
@@ -43,7 +42,9 @@ namespace CursiveCSharpBackend.Services
             }
 
             foreach (var kvp in workspace.RequiredProcesses)
+            {
                 WriteProcess(workspace, kvp.Value, kvp.Key, root, "SystemProcess");
+            }
 
             return doc;
         }
@@ -74,16 +75,10 @@ namespace CursiveCSharpBackend.Services
                 outputNode.Attributes.Append(doc.CreateAttribute("type", type.Name));
                 processNode.AppendChild(outputNode);
             }
-
-            if (process.ReturnPaths.Count == 0)
-                return;
-
-            var returnPathsNode = doc.CreateElement("ReturnPaths");
-            processNode.AppendChild(returnPathsNode);
-
+            
             foreach (var path in process.ReturnPaths)
             {
-                var pathNode = doc.CreateElement("Path");
+                var pathNode = doc.CreateElement("NamedReturnPath");
                 pathNode.Attributes.Append(doc.CreateAttribute("name", path));
                 processNode.AppendChild(pathNode);
             }

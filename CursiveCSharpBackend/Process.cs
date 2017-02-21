@@ -1,9 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Cursive
 {
@@ -21,13 +17,10 @@ namespace Cursive
         }
 
         public string Description { get; protected set; }
+        public abstract IReadOnlyCollection<string> ReturnPaths { get; }
+        public abstract IReadOnlyCollection<Parameter> Inputs { get; }
+        public abstract IReadOnlyCollection<Parameter> Outputs { get; }
 
         public abstract string Run(Model input, out Model output);
-        
-        public abstract ReadOnlyCollection<string> ReturnPaths { get; }
-
-        public abstract ReadOnlyCollection<Parameter> Inputs { get; }
-
-        public abstract ReadOnlyCollection<Parameter> Outputs { get; }
     }
 }

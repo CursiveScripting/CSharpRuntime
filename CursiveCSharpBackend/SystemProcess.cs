@@ -1,38 +1,28 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace Cursive
 {
     public class SystemProcess : Process
     {
-        public SystemProcess(SystemStep operation, string description, Parameter[] inputs, Parameter[] outputs, string[] returnPaths)
+        public SystemProcess(SystemStep operation, string description, IReadOnlyCollection<Parameter> inputs, IReadOnlyCollection<Parameter> outputs, IReadOnlyCollection<string> returnPaths)
             : base(description)
         {
-            this.operation = operation;
-            this.inputs = inputs == null ? null : Array.AsReadOnly(inputs);
-            this.outputs = outputs == null ? null : Array.AsReadOnly(outputs);
-            this.returnPaths = returnPaths == null ? null : Array.AsReadOnly(returnPaths);
+            Operation = operation;
+            Inputs = inputs;
+            Outputs = outputs;
+            ReturnPaths = returnPaths;
         }
 
         public delegate string SystemStep(Model input, out Model output);
 
-        private SystemStep operation;
-        private ReadOnlyCollection<string> returnPaths;
-        private ReadOnlyCollection<Parameter> inputs, outputs;
+        private SystemStep Operation { get; }
+        public override IReadOnlyCollection<string> ReturnPaths { get; }
+        public override IReadOnlyCollection<Parameter> Inputs { get; }
+        public override IReadOnlyCollection<Parameter> Outputs { get; }
 
         public override string Run(Model inputs, out Model outputs)
         {
-            return operation(inputs, out outputs);
+            return Operation(inputs, out outputs);
         }
-
-        public override ReadOnlyCollection<string> ReturnPaths { get { return returnPaths; } }
-
-        public override ReadOnlyCollection<Parameter> Inputs { get { return inputs; } }
-
-        public override ReadOnlyCollection<Parameter> Outputs { get { return outputs; } }
     }
 }

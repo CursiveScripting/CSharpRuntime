@@ -17,7 +17,7 @@ namespace Tests.Processes
                 return string.Empty;
             },
             "Write a message to the system console.",
-            new Parameter[] { new Parameter("message", typeof(string)) },
+            new Parameter[] { new Parameter("message", Program.text) },
             null,
             null
         );

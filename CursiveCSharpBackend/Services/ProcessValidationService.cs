@@ -75,14 +75,14 @@ namespace CursiveCSharpBackend.Services
             // 2a. each start step must map every input defined for its process.
             // 2b. each start step must not map any input not defined for its process.
             foreach (var input in process.Inputs)
-                if (!process.FirstStep.OutputMapping.ContainsValue(input.Name))
+                if (!process.FirstStep.OutputMapping.ContainsKey(input.Name))
                 {
                     errors.Add(string.Format("The start step doesn't map the '{0}' input.", input.Name));
                     success = false;
                 }
 
             foreach (var kvp in process.FirstStep.OutputMapping)
-                if (process.Inputs.FirstOrDefault(p => p.Name == kvp.Value) == null)
+                if (process.Inputs.FirstOrDefault(p => p.Name == kvp.Key) == null)
                 {
                     errors.Add(string.Format("The start step maps the '{0}' input, which is not defined for this process.", kvp.Value));
                     success = false;
@@ -120,7 +120,7 @@ namespace CursiveCSharpBackend.Services
             }
 
             // 5. every variable must always be treated as the same type by everything that reads from it or writes to it.
-            var variableTypes = new Dictionary<string, Type>();
+            var variableTypes = new Dictionary<string, DataType>();
             foreach (var input in process.Inputs)
                 variableTypes[input.Name] = input.Type;
 
@@ -129,14 +129,14 @@ namespace CursiveCSharpBackend.Services
                 foreach (var kvp in step.InputMapping)
                 {
                     string varName = kvp.Value;
-                    Type varType = step.ChildProcess.Inputs.Single(p => p.Name == kvp.Key).Type;
+                    DataType varType = step.ChildProcess.Inputs.Single(p => p.Name == kvp.Key).Type;
 
-                    Type prevType;
+                    DataType prevType;
                     if (variableTypes.TryGetValue(varName, out prevType))
                     {
-                        if (prevType != varType && !prevType.IsAssignableFrom(varType) && !varType.IsAssignableFrom(prevType))
+                        if (prevType != varType && !prevType.SystemType.IsAssignableFrom(varType.SystemType) && !varType.SystemType.IsAssignableFrom(prevType.SystemType))
                         {
-                            errors.Add(string.Format("The '{0}' step expects the '{1}' input parameter to be '{2}', but it has been declared as '{3}' elsewhere.", step.Name, varName, workspace.GetType(varType).Name, workspace.GetType(prevType).Name));
+                            errors.Add(string.Format("The '{0}' step expects the '{1}' input parameter to be '{2}', but it has been declared as '{3}' elsewhere.", step.Name, varName, varType.Name, prevType.Name));
                             success = false;
                         }
                     }
@@ -147,14 +147,14 @@ namespace CursiveCSharpBackend.Services
                 foreach (var kvp in step.OutputMapping)
                 {
                     string varName = kvp.Value;
-                    Type varType = step.ChildProcess.Outputs.Single(p => p.Name == kvp.Key).Type;
+                    DataType varType = step.ChildProcess.Outputs.Single(p => p.Name == kvp.Key).Type;
 
-                    Type prevType;
+                    DataType prevType;
                     if (variableTypes.TryGetValue(varName, out prevType))
                     {
                         if (prevType != varType)
                         {
-                            errors.Add(string.Format("The '{0}' step expects the '{1}' output parameter to be '{2}', but it has been declared as '{3}' elsewhere.", step.Name, varName, workspace.GetType(varType).Name, workspace.GetType(prevType).Name));
+                            errors.Add(string.Format("The '{0}' step expects the '{1}' output parameter to be '{2}', but it has been declared as '{3}' elsewhere.", step.Name, varName, varType.Name, prevType.Name));
                             success = false;
                         }
                     }
@@ -165,14 +165,14 @@ namespace CursiveCSharpBackend.Services
             foreach (var kvp in process.FirstStep.OutputMapping)
             {
                 string varName = kvp.Value;
-                Type varType = process.Inputs.Single(p => p.Name == kvp.Key).Type;
+                DataType varType = process.Inputs.Single(p => p.Name == kvp.Key).Type;
 
-                Type prevType;
+                DataType prevType;
                 if (variableTypes.TryGetValue(varName, out prevType))
                 {
                     if (prevType != varType)
                     {
-                        errors.Add(string.Format("The start step expects the '{0}' output parameter to be '{1}', but it has been declared as '{2}' elsewhere.", varName, workspace.GetType(varType).Name, workspace.GetType(prevType).Name));
+                        errors.Add(string.Format("The start step expects the '{0}' output parameter to be '{1}', but it has been declared as '{2}' elsewhere.", varName, varType.Name, prevType.Name));
                         success = false;
                     }
                 }
@@ -187,14 +187,14 @@ namespace CursiveCSharpBackend.Services
                     var output = process.Outputs.FirstOrDefault(p => p.Name == kvp.Value);
                     if (output == null)
                         continue;
-                    Type varType = output.Type;
+                    DataType varType = output.Type;
 
-                    Type prevType;
+                    DataType prevType;
                     if (variableTypes.TryGetValue(varName, out prevType))
                     {
                         if (prevType != varType)
                         {
-                            errors.Add(string.Format("The '{0}' end step expects the '{1}' output parameter to be '{2}' (this is how the process declares it), but it has been declared as '{3}' elsewhere.", step.ReturnValue, varName, workspace.GetType(varType).Name, workspace.GetType(prevType).Name));
+                            errors.Add(string.Format("The '{0}' end step expects the '{1}' output parameter to be '{2}' (this is how the process declares it), but it has been declared as '{3}' elsewhere.", step.ReturnValue, varName, varType.Name, prevType.Name));
                             success = false;
                         }
                     }

@@ -4,14 +4,19 @@ namespace Cursive
 {
     public class Parameter : IComparable<Parameter>, IEquatable<Parameter>
     {
-        public Parameter(string name, Type type)
+        public Parameter(string name, DataType type)
         {
             this.Name = name;
             this.Type = type;
         }
 
+        public Parameter(string name, Type type)
+        {
+            throw new NotImplementedException("Need to get the type from the workspace... but don't have one of those");
+        }
+
         public string Name { get; private set; }
-        public Type Type { get; private set; }
+        public DataType Type { get; private set; }
 
         public int CompareTo(Parameter other)
         {
@@ -20,7 +25,7 @@ namespace Cursive
             if (val != 0)
                 return val;
 
-            return Type.FullName.CompareTo(other.Type.FullName);
+            return Type.Name.CompareTo(other.Type.Name);
         }
 
         public bool Equals(Parameter other)

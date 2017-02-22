@@ -81,13 +81,13 @@ namespace Cursive
         internal void AddInput(Workspace workspace, string name, string typeName)
         {
             var type = workspace.GetType(typeName);
-            inputs.Add(new Parameter(name, type.SystemType));
+            inputs.Add(new Parameter(name, type));
         }
 
         internal void AddOutput(Workspace workspace, string name, string typeName)
         {
             var type = workspace.GetType(typeName);
-            outputs.Add(new Parameter(name, type.SystemType));
+            outputs.Add(new Parameter(name, type));
         }
 
         private ValueSet DefaultVariables { get; } = new ValueSet();

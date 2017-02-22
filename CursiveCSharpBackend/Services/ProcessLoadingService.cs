@@ -167,7 +167,7 @@ namespace CursiveCSharpBackend.Services
                     return false;
                 }
 
-                var type = workspace.GetType(processInput.Type);
+                var type = processInput.Type;
 
                 if (!(type is FixedType))
                 {

@@ -61,7 +61,7 @@ namespace CursiveCSharpBackend.Services
                 var inputNode = doc.CreateElement("Input");
                 inputNode.Attributes.Append(doc.CreateAttribute("name", input.Name));
 
-                var type = workspace.GetType(input.Type);
+                var type = input.Type;
                 inputNode.Attributes.Append(doc.CreateAttribute("type", type.Name));
                 processNode.AppendChild(inputNode);
             }
@@ -71,7 +71,7 @@ namespace CursiveCSharpBackend.Services
                 var outputNode = doc.CreateElement("Output");
                 outputNode.Attributes.Append(doc.CreateAttribute("name", output.Name));
 
-                var type = workspace.GetType(output.Type);
+                var type = output.Type;
                 outputNode.Attributes.Append(doc.CreateAttribute("type", type.Name));
                 processNode.AppendChild(outputNode);
             }

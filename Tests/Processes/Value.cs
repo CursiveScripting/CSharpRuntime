@@ -16,7 +16,7 @@ namespace Tests.Processes
                 return inputs["value1"].Equals(inputs["value2"]) ? "yes" : "no";
             },
             "Test to see if two values are equal.",
-            new Parameter[] { new Parameter("value1", typeof(string)), new Parameter("value2", typeof(string)) },
+            new Parameter[] { new Parameter("value1", Program.text), new Parameter("value2", Program.text) },
             null,
             new string[] { "yes", "no" }
         );
@@ -35,11 +35,11 @@ namespace Tests.Processes
                 return comparison < 0 ? "less" : comparison > 0 ? "greater" : "equal";
             },
             "Compare two integers. Returns 'error' if either value doesn't implement IComparable.",
-            new Parameter[] { new Parameter("value1", typeof(int)), new Parameter("value2", typeof(int)) },
+            new Parameter[] { new Parameter("value1", Program.integer), new Parameter("value2", Program.integer) },
             null,
             new string[] { "less", "greater", "equal", "error" }
         );
-
+        
         public static SystemProcess GetPropertyInteger = new SystemProcess(
             (ValueSet inputs, out ValueSet outputs) =>
             {
@@ -61,8 +61,8 @@ namespace Tests.Processes
                 return "ok";
             },
             "Output the named property of a given object. Returns 'error' if the property does not exist, or if getting it fails.",
-            new Parameter[] { new Parameter("object", typeof(object)), new Parameter("property", typeof(string)) },
-            new Parameter[] { new Parameter("value", typeof(int)) },
+            new Parameter[] { new Parameter("object", Program.person), new Parameter("property", Program.text) },
+            new Parameter[] { new Parameter("value", Program.integer) },
             new string[] { "ok", "error" }
         );
 
@@ -86,7 +86,7 @@ namespace Tests.Processes
                 return "ok";
             },
             "Set the named property of a given object to the value specified. Returns 'error' if the property does not exist, or if setting it fails.",
-            new Parameter[] { new Parameter("object", typeof(object)), new Parameter("property", typeof(string)), new Parameter("value", typeof(int)) },
+            new Parameter[] { new Parameter("object", Program.person), new Parameter("property", Program.text), new Parameter("value", Program.integer) },
             null,
             new string[] { "ok", "error" }
         );

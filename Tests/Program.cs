@@ -38,13 +38,18 @@ namespace Tests
             Console.ReadKey();
         }
 
+        public static DataType text = new FixedType<string>("text", new Regex(".*"), s => s, s => s, () => string.Empty);
+        public static DataType integer = new FixedType<int>("integer", new Regex("[0-9]+"), s => int.Parse(s), i => i.ToString());
+        public static DataType person = new DataType<Person>("person");
+        public static DataType car = new DataType<Car>("car");
+
         private static Workspace CreateWorkspace(out RequiredProcess required)
         {
             Workspace w = new Workspace();
-            w.AddDataType(new FixedType<string>("text", new Regex(".*"), s => s, s => s, () => string.Empty));
-            w.AddDataType(new FixedType<int>("integer", new Regex("[0-9]+"), s => int.Parse(s), i => i.ToString()));
-            w.AddDataType(new DataType<Person>("person"));
-            w.AddDataType(new DataType<Car>("car"));
+            w.AddDataType(text);
+            w.AddDataType(integer);
+            w.AddDataType(person);
+            w.AddDataType(car);
 
             w.AddSystemProcess("print", IO.Print);
             w.AddSystemProcess("getDay", Date.GetDayOfWeek);
@@ -53,11 +58,11 @@ namespace Tests
 
             required = new RequiredProcess("Run basic tests",
                 new Parameter[] {
-                    new Parameter("Me", typeof(Person)),
-                    new Parameter("Car", typeof(Car))
+                    new Parameter("Me", person),
+                    new Parameter("Car", car)
                 },
                 new Parameter[] {
-                    new Parameter("My age", typeof(int))
+                    new Parameter("My age", integer)
                 }, null);
             w.AddRequiredProcess("Test.MorningRoutine", required);
 

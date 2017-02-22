@@ -41,7 +41,7 @@ namespace Tests
         private static Workspace CreateWorkspace(out RequiredProcess required)
         {
             Workspace w = new Workspace();
-            w.AddDataType(new FixedType<string>("text", new Regex(".*"), s => s, s => s));
+            w.AddDataType(new FixedType<string>("text", new Regex(".*"), s => s, s => s, () => string.Empty));
             w.AddDataType(new FixedType<int>("integer", new Regex("[0-9]+"), s => int.Parse(s), i => i.ToString()));
             w.AddDataType(new DataType<Person>("person"));
             w.AddDataType(new DataType<Car>("car"));

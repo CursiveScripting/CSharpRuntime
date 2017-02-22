@@ -6,7 +6,7 @@
 	<Output name="My age" type="integer" />
   
   <Variable name="who" type="person" />
-  <Variable name="car" type="Car" />
+  <Variable name="car" type="car" />
   <Variable name="age" type="integer" initialValue="99" />
 	<Steps>
     <Start ID="start">

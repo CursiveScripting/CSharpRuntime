@@ -21,7 +21,7 @@ namespace Cursive
         
         public override string Run(ValueSet inputs, out ValueSet outputs)
         {
-            ValueSet variables = InitializeVariables();
+            ValueSet variables = DefaultVariables.Clone();
 
             FirstStep.SetInputs(inputs);
             Step currentStep = FirstStep, lastStep = null;
@@ -78,29 +78,28 @@ namespace Cursive
         private List<Parameter> inputs = new List<Parameter>();
         private List<Parameter> outputs = new List<Parameter>();
 
-        public void AddInput(Workspace workspace, string name, string typeName)
+        internal void AddInput(Workspace workspace, string name, string typeName)
         {
             var type = workspace.GetType(typeName);
             inputs.Add(new Parameter(name, type.SystemType));
         }
 
-        public void AddOutput(Workspace workspace, string name, string typeName)
+        internal void AddOutput(Workspace workspace, string name, string typeName)
         {
             var type = workspace.GetType(typeName);
             outputs.Add(new Parameter(name, type.SystemType));
         }
 
-        public void AddVariable(Workspace workspace, string name, string typeName, string initialValue = null)
+        private ValueSet DefaultVariables { get; } = new ValueSet();
+
+        internal void AddVariable(Workspace workspace, string name, string typeName, string initialValue = null)
         {
             var type = workspace.GetType(typeName);
-            // TODO: initialise internal variable
-        }
 
-        private ValueSet InitializeVariables()
-        {
-            var values = new ValueSet();
-            // TODO: default values, based on the above AddVariable method
-            return values;
+            if (initialValue != null && type is FixedType)
+                DefaultVariables[name] = (type as FixedType).Deserialize(initialValue);
+            else
+                DefaultVariables[name] = type.GetDefaultValue();
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Cursive
 {
@@ -13,9 +14,9 @@ namespace Cursive
             get
             {
                 object o;
-                if (elements.TryGetValue(key, out o))
-                    return o;
-                return null;
+                if (!elements.TryGetValue(key, out o))
+                    throw new Exception(string.Format("Value not found: {0} / {1}", key.Name, key.Type.Name));
+                return o;
             }
             set
             {

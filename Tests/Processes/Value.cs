@@ -54,7 +54,8 @@ namespace Tests.Processes
                 outputs = new ValueSet();
 
                 var source = inputs[person];
-                var prop = source.GetType().GetProperty(inputs[property].ToString());
+                var propertyName = inputs[property].ToString();
+                var prop = source.GetType().GetProperty(propertyName);
                 if (prop == null)
                     return "error";
 

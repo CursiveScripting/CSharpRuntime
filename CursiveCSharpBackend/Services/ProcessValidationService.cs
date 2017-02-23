@@ -20,11 +20,9 @@ namespace CursiveCSharpBackend.Services
                     errors.Add(string.Format("More than one step uses the name '{0}' - names must be unique", step.Name));
                     success = false;
                 }
-
-
-            // 1a. any input/output parameter being mapped into/out of a child process must be present in that child process.
-            // 1b. any input parameter can only be mapped in OR have a fixed value, not both.
-            // 1c. any child process must have all the input and output parameters mapped that it expects.
+            
+            // 1a. any input parameter can only be mapped in OR have a fixed value, not both.
+            // 1b. any child process must have all the input and output parameters mapped that it expects.
             foreach (var step in process.UserSteps)
             {
                 foreach (var kvp in step.FixedInputs)
@@ -36,24 +34,10 @@ namespace CursiveCSharpBackend.Services
                     }
                     if (step.InputMapping.ContainsValue(kvp.Key))
                     {
-                        errors.Add(string.Format("The '{0}' step sets the '{1}' input parameter twice - mapping it in and also setting a fixed value.", step.Name, kvp.Key));
+                        errors.Add(string.Format("The '{0}' step sets the '{1}' input parameter twice - mapping it in and also setting a fixed value.", step.Name, kvp.Key.Name));
                         success = false;
                     }
                 }
-
-                foreach (var kvp in step.InputMapping)
-                    if (!step.ChildProcess.Inputs.Any(p => p == kvp.Value))
-                    {
-                        errors.Add(string.Format("The '{0}' step maps the '{1}' input parameter, which isn't defined for the '{0}' process.", step.Name, kvp.Key));
-                        success = false;
-                    }
-
-                foreach (var kvp in step.OutputMapping)
-                    if (step.ChildProcess.Outputs.FirstOrDefault(p => p == kvp.Key) == null)
-                    {
-                        errors.Add(string.Format("The '{0}' step maps the '{1}' output parameter, which isn't defined for the '{0}' process.", step.Name, kvp.Key));
-                        success = false;
-                    }
 
                 if (step.ChildProcess.Inputs != null)
                     foreach (var parameter in step.ChildProcess.Inputs)
@@ -93,16 +77,16 @@ namespace CursiveCSharpBackend.Services
             foreach (var step in process.EndSteps)
             {
                 foreach (var output in process.Outputs)
-                    if (!step.InputMapping.ContainsValue(output))
+                    if (!step.InputMapping.ContainsKey(output))
                     {
                         errors.Add(string.Format("The {0} end step doesn't set the '{1}' output.", string.IsNullOrEmpty(step.ReturnValue) ? "default" : "'" + step.ReturnValue + "'", output.Name));
                         success = false;
                     }
 
                 foreach (var kvp in step.InputMapping)
-                    if (!process.Outputs.Any(p => p == kvp.Value))
+                    if (!process.Outputs.Any(p => p == kvp.Key))
                     {
-                        errors.Add(string.Format("The {0} end step sets the '{1}' output, which is not defined for this process.", string.IsNullOrEmpty(step.ReturnValue) ? "default" : "'" + step.ReturnValue + "'", kvp.Value));
+                        errors.Add(string.Format("The {0} end step sets the '{1}' output, which is not defined for this process.", string.IsNullOrEmpty(step.ReturnValue) ? "default" : "'" + step.ReturnValue + "'", kvp.Key.Name));
                         success = false;
                     }
             }

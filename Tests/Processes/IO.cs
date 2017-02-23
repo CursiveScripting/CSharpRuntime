@@ -13,7 +13,7 @@ namespace Tests.Processes
         public static readonly SystemProcess Print = new SystemProcess(
             (ValueSet inputs, out ValueSet outputs) =>
             {
-                Console.WriteLine(messageParam);
+                Console.WriteLine(inputs[messageParam]);
                 outputs = null;
                 return string.Empty;
             },

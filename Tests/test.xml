@@ -58,7 +58,7 @@
 			<ReturnPath targetStepID="done" />
 		</Step>
 		<Stop ID="done">
-			<MapInput name="age" source="My age" />
+			<MapInput name="My age" source="age" />
 		</Stop>
 	</Steps>
 </Process>

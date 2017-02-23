@@ -5,11 +5,11 @@ using System.Linq;
 
 namespace Cursive
 {
-    public class ValueSet : IEnumerable<KeyValuePair<Parameter, object>>
+    public class ValueSet : IEnumerable<KeyValuePair<ValueKey, object>>
     {
-        Dictionary<Parameter, object> elements = new Dictionary<Parameter, object>();
+        Dictionary<ValueKey, object> elements = new Dictionary<ValueKey, object>();
 
-        public object this[Parameter key]
+        public object this[ValueKey key]
         {
             get
             {
@@ -24,12 +24,12 @@ namespace Cursive
             }
         }
 
-        public bool HasElement(Parameter param)
+        public bool HasElement(ValueKey param)
         {
             return elements.ContainsKey(param);
         }
 
-        public IEnumerator<KeyValuePair<Parameter, object>> GetEnumerator()
+        public IEnumerator<KeyValuePair<ValueKey, object>> GetEnumerator()
         {
             return elements.GetEnumerator();
         }

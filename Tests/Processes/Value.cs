@@ -9,8 +9,8 @@ namespace Tests.Processes
 {
     public static class Value
     {
-        private static Parameter strValue1 = new Parameter("value1", Program.text);
-        private static Parameter strValue2 = new Parameter("value2", Program.text);
+        private static ValueKey strValue1 = new ValueKey("value1", Program.text);
+        private static ValueKey strValue2 = new ValueKey("value2", Program.text);
 
         public static SystemProcess EqualsText = new SystemProcess(
             (ValueSet inputs, out ValueSet outputs) =>
@@ -19,13 +19,13 @@ namespace Tests.Processes
                 return inputs[strValue1].Equals(inputs[strValue2]) ? "yes" : "no";
             },
             "Test to see if two values are equal.",
-            new Cursive.Parameter[] { strValue1, strValue2 },
+            new Cursive.ValueKey[] { strValue1, strValue2 },
             null,
             new string[] { "yes", "no" }
         );
 
-        private static Parameter iValue1 = new Parameter("value1", Program.integer);
-        private static Parameter iValue2 = new Parameter("value2", Program.integer);
+        private static ValueKey iValue1 = new ValueKey("value1", Program.integer);
+        private static ValueKey iValue2 = new ValueKey("value2", Program.integer);
         public static SystemProcess CompareIntegers = new SystemProcess(
             (ValueSet inputs, out ValueSet outputs) =>
             {
@@ -40,14 +40,14 @@ namespace Tests.Processes
                 return comparison < 0 ? "less" : comparison > 0 ? "greater" : "equal";
             },
             "Compare two integers. Returns 'error' if either value doesn't implement IComparable.",
-            new Cursive.Parameter[] { iValue1, iValue2 },
+            new Cursive.ValueKey[] { iValue1, iValue2 },
             null,
             new string[] { "less", "greater", "equal", "error" }
         );
 
-        private static Parameter person = new Parameter("object", Program.person);
-        private static Parameter property = new Cursive.Parameter("property", Program.text);
-        private static Parameter iValue = new Cursive.Parameter("value", Program.integer);
+        private static ValueKey person = new ValueKey("object", Program.person);
+        private static ValueKey property = new Cursive.ValueKey("property", Program.text);
+        private static ValueKey iValue = new Cursive.ValueKey("value", Program.integer);
         public static SystemProcess GetPropertyInteger = new SystemProcess(
             (ValueSet inputs, out ValueSet outputs) =>
             {
@@ -70,8 +70,8 @@ namespace Tests.Processes
                 return "ok";
             },
             "Output the named property of a given object. Returns 'error' if the property does not exist, or if getting it fails.",
-            new Cursive.Parameter[] { person, property },
-            new Cursive.Parameter[] { iValue },
+            new Cursive.ValueKey[] { person, property },
+            new Cursive.ValueKey[] { iValue },
             new string[] { "ok", "error" }
         );
 
@@ -95,7 +95,7 @@ namespace Tests.Processes
                 return "ok";
             },
             "Set the named property of a given object to the value specified. Returns 'error' if the property does not exist, or if setting it fails.",
-            new Cursive.Parameter[] { person, property, iValue },
+            new Cursive.ValueKey[] { person, property, iValue },
             null,
             new string[] { "ok", "error" }
         );

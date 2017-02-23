@@ -4,7 +4,7 @@ namespace Cursive
 {
     public class SystemProcess : Process
     {
-        public SystemProcess(SystemStep operation, string description, IReadOnlyCollection<Parameter> inputs, IReadOnlyCollection<Parameter> outputs, IReadOnlyCollection<string> returnPaths)
+        public SystemProcess(SystemStep operation, string description, IReadOnlyCollection<ValueKey> inputs, IReadOnlyCollection<ValueKey> outputs, IReadOnlyCollection<string> returnPaths)
             : base(description)
         {
             Operation = operation;
@@ -18,8 +18,8 @@ namespace Cursive
 
         private SystemStep Operation { get; }
         public override IReadOnlyCollection<string> ReturnPaths { get; }
-        public override IReadOnlyCollection<Parameter> Inputs { get; }
-        public override IReadOnlyCollection<Parameter> Outputs { get; }
+        public override IReadOnlyCollection<ValueKey> Inputs { get; }
+        public override IReadOnlyCollection<ValueKey> Outputs { get; }
 
         public override string Run(ValueSet inputs, out ValueSet outputs)
         {

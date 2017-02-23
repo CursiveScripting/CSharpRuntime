@@ -18,8 +18,8 @@ namespace Cursive
 
         public string Description { get; protected set; }
         public abstract IReadOnlyCollection<string> ReturnPaths { get; }
-        public abstract IReadOnlyCollection<Parameter> Inputs { get; }
-        public abstract IReadOnlyCollection<Parameter> Outputs { get; }
+        public abstract IReadOnlyCollection<ValueKey> Inputs { get; }
+        public abstract IReadOnlyCollection<ValueKey> Outputs { get; }
 
         public abstract string Run(ValueSet input, out ValueSet output);
     }

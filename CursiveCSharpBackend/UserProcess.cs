@@ -7,7 +7,7 @@ namespace Cursive
 {
     class UserProcess : Process
     {
-        public UserProcess(string name, string description, IReadOnlyCollection<Parameter> inputs, IReadOnlyCollection<Parameter> outputs, ValueSet defaultVariables, StartStep firstStep, IEnumerable<Step> allSteps)
+        public UserProcess(string name, string description, IReadOnlyCollection<ValueKey> inputs, IReadOnlyCollection<ValueKey> outputs, ValueSet defaultVariables, StartStep firstStep, IEnumerable<Step> allSteps)
             : base(description)
         {
             Name = name;
@@ -20,8 +20,8 @@ namespace Cursive
 
         public string Name { get; }
 
-        public override IReadOnlyCollection<Parameter> Inputs { get; }
-        public override IReadOnlyCollection<Parameter> Outputs { get; }
+        public override IReadOnlyCollection<ValueKey> Inputs { get; }
+        public override IReadOnlyCollection<ValueKey> Outputs { get; }
         private ValueSet DefaultVariables { get; }
 
         internal StartStep FirstStep { get; }

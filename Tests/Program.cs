@@ -43,9 +43,9 @@ namespace Tests
         public static DataType person = new DataType<Person>("person");
         public static DataType car = new DataType<Car>("car");
 
-        private static Parameter me = new Parameter("Me", person);
-        private static Parameter carParam = new Parameter("Car", car);
-        private static Parameter myAge = new Parameter("My age", integer);
+        private static ValueKey me = new ValueKey("Me", person);
+        private static ValueKey carParam = new ValueKey("Car", car);
+        private static ValueKey myAge = new ValueKey("My age", integer);
 
         private static Workspace CreateWorkspace(out RequiredProcess required)
         {
@@ -61,8 +61,8 @@ namespace Tests
             w.AddSystemProcess("get", Processes.Value.GetPropertyInteger);
 
             required = new RequiredProcess("Run basic tests",
-                new Parameter[] { me, carParam },
-                new Parameter[] { myAge }, null);
+                new ValueKey[] { me, carParam },
+                new ValueKey[] { myAge }, null);
             w.AddRequiredProcess("Test.MorningRoutine", required);
 
             return w;

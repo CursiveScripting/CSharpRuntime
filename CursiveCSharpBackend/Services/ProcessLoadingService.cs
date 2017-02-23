@@ -81,12 +81,12 @@ namespace CursiveCSharpBackend.Services
             var outputNodes = processNode.SelectNodes("Output");
             var variableNodes = processNode.SelectNodes("Variable");
 
-            var inputs = new List<Parameter>();
-            var outputs = new List<Parameter>();
+            var inputs = new List<ValueKey>();
+            var outputs = new List<ValueKey>();
             var defaultVariables = new ValueSet();
-            var inputsByName = new Dictionary<string, Parameter>();
-            var outputsByName = new Dictionary<string, Parameter>();
-            var variablesByName = new Dictionary<string, Parameter>();
+            var inputsByName = new Dictionary<string, ValueKey>();
+            var outputsByName = new Dictionary<string, ValueKey>();
+            var variablesByName = new Dictionary<string, ValueKey>();
 
             RequiredProcess wrapper;
             if (!workspace.RequiredProcesses.TryGetValue(processName, out wrapper))
@@ -98,7 +98,7 @@ namespace CursiveCSharpBackend.Services
             {
                 var type = workspace.GetType(input.GetAttribute("type"));
                 var name = input.GetAttribute("name");
-                Parameter param;
+                ValueKey param;
 
                 if (wrapper != null)
                 {
@@ -117,7 +117,7 @@ namespace CursiveCSharpBackend.Services
                     }
                 }
                 else
-                    param = new Parameter(name, type);
+                    param = new ValueKey(name, type);
 
                 inputs.Add(param);
                 inputsByName.Add(name, param);
@@ -126,7 +126,7 @@ namespace CursiveCSharpBackend.Services
             {
                 var type = workspace.GetType(output.GetAttribute("type"));
                 var name = output.GetAttribute("name");
-                Parameter param;
+                ValueKey param;
 
                 if (wrapper != null)
                 {
@@ -145,7 +145,7 @@ namespace CursiveCSharpBackend.Services
                     }
                 }
                 else
-                    param = new Parameter(name, type);
+                    param = new ValueKey(name, type);
 
                 outputs.Add(param);
                 outputsByName.Add(name, param);
@@ -154,7 +154,7 @@ namespace CursiveCSharpBackend.Services
             {
                 var type = workspace.GetType(variable.GetAttribute("type"));
                 var name = variable.GetAttribute("name");
-                var definition = new Parameter(name, type);
+                var definition = new ValueKey(name, type);
                 variablesByName.Add(name, definition);
 
                 var initialValue = variable.GetAttribute("initialValue");
@@ -246,7 +246,7 @@ namespace CursiveCSharpBackend.Services
             foreach (XmlElement inputNode in fixedInputs)
             {
                 var name = inputNode.GetAttribute("name");
-                Parameter input = process.Inputs.FirstOrDefault(p => p.Name == name);
+                ValueKey input = process.Inputs.FirstOrDefault(p => p.Name == name);
                 if (input == null)
                 {
                     errors.Add(string.Format("Input name not recognised for '{0}' step calling '{1}' process: {2}", step.Name, processName, name));
@@ -268,7 +268,7 @@ namespace CursiveCSharpBackend.Services
 
             foreach (var inputInfo in stepInfo.InputsToMap)
             {
-                Parameter input = process.Inputs.FirstOrDefault(p => p.Name == inputInfo.Key);
+                ValueKey input = process.Inputs.FirstOrDefault(p => p.Name == inputInfo.Key);
                 if (input == null)
                 {
                     errors.Add(string.Format("The '{0}' step tries to map '{1}' variable to non-existant input '{2}'", step.Name, inputInfo.Value.Name, inputInfo.Key));
@@ -288,7 +288,7 @@ namespace CursiveCSharpBackend.Services
 
             foreach (var outputInfo in stepInfo.OutputsToMap)
             {
-                Parameter output = process.Outputs.FirstOrDefault(p => p.Name == outputInfo.Key);
+                ValueKey output = process.Outputs.FirstOrDefault(p => p.Name == outputInfo.Key);
                 if (output == null)
                 {
                     errors.Add(string.Format("The '{0}' step tries to map non-existant output '{2}' to '{1}' variable", step.Name, outputInfo.Value.Name, outputInfo.Key));
@@ -309,7 +309,7 @@ namespace CursiveCSharpBackend.Services
             return success;
         }
 
-        private static Step LoadProcessStep(XmlElement stepNode, Dictionary<string, Parameter> inputs, Dictionary<string, Parameter> outputs, Dictionary<string, Parameter> variables, List<UserStepLoadingInfo> loadingSteps, List<string> errors)
+        private static Step LoadProcessStep(XmlElement stepNode, Dictionary<string, ValueKey> inputs, Dictionary<string, ValueKey> outputs, Dictionary<string, ValueKey> variables, List<UserStepLoadingInfo> loadingSteps, List<string> errors)
         {
             var name = stepNode.GetAttribute("ID");
             var mapInputs = stepNode.SelectNodes("MapInput");
@@ -325,7 +325,7 @@ namespace CursiveCSharpBackend.Services
                     var paramName = output.GetAttribute("name");
                     var variableName = output.GetAttribute("destination");
 
-                    Parameter inputParam, variableParam;
+                    ValueKey inputParam, variableParam;
                     if (!inputs.TryGetValue(paramName, out inputParam))
                     {
                         errors.Add(string.Format("The start step tries to map non-existant input parameter '{0}' to variable '{1}'", paramName, variableName));
@@ -362,7 +362,7 @@ namespace CursiveCSharpBackend.Services
                     var paramName = input.GetAttribute("name");
                     var variableName = input.GetAttribute("source");
 
-                    Parameter outputParam, variableParam;
+                    ValueKey outputParam, variableParam;
                     if (!outputs.TryGetValue(paramName, out outputParam))
                     {
                         errors.Add(string.Format("The stop step '{0}' tries to map variable '{2}' to non-existant output parameter '{1}'", name, paramName, variableName));
@@ -398,7 +398,7 @@ namespace CursiveCSharpBackend.Services
                     var paramName = input.GetAttribute("name");
                     var variableName = input.GetAttribute("source");
 
-                    Parameter variableParam;
+                    ValueKey variableParam;
                     if (!variables.TryGetValue(variableName, out variableParam))
                     {
                         errors.Add(string.Format("Step '{0}' tries to map non-existant variable '{2}' to input parameter '{1}'", name, paramName, variableName));
@@ -413,7 +413,7 @@ namespace CursiveCSharpBackend.Services
                     var paramName = output.GetAttribute("name");
                     var variableName = output.GetAttribute("destination");
 
-                    Parameter variableParam;
+                    ValueKey variableParam;
                     if (!variables.TryGetValue(variableName, out variableParam))
                     {
                         errors.Add(string.Format("Step '{0}' tries to map output parameter '{1}' to non-existant variable '{2}'", name, paramName, variableName));

@@ -2,9 +2,9 @@
 
 namespace Cursive
 {
-    public class Parameter : IComparable<Parameter>, IEquatable<Parameter>
+    public class ValueKey : IComparable<ValueKey>, IEquatable<ValueKey>
     {
-        public Parameter(string name, DataType type)
+        public ValueKey(string name, DataType type)
         {
             Name = name;
             Type = type;
@@ -13,7 +13,7 @@ namespace Cursive
         public string Name { get; }
         public DataType Type { get; }
 
-        public int CompareTo(Parameter other)
+        public int CompareTo(ValueKey other)
         {
             int val = Name.CompareTo(other.Name);
 
@@ -23,7 +23,7 @@ namespace Cursive
             return Type.Name.CompareTo(other.Type.Name);
         }
 
-        public bool Equals(Parameter other)
+        public bool Equals(ValueKey other)
         {
             return Name == other.Name && Type == other.Type;
         }

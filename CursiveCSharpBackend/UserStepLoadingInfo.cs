@@ -15,7 +15,7 @@ namespace Cursive
         internal UserStep Step { get; }
         internal XmlElement Element { get; }
 
-        internal Dictionary<string, Parameter> InputsToMap { get; } = new Dictionary<string, Parameter>();
-        internal Dictionary<string, Parameter> OutputsToMap { get; } = new Dictionary<string, Parameter>();
+        internal Dictionary<string, ValueKey> InputsToMap { get; } = new Dictionary<string, ValueKey>();
+        internal Dictionary<string, ValueKey> OutputsToMap { get; } = new Dictionary<string, ValueKey>();
     }
 }

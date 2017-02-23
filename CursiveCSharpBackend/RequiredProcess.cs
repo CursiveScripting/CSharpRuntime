@@ -4,7 +4,7 @@ namespace Cursive
 {
     public class RequiredProcess : Process
     {
-        public RequiredProcess(string description, IReadOnlyCollection<Parameter> inputs, IReadOnlyCollection<Parameter> outputs, IReadOnlyCollection<string> returnPaths)
+        public RequiredProcess(string description, IReadOnlyCollection<ValueKey> inputs, IReadOnlyCollection<ValueKey> outputs, IReadOnlyCollection<string> returnPaths)
             : base(description)
         {
             Inputs = inputs;
@@ -14,8 +14,8 @@ namespace Cursive
         
         internal Process ActualProcess { get; set; }
         public override IReadOnlyCollection<string> ReturnPaths { get; }
-        public override IReadOnlyCollection<Parameter> Inputs { get; }
-        public override IReadOnlyCollection<Parameter> Outputs { get; }
+        public override IReadOnlyCollection<ValueKey> Inputs { get; }
+        public override IReadOnlyCollection<ValueKey> Outputs { get; }
 
         public override string Run(ValueSet inputs, out ValueSet outputs)
         {

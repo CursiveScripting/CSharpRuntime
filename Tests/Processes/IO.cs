@@ -9,7 +9,7 @@ namespace Tests.Processes
 {
     public static class IO
     {
-        private static Parameter messageParam = new Parameter("message", Program.text);
+        private static ValueKey messageParam = new ValueKey("message", Program.text);
         public static readonly SystemProcess Print = new SystemProcess(
             (ValueSet inputs, out ValueSet outputs) =>
             {
@@ -18,7 +18,7 @@ namespace Tests.Processes
                 return string.Empty;
             },
             "Write a message to the system console.",
-            new Cursive.Parameter[] { messageParam },
+            new Cursive.ValueKey[] { messageParam },
             null,
             null
         );

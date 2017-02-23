@@ -159,8 +159,8 @@ namespace CursiveCSharpBackend.Services
 
                 var initialValue = variable.GetAttribute("initialValue");
 
-                if (initialValue != null && definition.Type is FixedType)
-                    defaultVariables[definition] = (definition.Type as FixedType).Deserialize(initialValue);
+                if (initialValue != null && definition.Type is IDeserializable)
+                    defaultVariables[definition] = (definition.Type as IDeserializable).Deserialize(initialValue);
                 else
                     defaultVariables[definition] = definition.Type.GetDefaultValue();
             }
@@ -254,7 +254,7 @@ namespace CursiveCSharpBackend.Services
                     continue;
                 }
                 
-                if (!(input.Type is FixedType))
+                if (!(input.Type is IDeserializable))
                 {
                     errors.Add(string.Format("Only a FixedType can be used as a fixed input parameter. '{0}' type used for '{1}' step's '{2}' parameter is not a FixedType.", input.Type.Name, step.Name, name));
                     success = false;
@@ -262,7 +262,7 @@ namespace CursiveCSharpBackend.Services
                 }
                 
                 var strValue = inputNode.GetAttribute("value");
-                object value = (input.Type as FixedType).Deserialize(strValue);
+                object value = (input.Type as IDeserializable).Deserialize(strValue);
                 step.SetInputParameter(input, value);
             }
 

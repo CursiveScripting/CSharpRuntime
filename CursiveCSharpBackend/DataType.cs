@@ -8,6 +8,7 @@ namespace Cursive
         public string Name { get; protected set; }
         public Regex Validation { get; protected set; }
         public abstract Type SystemType { get; }
+
         public abstract object GetDefaultValue();
 
         public static object GetTypeDefault(Type t)
@@ -15,11 +16,7 @@ namespace Cursive
             Func<object> f = GetTypeDefault<object>;
             return f.Method.GetGenericMethodDefinition().MakeGenericMethod(t).Invoke(null, null);
         }
-
-        private static T GetTypeDefault<T>()
-        {
-            return default(T);
-        }
+        private static T GetTypeDefault<T>() { return default(T); }
     }
 
     public class DataType<T> : DataType
@@ -30,6 +27,8 @@ namespace Cursive
             GetDefault = getDefault;
         }
 
+        public override Type SystemType { get { return typeof(T); } }
+
         private Func<T> GetDefault { get; }
 
         public override object GetDefaultValue()
@@ -38,42 +37,27 @@ namespace Cursive
                 return GetTypeDefault(typeof(T));
             return GetDefault();
         }
-
-        public override Type SystemType { get { return typeof(T); } }
     }
 
-    public abstract class FixedType : DataType
+    public interface IDeserializable
     {
-        public abstract object Deserialize(string value);
+        object Deserialize(string value);
     }
 
-    public class FixedType<T> : FixedType
+    public class FixedType<T> : DataType<T>, IDeserializable
     {
-        public FixedType(string name, Regex validation, Func<string, T> deserialize, Func<T, string> serialize, Func<T> getDefault = null)
+        public FixedType(string name, Regex validation, Func<string, T> deserialize, Func<T> getDefault = null)
+            : base(name, getDefault)
         {
-            Name = name;
-            GetDefault = getDefault;
             Validation = validation;
             DeserializationFunction = deserialize;
-            Serialize = serialize;
-        }
-
-        private Func<T> GetDefault { get; }
-
-        public override object GetDefaultValue()
-        {
-            if (GetDefault == null)
-                return GetTypeDefault(typeof(T));
-            return GetDefault();
         }
         
-        public override object Deserialize(string value)
+        public object Deserialize(string value)
         {
             return DeserializationFunction(value);
         }
-
-        public override Type SystemType { get { return typeof(T); } }
-        private Func<string, T> DeserializationFunction { get; set; }
-        public Func<T, string> Serialize { get; private set; }
+        
+        private Func<string, T> DeserializationFunction { get; }
     }
 }

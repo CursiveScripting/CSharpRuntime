@@ -38,8 +38,8 @@ namespace Tests
             Console.ReadKey();
         }
 
-        public static DataType text = new FixedType<string>("text", new Regex(".*"), s => s, s => s, () => string.Empty);
-        public static DataType integer = new FixedType<int>("integer", new Regex("[0-9]+"), s => int.Parse(s), i => i.ToString());
+        public static DataType text = new FixedType<string>("text", new Regex(".*"), s => s, () => string.Empty);
+        public static DataType integer = new FixedType<int>("integer", new Regex("[0-9]+"), s => int.Parse(s));
         public static DataType person = new DataType<Person>("person");
         public static DataType car = new DataType<Car>("car");
 

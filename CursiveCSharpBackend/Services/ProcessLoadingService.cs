@@ -109,7 +109,7 @@ namespace CursiveCSharpBackend.Services
                         success = false;
                         continue;
                     }
-                    else if (param.Type != type)
+                    else if (!type.IsAssignableFrom(param.Type))
                     {
                         errors.Add(string.Format("Process '{0}' is required by the workspace, but its '{1}' input is of type '{2}', where the workspace expects type '{3}'", processName, name, type.Name, param.Type.Name));
                         success = false;
@@ -137,7 +137,7 @@ namespace CursiveCSharpBackend.Services
                         success = false;
                         continue;
                     }
-                    else if (param.Type != type)
+                    else if (!type.IsAssignableFrom(param.Type))
                     {
                         errors.Add(string.Format("Process '{0}' is required by the workspace, but its '{1}' output is of type '{2}', where the workspace expects type '{3}'", processName, name, type.Name, param.Type.Name));
                         success = false;
@@ -276,7 +276,7 @@ namespace CursiveCSharpBackend.Services
                     continue;
                 }
 
-                if (input.Type != inputInfo.Value.Type)
+                if (!input.Type.IsAssignableFrom(inputInfo.Value.Type))
                 {
                     errors.Add(string.Format("The '{0}' step tries to map the '{1}' variable to the '{2}' input, but these have different types ('{3}' and '{4}')", step.Name, inputInfo.Value.Name, inputInfo.Key, inputInfo.Value.Type.Name, input.Type.Name));
                     success = false;
@@ -296,7 +296,7 @@ namespace CursiveCSharpBackend.Services
                     continue;
                 }
 
-                if (output.Type != outputInfo.Value.Type)
+                if (!outputInfo.Value.Type.IsAssignableFrom(output.Type))
                 {
                     errors.Add(string.Format("The '{0}' step tries to map the '{2}' output to the '{1}' variable, but these have different types ('{3}' and '{4}')", step.Name, outputInfo.Value.Name, outputInfo.Key, outputInfo.Value.Type.Name, output.Type.Name));
                     success = false;
@@ -340,7 +340,7 @@ namespace CursiveCSharpBackend.Services
                         continue;
                     }
 
-                    if (inputParam.Type != variableParam.Type)
+                    if (!variableParam.Type.IsAssignableFrom(inputParam.Type))
                     {
                         errors.Add(string.Format("The start step tries to map the '{1}' input to the '{0}' variable, but these have different types ('{2}' and '{3}')", variableParam.Name, inputParam.Name, variableParam.Type.Name, inputParam.Type.Name));
                         success = false;
@@ -377,7 +377,7 @@ namespace CursiveCSharpBackend.Services
                         continue;
                     }
 
-                    if (outputParam.Type != variableParam.Type)
+                    if (!outputParam.Type.IsAssignableFrom(variableParam.Type))
                     {
                         errors.Add(string.Format("The stop step '{0}' tries to map the '{1}' variable to the '{2}' output , but these have different types ('{3}' and '{4}')", name, variableParam.Name, outputParam.Name, variableParam.Type.Name, outputParam.Type.Name));
                         success = false;

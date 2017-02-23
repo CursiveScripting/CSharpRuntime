@@ -18,15 +18,20 @@ namespace CursiveCSharpBackend.Services
             var root = doc.CreateElement("Workspace");
             doc.AppendChild(root);
 
-            foreach (var type in workspace.TypesByName)
+            foreach (var type in workspace.TypesByName.Values)
             {
                 var node = doc.CreateElement("Type");
-                node.Attributes.Append(doc.CreateAttribute("name", type.Key));
+                node.Attributes.Append(doc.CreateAttribute("name", type.Name));
 
-                if (type.Value.Validation != null)
+                if (type.Validation != null)
                 {
-                    var regex = type.Value.Validation.ToString();
+                    var regex = type.Validation.ToString();
                     node.Attributes.Append(doc.CreateAttribute("validation", regex));
+                }
+
+                if (type.Extends != null)
+                {
+                    node.Attributes.Append(doc.CreateAttribute("extends", type.Extends.Name));
                 }
 
                 root.AppendChild(node);

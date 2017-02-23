@@ -5,25 +5,51 @@ namespace Cursive
 {
     public abstract class DataType
     {
-        public string Name { get; protected set; }
-        public Regex Validation { get; protected set; }
+        protected DataType(string name, DataType extends = null, Regex validation = null)
+        {
+            Name = name;
+            Extends = extends;
+            Validation = validation;
+        }
+
+        public string Name { get; }
+        public DataType Extends { get; }
+        public Regex Validation { get; }
         public abstract Type SystemType { get; }
 
         public abstract object GetDefaultValue();
 
-        public static object GetTypeDefault(Type t)
+        protected static object GetTypeDefault(Type t)
         {
             Func<object> f = GetTypeDefault<object>;
             return f.Method.GetGenericMethodDefinition().MakeGenericMethod(t).Invoke(null, null);
         }
         private static T GetTypeDefault<T>() { return default(T); }
+
+        public bool IsAssignableFrom(DataType other)
+        {
+            DataType test = this;
+
+            do
+            {
+                if (test == other)
+                    return true;
+
+                test = test.Extends;
+            } while (test != null);
+
+            return false;
+        }
     }
 
     public class DataType<T> : DataType
     {
-        public DataType(string name, Func<T> getDefault = null)
+        public DataType(string name, DataType extends = null, Func<T> getDefault = null)
+            : this(name, extends, getDefault, null) { }
+
+        protected DataType(string name, DataType extends = null, Func<T> getDefault = null, Regex validation = null)
+            : base(name, extends, validation)
         {
-            Name = name;
             GetDefault = getDefault;
         }
 
@@ -46,10 +72,9 @@ namespace Cursive
 
     public class FixedType<T> : DataType<T>, IDeserializable
     {
-        public FixedType(string name, Regex validation, Func<string, T> deserialize, Func<T> getDefault = null)
-            : base(name, getDefault)
+        public FixedType(string name, Regex validation, Func<string, T> deserialize, Func<T> getDefault = null, DataType extends = null)
+            : base(name, extends, getDefault, validation)
         {
-            Validation = validation;
             DeserializationFunction = deserialize;
         }
         

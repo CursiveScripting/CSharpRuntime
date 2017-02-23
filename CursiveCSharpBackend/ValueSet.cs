@@ -4,11 +4,11 @@ using System.Collections.Generic;
 
 namespace Cursive
 {
-    public class ValueSet : IEnumerable<KeyValuePair<string, object>>
+    public class ValueSet : IEnumerable<KeyValuePair<Parameter, object>>
     {
-        Dictionary<string, object> elements = new Dictionary<string, object>();
+        Dictionary<Parameter, object> elements = new Dictionary<Parameter, object>();
 
-        public object this[string key]
+        public object this[Parameter key]
         {
             get
             {
@@ -23,12 +23,12 @@ namespace Cursive
             }
         }
 
-        public bool HasElement(string name)
+        public bool HasElement(Parameter param)
         {
-            return elements.ContainsKey(name);
+            return elements.ContainsKey(param);
         }
 
-        public IEnumerator<KeyValuePair<string, object>> GetEnumerator()
+        public IEnumerator<KeyValuePair<Parameter, object>> GetEnumerator()
         {
             return elements.GetEnumerator();
         }

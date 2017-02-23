@@ -7,15 +7,23 @@ namespace Cursive
 {
     class UserProcess : Process
     {
-        public UserProcess(string name, string description, StartStep firstStep, IEnumerable<Step> allSteps)
+        public UserProcess(string name, string description, IReadOnlyCollection<Parameter> inputs, IReadOnlyCollection<Parameter> outputs, ValueSet defaultVariables, StartStep firstStep, IEnumerable<Step> allSteps)
             : base(description)
         {
             Name = name;
+            Inputs = inputs;
+            Outputs = outputs;
+            DefaultVariables = defaultVariables;
             FirstStep = firstStep;
             Steps = allSteps;
         }
 
         public string Name { get; }
+
+        public override IReadOnlyCollection<Parameter> Inputs { get; }
+        public override IReadOnlyCollection<Parameter> Outputs { get; }
+        private ValueSet DefaultVariables { get; }
+
         internal StartStep FirstStep { get; }
         internal IEnumerable<Step> Steps { get; }
         
@@ -53,9 +61,6 @@ namespace Cursive
             }
         }
 
-        public override IReadOnlyCollection<Parameter> Inputs { get { return inputs; } }
-        public override IReadOnlyCollection<Parameter> Outputs { get { return outputs; } }
-
         internal IEnumerable<StopStep> EndSteps
         {
             get
@@ -75,31 +80,5 @@ namespace Cursive
             }
         }
         
-        private List<Parameter> inputs = new List<Parameter>();
-        private List<Parameter> outputs = new List<Parameter>();
-
-        internal void AddInput(Workspace workspace, string name, string typeName)
-        {
-            var type = workspace.GetType(typeName);
-            inputs.Add(new Parameter(name, type));
-        }
-
-        internal void AddOutput(Workspace workspace, string name, string typeName)
-        {
-            var type = workspace.GetType(typeName);
-            outputs.Add(new Parameter(name, type));
-        }
-
-        private ValueSet DefaultVariables { get; } = new ValueSet();
-
-        internal void AddVariable(Workspace workspace, string name, string typeName, string initialValue = null)
-        {
-            var type = workspace.GetType(typeName);
-
-            if (initialValue != null && type is FixedType)
-                DefaultVariables[name] = (type as FixedType).Deserialize(initialValue);
-            else
-                DefaultVariables[name] = type.GetDefaultValue();
-        }
     }
 }

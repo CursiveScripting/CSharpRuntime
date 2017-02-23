@@ -13,22 +13,22 @@ namespace Cursive
 
         public string Name { get; }
         protected internal ValueSet FixedInputs { get; } = new ValueSet();
-        protected internal Dictionary<string, string> InputMapping { get; } = new Dictionary<string, string>();
-        protected internal Dictionary<string, string> OutputMapping { get; } = new Dictionary<string, string>();
+        protected internal Dictionary<Parameter, Parameter> InputMapping { get; } = new Dictionary<Parameter, Parameter>();
+        protected internal Dictionary<Parameter, Parameter> OutputMapping { get; } = new Dictionary<Parameter, Parameter>();
 
-        public void SetInputParameter(string parameterName, object value)
+        public void SetInputParameter(Parameter parameter, object value)
         {
-            FixedInputs[parameterName] = value;
+            FixedInputs[parameter] = value;
         }
 
-        public void MapInputParameter(string parameterName, string sourceName)
+        public void MapInputParameter(Parameter parameter, Parameter source)
         {
-            InputMapping[parameterName] = sourceName;
+            InputMapping[parameter] = source;
         }
 
-        public void MapOutputParameter(string parameterName, string sourceName)
+        public void MapOutputParameter(Parameter parameter, Parameter destination)
         {
-            OutputMapping[parameterName] = sourceName;
+            OutputMapping[parameter] = destination;
         }
     }
 }

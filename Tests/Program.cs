@@ -43,6 +43,10 @@ namespace Tests
         public static DataType person = new DataType<Person>("person");
         public static DataType car = new DataType<Car>("car");
 
+        private static Parameter me = new Parameter("Me", person);
+        private static Parameter carParam = new Parameter("Car", car);
+        private static Parameter myAge = new Parameter("My age", integer);
+
         private static Workspace CreateWorkspace(out RequiredProcess required)
         {
             Workspace w = new Workspace();
@@ -53,17 +57,12 @@ namespace Tests
 
             w.AddSystemProcess("print", IO.Print);
             w.AddSystemProcess("getDay", Date.GetDayOfWeek);
-            w.AddSystemProcess("compare", Value.CompareIntegers);
-            w.AddSystemProcess("get", Value.GetPropertyInteger);
+            w.AddSystemProcess("compare", Processes.Value.CompareIntegers);
+            w.AddSystemProcess("get", Processes.Value.GetPropertyInteger);
 
             required = new RequiredProcess("Run basic tests",
-                new Parameter[] {
-                    new Parameter("Me", person),
-                    new Parameter("Car", car)
-                },
-                new Parameter[] {
-                    new Parameter("My age", integer)
-                }, null);
+                new Parameter[] { me, carParam },
+                new Parameter[] { myAge }, null);
             w.AddRequiredProcess("Test.MorningRoutine", required);
 
             return w;
@@ -72,26 +71,26 @@ namespace Tests
         private static void Run(Process process)
         {
             var inputs = new ValueSet();
-            inputs["Car"] = new Car();
+            inputs[carParam] = new Car();
 
             Console.WriteLine();
             Console.WriteLine("Running with 'Alice' ...");
-            inputs["Me"] = new Person() { Name = "Alice", Age = 3, Gender = "F" };
+            inputs[me] = new Person() { Name = "Alice", Age = 3, Gender = "F" };
             Console.WriteLine(process.Run(inputs));
 
             Console.WriteLine();
             Console.WriteLine("Running with 'Bob' ...");
-            inputs["Me"] = new Person() { Name = "Bob", Age = 8, Gender = "M" };
+            inputs[me] = new Person() { Name = "Bob", Age = 8, Gender = "M" };
             Console.WriteLine(process.Run(inputs));
 
             Console.WriteLine();
             Console.WriteLine("Running with 'Carly' ...");
-            inputs["Me"] = new Person() { Name = "Carly", Age = 15, Gender = "M" };
+            inputs[me] = new Person() { Name = "Carly", Age = 15, Gender = "M" };
             Console.WriteLine(process.Run(inputs));
 
             Console.WriteLine();
             Console.WriteLine("Running with 'Dave' ...");
-            inputs["Me"] = new Person() { Name = "Dave", Age = 34, Gender = "M" };
+            inputs[me] = new Person() { Name = "Dave", Age = 34, Gender = "M" };
             Console.WriteLine(process.Run(inputs));
         }
 

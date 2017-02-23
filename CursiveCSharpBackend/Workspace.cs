@@ -8,14 +8,12 @@ namespace Cursive
     public class Workspace
     {
         internal Dictionary<string, DataType> TypesByName { get; private set; } = new Dictionary<string, DataType>();
-        internal Dictionary<string, DataType> TypesByType { get; private set; } = new Dictionary<string, DataType>();
         internal Dictionary<string, Process> Processes { get; private set; } = new Dictionary<string, Process>();
         internal Dictionary<string, RequiredProcess> RequiredProcesses { get; private set; } = new Dictionary<string, RequiredProcess>();
 
         public void AddDataType(DataType dt)
         {
             TypesByName.Add(dt.Name, dt);
-            TypesByType.Add(dt.SystemType.FullName, dt);
         }
 
         public void AddSystemProcess(string name, SystemProcess process)
@@ -32,14 +30,6 @@ namespace Cursive
         {
             DataType dt;
             if (!TypesByName.TryGetValue(name, out dt))
-                return null;
-            return dt;
-        }
-
-        internal DataType GetType(Type type)
-        {
-            DataType dt;
-            if (!TypesByType.TryGetValue(type.FullName, out dt))
                 return null;
             return dt;
         }

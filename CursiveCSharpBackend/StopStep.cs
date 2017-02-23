@@ -22,7 +22,7 @@
         {
             outputs = new ValueSet();
             foreach (var kvp in InputMapping)
-                outputs[kvp.Key] = variables[kvp.Value]; // TODO: actually, these should be mapped
+                outputs[kvp.Key] = variables[kvp.Value];
             
             return null;
         }

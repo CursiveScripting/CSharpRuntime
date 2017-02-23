@@ -90,8 +90,47 @@ namespace CursiveCSharpBackend.Services
         
         private static UserProcess LoadUserProcess(Workspace workspace, XmlElement processNode, out List<Tuple<UserStep, XmlElement>> stepsAndNodes, List<string> errors)
         {
-            var name = processNode.GetAttribute("name");
+            var processName = processNode.GetAttribute("name");
             var desc = processNode.SelectSingleNode("Description").InnerText;
+
+            var inputNodes = processNode.SelectNodes("Input");
+            var outputNodes = processNode.SelectNodes("Output");
+            var variableNodes = processNode.SelectNodes("Variable");
+
+            List<Parameter> inputs = new List<Parameter>(), outputs = new List<Parameter>();
+            ValueSet defaultVariables = new ValueSet();
+            Dictionary<string, Parameter> inputsByName = new Dictionary<string, Parameter>(), outputsByName = new Dictionary<string, Parameter>(), variablesByName = new Dictionary<string, Parameter>();
+
+            foreach (XmlElement input in inputNodes)
+            {
+                var type = workspace.GetType(input.GetAttribute("type"));
+                var name = input.GetAttribute("name");
+                var param = new Parameter(name, type);
+                inputs.Add(param);
+                inputsByName.Add(name, param);
+            }
+            foreach (XmlElement output in outputNodes)
+            {
+                var type = workspace.GetType(output.GetAttribute("type"));
+                var name = output.GetAttribute("name");
+                var param = new Parameter(name, type);
+                outputs.Add(param);
+                outputsByName.Add(name, param);
+            }
+            foreach (XmlElement variable in variableNodes)
+            {
+                var type = workspace.GetType(variable.GetAttribute("type"));
+                var name = variable.GetAttribute("name");
+                var definition = new Parameter(name, type);
+                variablesByName.Add(name, definition);
+
+                var initialValue = variable.GetAttribute("initialValue");
+
+                if (initialValue != null && definition.Type is FixedType)
+                    defaultVariables[definition] = (definition.Type as FixedType).Deserialize(initialValue);
+                else
+                    defaultVariables[definition] = definition.Type.GetDefaultValue();
+            }
 
             XmlElement steps = processNode.SelectSingleNode("Steps") as XmlElement;
             var stepsByName = new Dictionary<string, Step>();
@@ -100,7 +139,7 @@ namespace CursiveCSharpBackend.Services
             StartStep firstStep = null; XmlElement firstStepNode = null;
             foreach (XmlElement stepNode in steps.ChildNodes)
             {
-                var step = LoadProcessStep(stepNode);
+                var step = LoadProcessStep(stepNode, inputsByName, outputsByName, variablesByName, errors);
                 if (step is StartStep)
                 {
                     firstStep = step as StartStep;
@@ -115,7 +154,7 @@ namespace CursiveCSharpBackend.Services
 
             if (firstStep == null)
             {
-                errors.Add(string.Format("Process '{0}' lacks a Start step", name));
+                errors.Add(string.Format("Process '{0}' lacks a Start step", processName));
                 return null;
             }
 
@@ -126,20 +165,9 @@ namespace CursiveCSharpBackend.Services
                 if (!LoadReturnPaths(step.Item1, step.Item2, stepsByName, errors))
                     return null;
             
-            UserProcess process = new UserProcess(name, desc, firstStep, stepsByName.Values);
+            UserProcess process = new UserProcess(processName, desc, inputs, outputs, defaultVariables, firstStep, stepsByName.Values);
 
-            var inputs = processNode.SelectNodes("Input");
-            var outputs = processNode.SelectNodes("Output");
-            var variables = processNode.SelectNodes("Variable");
-
-            foreach (XmlElement input in inputs)
-                process.AddInput(workspace, input.GetAttribute("name"), input.GetAttribute("type"));
-            foreach (XmlElement output in outputs)
-                process.AddOutput(workspace, output.GetAttribute("name"), output.GetAttribute("type"));
-            foreach (XmlElement variable in variables)
-                process.AddVariable(workspace, variable.GetAttribute("name"), variable.GetAttribute("type"), variable.GetAttribute("initialValue"));
-
-            workspace.Processes.Add(name, process);
+            workspace.Processes.Add(processName, process);
             return process;
         }
 
@@ -159,7 +187,6 @@ namespace CursiveCSharpBackend.Services
             foreach (XmlElement inputNode in fixedInputs)
             {
                 var name = inputNode.GetAttribute("name");
-                var strValue = inputNode.GetAttribute("value");
                 var processInput = process.Inputs.FirstOrDefault(i => i.Name == name);
                 if (processInput == null)
                 {
@@ -174,25 +201,32 @@ namespace CursiveCSharpBackend.Services
                     errors.Add(string.Format("Only a FixedType can be used as a fixed input parameter. '{0}' type used for '{1}' step's '{2}' parameter is not a FixedType.", type.Name, step.Name, name));
                     return false;
                 }
-
+                
+                var strValue = inputNode.GetAttribute("value");
                 object value = (type as FixedType).Deserialize(strValue);
-                step.SetInputParameter(name, value);
+                step.SetInputParameter(processInput, value);
             }
 
             return true;
         }
 
-        private static Step LoadProcessStep(XmlElement stepNode)
+        private static Step LoadProcessStep(XmlElement stepNode, Dictionary<string, Parameter> inputs, Dictionary<string, Parameter> outputs, Dictionary<string, Parameter> variables, List<string> errors)
         {
             var name = stepNode.GetAttribute("ID");
             var mapInputs = stepNode.SelectNodes("MapInput");
             var mapOutputs = stepNode.SelectNodes("MapOutput");
 
+            // TODO: check that referenced inputs / outputs / parameters exist, and log an error if not
+
             if (stepNode.Name == "Start")
             {
                 var step = new StartStep(name);
                 foreach (XmlElement output in mapOutputs)
-                    step.MapOutputParameter(output.GetAttribute("name"), output.GetAttribute("destination"));
+                {
+                    var paramName = output.GetAttribute("name");
+                    var variableName = output.GetAttribute("destination");
+                    step.MapOutputParameter(inputs[paramName], variables[variableName]);
+                }
                 return step;
             }
             else if (stepNode.Name == "Stop")
@@ -203,7 +237,11 @@ namespace CursiveCSharpBackend.Services
 
                 var step = new StopStep(name, returnValue);
                 foreach (XmlElement input in mapInputs)
-                    step.MapInputParameter(input.GetAttribute("name"), input.GetAttribute("source"));
+                {
+                    var paramName = input.GetAttribute("name");
+                    var variableName = input.GetAttribute("source");
+                    step.MapInputParameter(outputs[paramName], variables[variableName]);
+                }
                 return step;
             }
             else
@@ -211,9 +249,17 @@ namespace CursiveCSharpBackend.Services
                 var step = new UserStep(name, null);
 
                 foreach (XmlElement input in mapInputs)
-                    step.MapInputParameter(input.GetAttribute("name"), input.GetAttribute("source"));
+                {
+                    var paramName = input.GetAttribute("name");
+                    var variableName = input.GetAttribute("source");
+                    step.MapInputParameter(param, variables[variableName]); // TODO: ah crap, might not yet have loaded the child process?
+                }
                 foreach (XmlElement output in mapOutputs)
-                    step.MapOutputParameter(output.GetAttribute("name"), output.GetAttribute("destination"));
+                {
+                    var paramName = output.GetAttribute("name");
+                    var variableName = output.GetAttribute("destination");
+                    step.MapOutputParameter(param, variables[variableName]); // TODO: ah crap, might not yet have loaded the child process?
+                }
 
                 return step;
             }

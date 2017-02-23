@@ -9,15 +9,16 @@ namespace Tests.Processes
 {
     public static class IO
     {
+        private static Parameter messageParam = new Parameter("message", Program.text);
         public static readonly SystemProcess Print = new SystemProcess(
             (ValueSet inputs, out ValueSet outputs) =>
             {
-                Console.WriteLine(inputs["message"]);
+                Console.WriteLine(messageParam);
                 outputs = null;
                 return string.Empty;
             },
             "Write a message to the system console.",
-            new Parameter[] { new Parameter("message", Program.text) },
+            new Cursive.Parameter[] { messageParam },
             null,
             null
         );

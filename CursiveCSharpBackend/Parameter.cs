@@ -6,17 +6,12 @@ namespace Cursive
     {
         public Parameter(string name, DataType type)
         {
-            this.Name = name;
-            this.Type = type;
+            Name = name;
+            Type = type;
         }
 
-        public Parameter(string name, Type type)
-        {
-            throw new NotImplementedException("Need to get the type from the workspace... but don't have one of those");
-        }
-
-        public string Name { get; private set; }
-        public DataType Type { get; private set; }
+        public string Name { get; }
+        public DataType Type { get; }
 
         public int CompareTo(Parameter other)
         {

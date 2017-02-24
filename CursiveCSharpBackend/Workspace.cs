@@ -11,6 +11,9 @@ namespace Cursive
         internal Dictionary<string, Process> Processes { get; private set; } = new Dictionary<string, Process>();
         internal Dictionary<string, RequiredProcess> RequiredProcesses { get; private set; } = new Dictionary<string, RequiredProcess>();
 
+        private ValueSet DefaultVariables { get; }
+        internal ValueSet Variables { get; private set; }
+
         public void AddDataType(DataType dt)
         {
             TypesByName.Add(dt.Name, dt);
@@ -46,6 +49,8 @@ namespace Cursive
 
             foreach (var key in toRemove)
                 Processes.Remove(key);
+
+            Variables = DefaultVariables.Clone();
         }
 
         public bool LoadProcesses(XmlDocument doc, out List<string> errors)

@@ -18,8 +18,19 @@ namespace CursiveCSharpBackend.Services
             var root = doc.CreateElement("Workspace");
             doc.AppendChild(root);
 
-            foreach (var type in workspace.TypesByName.Values)
+            Queue<DataType> typesToWrite = new Queue<DataType>(workspace.TypesByName.Values);
+            HashSet<DataType> typesWritten = new HashSet<DataType>();
+
+            while (typesToWrite.Any())
             {
+                DataType type = typesToWrite.Dequeue();
+
+                if (type.Extends != null && !typesWritten.Contains(type.Extends))
+                {
+                    typesToWrite.Enqueue(type);
+                    continue;
+                }
+
                 var node = doc.CreateElement("Type");
                 node.Attributes.Append(doc.CreateAttribute("name", type.Name));
 
@@ -35,6 +46,7 @@ namespace CursiveCSharpBackend.Services
                 }
 
                 root.AppendChild(node);
+                typesWritten.Add(type);
             }
 
             foreach (var kvp in workspace.Processes)

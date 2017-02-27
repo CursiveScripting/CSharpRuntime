@@ -45,6 +45,11 @@ namespace CursiveCSharpBackend.Services
                     node.Attributes.Append(doc.CreateAttribute("extends", type.Extends.Name));
                 }
 
+                if (!string.IsNullOrEmpty(type.Guidance))
+                {
+                    node.Attributes.Append(doc.CreateAttribute("guidance", type.Guidance));
+                }
+
                 root.AppendChild(node);
                 typesWritten.Add(type);
             }

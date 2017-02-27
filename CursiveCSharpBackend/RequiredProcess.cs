@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using CursiveCSharpBackend.Services;
+using System.Collections.Generic;
 
 namespace Cursive
 {
@@ -19,6 +20,7 @@ namespace Cursive
 
         public override string Run(ValueSet inputs, out ValueSet outputs)
         {
+            DebuggingService.StartNewCall(this);
             return ActualProcess.Run(inputs, out outputs);
         }
     }

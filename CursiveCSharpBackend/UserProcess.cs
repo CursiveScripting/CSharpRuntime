@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CursiveCSharpBackend.Services;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -29,6 +30,7 @@ namespace Cursive
         
         public override string Run(ValueSet inputs, out ValueSet outputs)
         {
+            DebuggingService.EnterProcess(this);
             ValueSet variables = DefaultVariables.Clone();
 
             FirstStep.SetInputs(inputs);
@@ -44,6 +46,7 @@ namespace Cursive
             {
                 var end = lastStep as StopStep;
                 outputs = end.GetOutputs();
+                DebuggingService.ExitProcess(this);
                 return end.ReturnValue;
             }
 

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Cursive
 {
-    class UserStep : ReturningStep
+    internal class UserStep : ReturningStep
     {
         public UserStep(string name, Process process)
             : base(name)

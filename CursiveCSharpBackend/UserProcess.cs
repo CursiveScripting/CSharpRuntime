@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace Cursive
 {
-    class UserProcess : Process
+    internal class UserProcess : Process
     {
         public UserProcess(string name, string description, IReadOnlyCollection<ValueKey> inputs, IReadOnlyCollection<ValueKey> outputs, ValueSet defaultVariables, StartStep firstStep, IEnumerable<Step> allSteps)
             : base(description)

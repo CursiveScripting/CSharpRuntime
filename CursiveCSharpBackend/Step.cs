@@ -2,7 +2,7 @@
 
 namespace Cursive
 {
-    abstract class Step
+    internal abstract class Step
     {
         protected Step(string name)
         {

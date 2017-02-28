@@ -1,6 +1,6 @@
 ﻿namespace Cursive
 {
-    class StartStep : ReturningStep
+    internal class StartStep : ReturningStep
     {
         public StartStep(string name)
             : base(name) { }

@@ -16,7 +16,7 @@ namespace Tests
         DataType dtObject, dtShort;
         ValueSet values;
 
-        ValueKey testShort, testShort2, testObject, testHashtable;
+        ValueKey testShort, testObject;
 
         [OneTimeSetUp]
         public void Prepare()

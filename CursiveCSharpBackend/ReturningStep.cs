@@ -2,7 +2,7 @@
 
 namespace Cursive
 {
-    abstract class ReturningStep : Step
+    internal abstract class ReturningStep : Step
     {
         protected ReturningStep(string name)
             : base(name) { }

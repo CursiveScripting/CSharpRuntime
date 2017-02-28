@@ -21,7 +21,7 @@ namespace Tests
             dtObject = new DataType<object>("object");
             dtHashtable = new DataType<Hashtable>("hashtable", dtObject, () => new Hashtable());
             dtShort = new FixedType<short>("short", new Regex("^[0-9]+$"), s => short.Parse(s));
-            dtInteger = new FixedType<int>("integer", new Regex("^[0-9]+$"), s => int.Parse(s), () => -1, dtShort);
+            dtInteger = new FixedType<int>("integer", new Regex("^[0-9]+$"), s => int.Parse(s), () => -1, dtShort, "Enter a non-negative, whole number");
             dtLong = new FixedType<long>("long", new Regex("^[0-9]+$"), s => long.Parse(s), null, dtInteger);
             dtString = new FixedType<string>("string", new Regex(".*"), s => s, () => string.Empty);
         }
@@ -135,6 +135,18 @@ namespace Tests
         public void ParseInvalidValue()
         {
             Assert.That(() => ((IDeserializable)dtInteger).Deserialize("blah"), Throws.TypeOf<FormatException>());
+        }
+
+        [Test]
+        public void GuidanceIsPresent()
+        {
+            Assert.That(() => dtInteger.Guidance, Is.Not.Null);
+        }
+
+        [Test]
+        public void UnsetGuidanceIsNull()
+        {
+            Assert.That(() => dtShort.Guidance, Is.Null);
         }
     }
 }

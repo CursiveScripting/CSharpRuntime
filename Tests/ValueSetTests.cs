@@ -13,23 +13,67 @@ namespace Tests
     [TestFixture]
     public class ValueSetTests
     {
-        DataType dtObject, dtHashtable, dtShort, dtInteger, dtLong, dtString;
+        DataType dtObject, dtShort;
+        ValueSet values;
+
+        ValueKey testShort, testShort2, testObject, testHashtable;
 
         [OneTimeSetUp]
         public void Prepare()
         {
             dtObject = new DataType<object>("object");
-            dtHashtable = new DataType<Hashtable>("hashtable", dtObject, () => new Hashtable());
             dtShort = new FixedType<short>("short", new Regex("^[0-9]+$"), s => short.Parse(s));
-            dtInteger = new FixedType<int>("integer", new Regex("^[0-9]+$"), s => int.Parse(s), () => -1, dtShort);
-            dtLong = new FixedType<long>("long", new Regex("^[0-9]+$"), s => long.Parse(s), null, dtInteger);
-            dtString = new FixedType<string>("string", new Regex(".*"), s => s, () => string.Empty);
+
+            testShort = new ValueKey("testShort", dtShort);
+            testObject = new ValueKey("testObject", dtObject);
         }
         
         [Test]
-        public void TheseTestsNeedWritten()
+        public void CanRetrieveSetValue()
         {
-            Assert.That(true == false);
+            values = new ValueSet();
+
+            short val = 27;
+            values[testShort] = val;
+            
+            Assert.That(values[testShort], Is.EqualTo(27));
+        }
+
+        [Test]
+        public void FailToGetUnsetValue()
+        {
+            values = new ValueSet();
+
+            Assert.That(() => values[testShort], Throws.TypeOf<Exception>());
+        }
+
+
+        [Test]
+        public void CloneHasValues()
+        {
+            values = new ValueSet();
+
+            short val = 27;
+            values[testShort] = val;
+
+            var clone = values.Clone();
+
+            Assert.That(clone[testShort], Is.EqualTo(27));
+        }
+
+
+        [Test]
+        public void CloneIsShallow()
+        {
+            values = new ValueSet();
+
+            object val = new object();
+            values[testObject] = val;
+
+            var clone = values.Clone();
+
+            Assert.That(clone[testObject], Is.Not.Null);
+            Assert.That(clone[testObject], Is.EqualTo(val));
         }
     }
 }

@@ -50,6 +50,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="SystemProcessTests.cs" />
     <Compile Include="ProcessRunningTests.cs" />
     <Compile Include="ValueSetTests.cs" />
     <Compile Include="ProcessLoadingTests.cs" />

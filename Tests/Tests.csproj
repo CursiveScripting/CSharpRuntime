@@ -59,10 +59,12 @@
     <None Include="..\Schema\processes.xsd">
       <Link>processes.xsd</Link>
       <SubType>Designer</SubType>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="..\Schema\workspace.xsd">
       <Link>workspace.xsd</Link>
       <SubType>Designer</SubType>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="App.config" />
     <None Include="packages.config" />

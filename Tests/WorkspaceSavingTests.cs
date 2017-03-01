@@ -226,7 +226,7 @@ namespace Tests
 
             Assert.That(doc, Is.Not.Null);
 
-            doc.Schemas.Add("http://cursive.ftwinston.com", "workspace.xsd");
+            doc.Schemas.Add("http://cursive.ftwinston.com", AppDomain.CurrentDomain.SetupInformation.ApplicationBase + "workspace.xsd");
             doc.Validate(ValidationEventHandler);
 
             Assert.That(validationErrors.Count, Is.EqualTo(0));

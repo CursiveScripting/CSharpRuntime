@@ -9,7 +9,7 @@ namespace Cursive
     {
         Dictionary<ValueKey, object> elements = new Dictionary<ValueKey, object>();
 
-        public object this[ValueKey key]
+        internal object this[ValueKey key]
         {
             get
             {
@@ -22,6 +22,16 @@ namespace Cursive
             {
                 elements[key] = value;
             }
+        }
+
+        public T Get<T>(ValueKey<T> key)
+        {
+            return (T)this[key];
+        }
+
+        public void Set<T>(ValueKey<T> key, T value)
+        {
+            this[key] = value;
         }
 
         public bool HasElement(ValueKey param)

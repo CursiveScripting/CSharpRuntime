@@ -14,10 +14,10 @@ namespace Tests
     [TestFixture]
     public class SystemProcessTests
     {
-        static DataType number;
-        private static ValueKey value1;
-        private static ValueKey value2;
-        private static ValueKey value3;
+        static DataType<int> number;
+        private static ValueKey<int> value1;
+        private static ValueKey<int> value2;
+        private static ValueKey<int> value3;
 
         public static SystemProcess IsEqual, Add;
 
@@ -25,15 +25,15 @@ namespace Tests
         public void Prepare()
         {
             number = new FixedType<int>("number", Color.FromKnownColor(KnownColor.Red), new Regex("[0-9]+"), s => int.Parse(s));
-            value1 = new ValueKey("value1", number);
-            value2 = new ValueKey("value2", number);
-            value3 = new ValueKey("value3", number);
+            value1 = new ValueKey<int>("value1", number);
+            value2 = new ValueKey<int>("value2", number);
+            value3 = new ValueKey<int>("value3", number);
 
             IsEqual = new SystemProcess(
                 (ValueSet inputs, out ValueSet outputs) =>
                 {
                     outputs = null;
-                    return inputs[value1].Equals(inputs[value2]) ? "yes" : "no";
+                    return inputs.Get(value1) == inputs.Get(value2) ? "yes" : "no";
                 },
                 "Test to see if two values are equal.",
                 new Cursive.ValueKey[] { value1, value2 },
@@ -45,9 +45,9 @@ namespace Tests
                 (ValueSet inputs, out ValueSet outputs) =>
                 {
                     outputs = new ValueSet();
-                    int i1 = (int)inputs[value1];
-                    int i2 = (int)inputs[value2];
-                    outputs[value3] = i1 + i2;
+                    int i1 = inputs.Get(value1);
+                    int i2 = inputs.Get(value2);
+                    outputs.Set(value3, i1 + i2);
                     return null;
                 },
                 "Test to see if two values are equal.",
@@ -61,8 +61,8 @@ namespace Tests
         public void TestReturnPath()
         {
             var inputs = new ValueSet();
-            inputs[value1] = 1;
-            inputs[value2] = 2;
+            inputs.Set(value1, 1);
+            inputs.Set(value2, 2);
 
             Assert.That(IsEqual.Run(inputs), Is.EqualTo("no"));
         }
@@ -71,13 +71,13 @@ namespace Tests
         public void TestOutputs()
         {
             var inputs = new ValueSet();
-            inputs[value1] = 1;
-            inputs[value2] = 2;
+            inputs.Set(value1, 1);
+            inputs.Set(value2, 2);
 
             ValueSet outputs;
             Add.Run(inputs, out outputs);
             
-            Assert.That(outputs[value3], Is.EqualTo(3));
+            Assert.That(outputs.Get(value3), Is.EqualTo(3));
         }
     }
 }

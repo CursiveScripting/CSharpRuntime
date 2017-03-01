@@ -18,25 +18,31 @@ namespace Tests
         #region requirements
         private SystemProcess GetDayOfWeek;
 
-        private ValueKey messageParam;
+        private ValueKey<string> messageParam;
         private SystemProcess Print;
 
-        private ValueKey strValue1;
-        private ValueKey strValue2;
+        private ValueKey<string> strValue1, strValue2;
 
         private SystemProcess EqualsText;
 
-        private ValueKey iValue1, iValue2;
+        private ValueKey<int> iValue1, iValue2;
         private SystemProcess CompareIntegers;
 
-        private ValueKey personVal, property, iValue;
+        private ValueKey<Person> personVal;
+        private ValueKey<string> property;
+        private ValueKey<int> iValue;
         private SystemProcess GetPropertyInteger, SetPropertyInteger;
 
         Workspace workspace;
         RequiredProcess required;
 
-        private DataType text, integer, person, car;
-        private ValueKey me, carParam, myAge;
+        static DataType<string> text;
+        static DataType<int> integer;
+        static DataType<Person> person;
+        static DataType<Car> car;
+        static ValueKey<Person> me;
+        static ValueKey<Car> carParam;
+        static ValueKey<int> myAge;
 
         class Person
         {
@@ -68,20 +74,20 @@ namespace Tests
             person = new DataType<Person>("person", Color.FromKnownColor(KnownColor.Red));
             car = new DataType<Car>("car", Color.FromKnownColor(KnownColor.Blue));
 
-            me = new ValueKey("Me", person);
-            carParam = new ValueKey("Car", car);
-            myAge = new ValueKey("My age", integer);
+            me = new ValueKey<Person>("Me", person);
+            carParam = new ValueKey<Car>("Car", car);
+            myAge = new ValueKey<int>("My age", integer);
 
-            messageParam = new ValueKey("message", text);
-            strValue1 = new ValueKey("value1", text);
-            strValue2 = new ValueKey("value2", text);
+            messageParam = new ValueKey<string>("message", text);
+            strValue1 = new ValueKey<string>("value1", text);
+            strValue2 = new ValueKey<string>("value2", text);
 
-            iValue1 = new ValueKey("value1", integer);
-            iValue2 = new ValueKey("value2", integer);
+            iValue1 = new ValueKey<int>("value1", integer);
+            iValue2 = new ValueKey<int>("value2", integer);
 
-            personVal = new ValueKey("object", person);
-            property = new Cursive.ValueKey("property", text);
-            iValue = new Cursive.ValueKey("value", integer);
+            personVal = new ValueKey<Person>("object", person);
+            property = new ValueKey<string>("property", text);
+            iValue = new ValueKey<int>("value", integer);
 
             GetDayOfWeek = new SystemProcess(
                 (ValueSet inputs, out ValueSet outputs) =>
@@ -105,12 +111,12 @@ namespace Tests
             Print = new SystemProcess(
                 (ValueSet inputs, out ValueSet outputs) =>
                 {
-                    Console.WriteLine(inputs[messageParam]);
+                    Console.WriteLine(inputs.Get(messageParam));
                     outputs = null;
                     return string.Empty;
                 },
                 "Write a message to the system console.",
-                new Cursive.ValueKey[] { messageParam },
+                new ValueKey[] { messageParam },
                 null,
                 null
             );
@@ -119,10 +125,10 @@ namespace Tests
                 (ValueSet inputs, out ValueSet outputs) =>
                 {
                     outputs = null;
-                    return inputs[strValue1].Equals(inputs[strValue2]) ? "yes" : "no";
+                    return inputs.Get(strValue1) == inputs.Get(strValue2) ? "yes" : "no";
                 },
                 "Test to see if two values are equal.",
-                new Cursive.ValueKey[] { strValue1, strValue2 },
+                new ValueKey[] { strValue1, strValue2 },
                 null,
                 new string[] { "yes", "no" }
             );
@@ -131,19 +137,16 @@ namespace Tests
                 (ValueSet inputs, out ValueSet outputs) =>
                 {
                     outputs = null;
-                    var value1 = inputs[iValue1];
-                    var value2 = inputs[iValue2];
-
-                    if (!(value1 is IComparable) || !(value2 is IComparable))
-                        return "error";
-
-                    var comparison = (value1 as IComparable).CompareTo(value2 as IComparable);
+                    int value1 = inputs.Get(iValue1);
+                    int value2 = inputs.Get(iValue2);
+                    
+                    var comparison = value1.CompareTo(value2);
                     return comparison < 0 ? "less" : comparison > 0 ? "greater" : "equal";
                 },
-                "Compare two integers. Returns 'error' if either value doesn't implement IComparable.",
-                new Cursive.ValueKey[] { iValue1, iValue2 },
+                "Compare two integers.",
+                new ValueKey[] { iValue1, iValue2 },
                 null,
-                new string[] { "less", "greater", "equal", "error" }
+                new string[] { "less", "greater", "equal" }
             );
 
             GetPropertyInteger = new SystemProcess(
@@ -151,15 +154,15 @@ namespace Tests
                 {
                     outputs = new ValueSet();
 
-                    var source = inputs[personVal];
-                    var propertyName = inputs[property].ToString();
+                    var source = inputs.Get(personVal);
+                    var propertyName = inputs.Get(property);
                     var prop = source.GetType().GetProperty(propertyName);
                     if (prop == null)
                         return "error";
 
                     try
                     {
-                        outputs[iValue] = prop.GetValue(source);
+                        outputs.Set(iValue, (int)prop.GetValue(source));
                     }
                     catch
                     {
@@ -168,8 +171,8 @@ namespace Tests
                     return "ok";
                 },
                 "Output the named property of a given object. Returns 'error' if the property does not exist, or if getting it fails.",
-                new Cursive.ValueKey[] { personVal, property },
-                new Cursive.ValueKey[] { iValue },
+                new ValueKey[] { personVal, property },
+                new ValueKey[] { iValue },
                 new string[] { "ok", "error" }
             );
 
@@ -177,14 +180,14 @@ namespace Tests
                 (ValueSet inputs, out ValueSet outputs) =>
                 {
                     outputs = null;
-                    var destination = inputs[personVal];
-                    var prop = destination.GetType().GetProperty(inputs[property].ToString());
+                    var destination = inputs.Get(personVal);
+                    var prop = destination.GetType().GetProperty(inputs.Get(property));
                     if (prop == null)
                         return "error";
 
                     try
                     {
-                        prop.SetValue(destination, inputs[iValue]);
+                        prop.SetValue(destination, inputs.Get(iValue));
                     }
                     catch
                     {
@@ -193,7 +196,7 @@ namespace Tests
                     return "ok";
                 },
                 "Set the named property of a given object to the value specified. Returns 'error' if the property does not exist, or if setting it fails.",
-                new Cursive.ValueKey[] { personVal, property, iValue },
+                new ValueKey[] { personVal, property, iValue },
                 null,
                 new string[] { "ok", "error" }
             );

@@ -35,73 +35,70 @@ namespace Tests
             }
         );
 
-        private static ValueKey messageParam = new ValueKey("message", text);
+        private static ValueKey<string> messageParam = new ValueKey<string>("message", text);
         public static readonly SystemProcess Print = new SystemProcess(
             (ValueSet inputs, out ValueSet outputs) =>
             {
-                Console.WriteLine(inputs[messageParam]);
+                Console.WriteLine(inputs.Get(messageParam));
                 outputs = null;
                 return string.Empty;
             },
             "Write a message to the system console.",
-            new Cursive.ValueKey[] { messageParam },
+            new ValueKey[] { messageParam },
             null,
             null
         );
 
-        private static ValueKey strValue1 = new ValueKey("value1", text);
-        private static ValueKey strValue2 = new ValueKey("value2", text);
+        private static ValueKey<string> strValue1 = new ValueKey<string>("value1", text);
+        private static ValueKey<string> strValue2 = new ValueKey<string>("value2", text);
 
         public static SystemProcess EqualsText = new SystemProcess(
             (ValueSet inputs, out ValueSet outputs) =>
             {
                 outputs = null;
-                return inputs[strValue1].Equals(inputs[strValue2]) ? "yes" : "no";
+                return inputs.Get(strValue1).Equals(inputs.Get(strValue2)) ? "yes" : "no";
             },
             "Test to see if two values are equal.",
-            new Cursive.ValueKey[] { strValue1, strValue2 },
+            new ValueKey[] { strValue1, strValue2 },
             null,
             new string[] { "yes", "no" }
         );
 
-        private static ValueKey iValue1 = new ValueKey("value1", integer);
-        private static ValueKey iValue2 = new ValueKey("value2", integer);
+        private static ValueKey<int> iValue1 = new ValueKey<int>("value1", integer);
+        private static ValueKey<int> iValue2 = new ValueKey<int>("value2", integer);
         public static SystemProcess CompareIntegers = new SystemProcess(
             (ValueSet inputs, out ValueSet outputs) =>
             {
                 outputs = null;
-                var value1 = inputs[iValue1];
-                var value2 = inputs[iValue2];
-
-                if (!(value1 is IComparable) || !(value2 is IComparable))
-                    return "error";
-
-                var comparison = (value1 as IComparable).CompareTo(value2 as IComparable);
+                int value1 = inputs.Get(iValue1);
+                int value2 = inputs.Get(iValue2);
+                
+                var comparison = value1.CompareTo(value2);
                 return comparison < 0 ? "less" : comparison > 0 ? "greater" : "equal";
             },
-            "Compare two integers. Returns 'error' if either value doesn't implement IComparable.",
-            new Cursive.ValueKey[] { iValue1, iValue2 },
+            "Compare two integers",
+            new ValueKey[] { iValue1, iValue2 },
             null,
-            new string[] { "less", "greater", "equal", "error" }
+            new string[] { "less", "greater", "equal" }
         );
 
-        private static ValueKey personVal = new ValueKey("object", person);
-        private static ValueKey property = new Cursive.ValueKey("property", text);
-        private static ValueKey iValue = new Cursive.ValueKey("value", integer);
+        private static ValueKey<object> personVal = new ValueKey<object>("object", objectType);
+        private static ValueKey<string> property = new ValueKey<string>("property", text);
+        private static ValueKey<int> iValue = new ValueKey<int>("value", integer);
         public static SystemProcess GetPropertyInteger = new SystemProcess(
             (ValueSet inputs, out ValueSet outputs) =>
             {
                 outputs = new ValueSet();
 
-                var source = inputs[personVal];
-                var propertyName = inputs[property].ToString();
+                var source = inputs.Get(personVal);
+                var propertyName = inputs.Get(property).ToString();
                 var prop = source.GetType().GetProperty(propertyName);
                 if (prop == null)
                     return "error";
 
                 try
                 {
-                    outputs[iValue] = prop.GetValue(source);
+                    outputs.Set(iValue, (int)prop.GetValue(source));
                 }
                 catch
                 {
@@ -110,8 +107,8 @@ namespace Tests
                 return "ok";
             },
             "Output the named property of a given object. Returns 'error' if the property does not exist, or if getting it fails.",
-            new Cursive.ValueKey[] { personVal, property },
-            new Cursive.ValueKey[] { iValue },
+            new ValueKey[] { personVal, property },
+            new ValueKey[] { iValue },
             new string[] { "ok", "error" }
         );
 
@@ -119,14 +116,14 @@ namespace Tests
             (ValueSet inputs, out ValueSet outputs) =>
             {
                 outputs = null;
-                var destination = inputs[personVal];
-                var prop = destination.GetType().GetProperty(inputs[property].ToString());
+                var destination = inputs.Get(personVal);
+                var prop = destination.GetType().GetProperty(inputs.Get(property));
                 if (prop == null)
                     return "error";
 
                 try
                 {
-                    prop.SetValue(destination, inputs[iValue]);
+                    prop.SetValue(destination, inputs.Get(iValue));
                 }
                 catch
                 {
@@ -135,7 +132,7 @@ namespace Tests
                 return "ok";
             },
             "Set the named property of a given object to the value specified. Returns 'error' if the property does not exist, or if setting it fails.",
-            new Cursive.ValueKey[] { personVal, property, iValue },
+            new ValueKey[] { personVal, property, iValue },
             null,
             new string[] { "ok", "error" }
         );
@@ -144,8 +141,14 @@ namespace Tests
         Workspace workspace;
         RequiredProcess required;
 
-        static DataType text, integer, person, car;
-        private static ValueKey me, carParam, myAge;
+        static DataType<string> text;
+        static DataType<int> integer;
+        static DataType<object> objectType;
+        static DataType<Person> person;
+        static DataType<Car> car;
+        static ValueKey<Person> me;
+        static ValueKey<Car> carParam;
+        static ValueKey<int> myAge;
 
         class Person
         {
@@ -172,11 +175,12 @@ namespace Tests
             text = new FixedType<string>("text", Color.FromKnownColor(KnownColor.Gray), new Regex(".*"), s => s, () => string.Empty);
             integer = new FixedType<int>("integer", Color.FromKnownColor(KnownColor.Green), new Regex("[0-9]+"), s => int.Parse(s));
             person = new DataType<Person>("person", Color.FromKnownColor(KnownColor.Red));
+            objectType = new DataType<object>("object", Color.FromKnownColor(KnownColor.Blue));
             car = new DataType<Car>("car", Color.FromKnownColor(KnownColor.Blue));
 
-            me = new ValueKey("Me", person);
-            carParam = new ValueKey("Car", car);
-            myAge = new ValueKey("My age", integer);
+            me = new ValueKey<Person>("Me", person);
+            carParam = new ValueKey<Car>("Car", car);
+            myAge = new ValueKey<int>("My age", integer);
             
             workspace = new Workspace();
             workspace.AddDataType(text);
@@ -213,26 +217,26 @@ namespace Tests
             }
 
             var inputs = new ValueSet();
-            inputs[carParam] = new Car();
+            inputs.Set(carParam, new Car());
 
             Console.WriteLine();
             Console.WriteLine("Running with 'Alice' ...");
-            inputs[me] = new Person() { Name = "Alice", Age = 3, Gender = "F" };
+            inputs.Set(me, new Person() { Name = "Alice", Age = 3, Gender = "F" });
             Console.WriteLine(required.Run(inputs));
 
             Console.WriteLine();
             Console.WriteLine("Running with 'Bob' ...");
-            inputs[me] = new Person() { Name = "Bob", Age = 8, Gender = "M" };
+            inputs.Set(me, new Person() { Name = "Bob", Age = 8, Gender = "M" });
             Console.WriteLine(required.Run(inputs));
 
             Console.WriteLine();
             Console.WriteLine("Running with 'Carly' ...");
-            inputs[me] = new Person() { Name = "Carly", Age = 15, Gender = "M" };
+            inputs.Set(me, new Person() { Name = "Carly", Age = 15, Gender = "F" });
             Console.WriteLine(required.Run(inputs));
 
             Console.WriteLine();
             Console.WriteLine("Running with 'Dave' ...");
-            inputs[me] = new Person() { Name = "Dave", Age = 34, Gender = "M" };
+            inputs.Set(me, new Person() { Name = "Dave", Age = 34, Gender = "M" });
             Console.WriteLine(required.Run(inputs));
 
             Assert.That(true == false);

@@ -4,7 +4,7 @@ namespace Cursive
 {
     public class ValueKey : IComparable<ValueKey>, IEquatable<ValueKey>
     {
-        public ValueKey(string name, DataType type)
+        internal ValueKey(string name, DataType type)
         {
             Name = name;
             Type = type;
@@ -27,5 +27,12 @@ namespace Cursive
         {
             return Name == other.Name && Type == other.Type;
         }
+    }
+
+    public class ValueKey<T> : ValueKey
+    {
+        public ValueKey(string name, DataType<T> type)
+            : base(name, type)
+            { }
     }
 }

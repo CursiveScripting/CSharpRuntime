@@ -88,32 +88,35 @@ namespace CursiveCSharpBackend.Services
             processNode.Attributes.Append(doc.CreateAttribute("name", processName));
             parent.AppendChild(processNode);
 
-            foreach (var input in process.Inputs)
-            {
-                var inputNode = doc.CreateElement("Input");
-                inputNode.Attributes.Append(doc.CreateAttribute("name", input.Name));
+            if (process.Inputs != null)
+                foreach (var input in process.Inputs)
+                {
+                    var inputNode = doc.CreateElement("Input");
+                    inputNode.Attributes.Append(doc.CreateAttribute("name", input.Name));
 
-                var type = input.Type;
-                inputNode.Attributes.Append(doc.CreateAttribute("type", type.Name));
-                processNode.AppendChild(inputNode);
-            }
+                    var type = input.Type;
+                    inputNode.Attributes.Append(doc.CreateAttribute("type", type.Name));
+                    processNode.AppendChild(inputNode);
+                }
 
-            foreach (var output in process.Outputs)
-            {
-                var outputNode = doc.CreateElement("Output");
-                outputNode.Attributes.Append(doc.CreateAttribute("name", output.Name));
+            if (process.Outputs != null)
+                foreach (var output in process.Outputs)
+                {
+                    var outputNode = doc.CreateElement("Output");
+                    outputNode.Attributes.Append(doc.CreateAttribute("name", output.Name));
 
-                var type = output.Type;
-                outputNode.Attributes.Append(doc.CreateAttribute("type", type.Name));
-                processNode.AppendChild(outputNode);
-            }
-            
-            foreach (var path in process.ReturnPaths)
-            {
-                var pathNode = doc.CreateElement("NamedReturnPath");
-                pathNode.Attributes.Append(doc.CreateAttribute("name", path));
-                processNode.AppendChild(pathNode);
-            }
+                    var type = output.Type;
+                    outputNode.Attributes.Append(doc.CreateAttribute("type", type.Name));
+                    processNode.AppendChild(outputNode);
+                }
+
+            if (process.ReturnPaths != null)
+                foreach (var path in process.ReturnPaths)
+                {
+                    var pathNode = doc.CreateElement("NamedReturnPath");
+                    pathNode.Attributes.Append(doc.CreateAttribute("name", path));
+                    processNode.AppendChild(pathNode);
+                }
         }
     }
 }

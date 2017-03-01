@@ -43,14 +43,11 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="WorkspaceSavingTests.cs" />
     <Compile Include="SystemProcessTests.cs" />
     <Compile Include="ProcessRunningTests.cs" />
     <Compile Include="ValueSetTests.cs" />
@@ -59,6 +56,14 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\Schema\processes.xsd">
+      <Link>processes.xsd</Link>
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="..\Schema\workspace.xsd">
+      <Link>workspace.xsd</Link>
+      <SubType>Designer</SubType>
+    </None>
     <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>

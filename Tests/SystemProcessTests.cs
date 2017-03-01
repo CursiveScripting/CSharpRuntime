@@ -3,6 +3,7 @@ using NUnit.Framework;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -23,7 +24,7 @@ namespace Tests
         [OneTimeSetUp]
         public void Prepare()
         {
-            number = new FixedType<int>("number", new Regex("[0-9]+"), s => int.Parse(s));
+            number = new FixedType<int>("number", Color.FromKnownColor(KnownColor.Red), new Regex("[0-9]+"), s => int.Parse(s));
             value1 = new ValueKey("value1", number);
             value2 = new ValueKey("value2", number);
             value3 = new ValueKey("value3", number);

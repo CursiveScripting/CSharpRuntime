@@ -1,6 +1,7 @@
 ﻿using Cursive;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -31,26 +32,7 @@ namespace CursiveCSharpBackend.Services
                     continue;
                 }
 
-                var node = doc.CreateElement("Type");
-                node.Attributes.Append(doc.CreateAttribute("name", type.Name));
-
-                if (type.Validation != null)
-                {
-                    var regex = type.Validation.ToString();
-                    node.Attributes.Append(doc.CreateAttribute("validation", regex));
-                }
-
-                if (type.Extends != null)
-                {
-                    node.Attributes.Append(doc.CreateAttribute("extends", type.Extends.Name));
-                }
-
-                if (!string.IsNullOrEmpty(type.Guidance))
-                {
-                    node.Attributes.Append(doc.CreateAttribute("guidance", type.Guidance));
-                }
-
-                root.AppendChild(node);
+                WriteType(root, type);
                 typesWritten.Add(type);
             }
 
@@ -69,6 +51,34 @@ namespace CursiveCSharpBackend.Services
             }
 
             return doc;
+        }
+
+        public static string ToHexString(this Color c) => $"#{c.R:X2}{c.G:X2}{c.B:X2}";
+
+        private static void WriteType(XmlElement parent, DataType type)
+        {
+            var doc = parent.OwnerDocument;
+            var node = doc.CreateElement("Type");
+            node.Attributes.Append(doc.CreateAttribute("name", type.Name));
+            node.Attributes.Append(doc.CreateAttribute("color", type.Color.ToHexString()));
+
+            if (type.Validation != null)
+            {
+                var regex = type.Validation.ToString();
+                node.Attributes.Append(doc.CreateAttribute("validation", regex));
+            }
+
+            if (type.Extends != null)
+            {
+                node.Attributes.Append(doc.CreateAttribute("extends", type.Extends.Name));
+            }
+
+            if (!string.IsNullOrEmpty(type.Guidance))
+            {
+                node.Attributes.Append(doc.CreateAttribute("guidance", type.Guidance));
+            }
+
+            parent.AppendChild(node);
         }
 
         private static void WriteProcess(Workspace workspace, Process process, string processName, XmlElement parent, string elementName)

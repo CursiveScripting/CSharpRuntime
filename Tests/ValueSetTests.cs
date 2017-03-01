@@ -3,6 +3,7 @@ using NUnit.Framework;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -21,8 +22,8 @@ namespace Tests
         [OneTimeSetUp]
         public void Prepare()
         {
-            dtObject = new DataType<object>("object");
-            dtShort = new FixedType<short>("short", new Regex("^[0-9]+$"), s => short.Parse(s));
+            dtObject = new DataType<object>("object", Color.FromKnownColor(KnownColor.Red));
+            dtShort = new FixedType<short>("short", Color.FromKnownColor(KnownColor.Yellow), new Regex("^[0-9]+$"), s => short.Parse(s));
 
             testShort = new ValueKey("testShort", dtShort);
             testObject = new ValueKey("testObject", dtObject);

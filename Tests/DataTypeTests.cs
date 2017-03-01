@@ -3,6 +3,7 @@ using NUnit.Framework;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -18,12 +19,12 @@ namespace Tests
         [OneTimeSetUp]
         public void Prepare()
         {
-            dtObject = new DataType<object>("object");
-            dtHashtable = new DataType<Hashtable>("hashtable", dtObject, () => new Hashtable());
-            dtShort = new FixedType<short>("short", new Regex("^[0-9]+$"), s => short.Parse(s));
-            dtInteger = new FixedType<int>("integer", new Regex("^[0-9]+$"), s => int.Parse(s), () => -1, dtShort, "Enter a non-negative, whole number");
-            dtLong = new FixedType<long>("long", new Regex("^[0-9]+$"), s => long.Parse(s), null, dtInteger);
-            dtString = new FixedType<string>("string", new Regex(".*"), s => s, () => string.Empty);
+            dtObject = new DataType<object>("object", Color.FromKnownColor(KnownColor.Red));
+            dtHashtable = new DataType<Hashtable>("hashtable", Color.FromKnownColor(KnownColor.Orange), dtObject, () => new Hashtable());
+            dtShort = new FixedType<short>("short", Color.FromKnownColor(KnownColor.Yellow), new Regex("^[0-9]+$"), s => short.Parse(s));
+            dtInteger = new FixedType<int>("integer", Color.FromKnownColor(KnownColor.GreenYellow), new Regex("^[0-9]+$"), s => int.Parse(s), () => -1, dtShort, "Enter a non-negative, whole number");
+            dtLong = new FixedType<long>("long", Color.FromKnownColor(KnownColor.Green), new Regex("^[0-9]+$"), s => long.Parse(s), null, dtInteger);
+            dtString = new FixedType<string>("string", Color.FromKnownColor(KnownColor.SkyBlue), new Regex(".*"), s => s, () => string.Empty);
         }
         
         [Test]

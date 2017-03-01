@@ -3,6 +3,7 @@ using NUnit.Framework;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -168,10 +169,10 @@ namespace Tests
         [OneTimeSetUp]
         public void Prepare()
         {
-            text = new FixedType<string>("text", new Regex(".*"), s => s, () => string.Empty);
-            integer = new FixedType<int>("integer", new Regex("[0-9]+"), s => int.Parse(s));
-            person = new DataType<Person>("person");
-            car = new DataType<Car>("car");
+            text = new FixedType<string>("text", Color.FromKnownColor(KnownColor.Gray), new Regex(".*"), s => s, () => string.Empty);
+            integer = new FixedType<int>("integer", Color.FromKnownColor(KnownColor.Green), new Regex("[0-9]+"), s => int.Parse(s));
+            person = new DataType<Person>("person", Color.FromKnownColor(KnownColor.Red));
+            car = new DataType<Car>("car", Color.FromKnownColor(KnownColor.Blue));
 
             me = new ValueKey("Me", person);
             carParam = new ValueKey("Car", car);

@@ -1,19 +1,22 @@
 ﻿using System;
+using System.Drawing;
 using System.Text.RegularExpressions;
 
 namespace Cursive
 {
     public abstract class DataType
     {
-        protected DataType(string name, DataType extends = null, Regex validation = null, string guidance = null)
+        protected DataType(string name, Color color, DataType extends = null, Regex validation = null, string guidance = null)
         {
             Name = name;
+            Color = color;
             Extends = extends;
             Validation = validation;
             Guidance = guidance;
         }
 
         public string Name { get; }
+        public Color Color { get; }
         public string Guidance { get; }
         public DataType Extends { get; }
         public Regex Validation { get; }
@@ -46,11 +49,11 @@ namespace Cursive
 
     public class DataType<T> : DataType
     {
-        public DataType(string name, DataType extends = null, Func<T> getDefault = null)
-            : this(name, extends, getDefault, null) { }
+        public DataType(string name, Color color, DataType extends = null, Func<T> getDefault = null)
+            : this(name, color, extends, getDefault, null) { }
 
-        protected DataType(string name, DataType extends = null, Func<T> getDefault = null, Regex validation = null, string guidance = null)
-            : base(name, extends, validation, guidance)
+        protected DataType(string name, Color color, DataType extends = null, Func<T> getDefault = null, Regex validation = null, string guidance = null)
+            : base(name, color, extends, validation, guidance)
         {
             GetDefault = getDefault;
         }
@@ -74,8 +77,8 @@ namespace Cursive
 
     public class FixedType<T> : DataType<T>, IDeserializable
     {
-        public FixedType(string name, Regex validation, Func<string, T> deserialize, Func<T> getDefault = null, DataType extends = null, string guidance = null)
-            : base(name, extends, getDefault, validation, guidance)
+        public FixedType(string name, Color color, Regex validation, Func<string, T> deserialize, Func<T> getDefault = null, DataType extends = null, string guidance = null)
+            : base(name, color, extends, getDefault, validation, guidance)
         {
             DeserializationFunction = deserialize;
         }

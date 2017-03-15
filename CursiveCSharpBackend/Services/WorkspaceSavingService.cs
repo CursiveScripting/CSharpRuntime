@@ -36,6 +36,11 @@ namespace CursiveCSharpBackend.Services
                 typesWritten.Add(type);
             }
 
+            foreach (var kvp in workspace.RequiredProcesses)
+            {
+                WriteProcess(workspace, kvp.Value, kvp.Key, root, "RequiredProcess");
+            }
+
             foreach (var kvp in workspace.Processes)
             {
                 var process = kvp.Value;
@@ -43,11 +48,6 @@ namespace CursiveCSharpBackend.Services
                     continue;
 
                 WriteProcess(workspace, process, kvp.Key, root, "SystemProcess");
-            }
-
-            foreach (var kvp in workspace.RequiredProcesses)
-            {
-                WriteProcess(workspace, kvp.Value, kvp.Key, root, "SystemProcess");
             }
 
             return doc;

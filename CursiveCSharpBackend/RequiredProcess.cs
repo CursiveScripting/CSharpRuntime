@@ -10,7 +10,7 @@ namespace Cursive
         {
             Inputs = inputs;
             Outputs = outputs;
-            ReturnPaths = returnPaths == null ? new string[] { null } : returnPaths;
+            ReturnPaths = returnPaths;
         }
         
         internal Process ActualProcess { get; set; }

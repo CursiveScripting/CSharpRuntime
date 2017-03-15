@@ -8,12 +8,13 @@ namespace Cursive
 {
     internal class UserProcess : Process
     {
-        public UserProcess(string name, string description, IReadOnlyCollection<ValueKey> inputs, IReadOnlyCollection<ValueKey> outputs, ValueSet defaultVariables, StartStep firstStep, IEnumerable<Step> allSteps)
+        public UserProcess(string name, string description, IReadOnlyCollection<ValueKey> inputs, IReadOnlyCollection<ValueKey> outputs, IReadOnlyCollection<string> returnPaths, ValueSet defaultVariables, StartStep firstStep, IEnumerable<Step> allSteps)
             : base(description)
         {
             Name = name;
             Inputs = inputs;
             Outputs = outputs;
+            ReturnPaths = returnPaths;
             DefaultVariables = defaultVariables;
             FirstStep = firstStep;
             Steps = allSteps;
@@ -23,6 +24,7 @@ namespace Cursive
 
         public override IReadOnlyCollection<ValueKey> Inputs { get; }
         public override IReadOnlyCollection<ValueKey> Outputs { get; }
+        public override IReadOnlyCollection<string> ReturnPaths { get; }
         private ValueSet DefaultVariables { get; }
 
         internal StartStep FirstStep { get; }
@@ -51,17 +53,6 @@ namespace Cursive
             }
 
             throw new InvalidOperationException("The last step of a completed process wasn't an EndStep");
-        }
-
-        public override IReadOnlyCollection<string> ReturnPaths
-        {
-            get
-            {
-                List<string> paths = new List<string>();
-                foreach (var endStep in EndSteps)
-                    paths.Add(endStep.ReturnValue);
-                return paths;
-            }
         }
 
         internal IEnumerable<StopStep> EndSteps

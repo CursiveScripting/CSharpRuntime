@@ -80,6 +80,7 @@ namespace CursiveCSharpBackend.Services
             var inputNodes = processNode.SelectNodes("Input");
             var outputNodes = processNode.SelectNodes("Output");
             var variableNodes = processNode.SelectNodes("Variable");
+            var returnPathNodes = processNode.SelectNodes("ReturnPath");
 
             var inputs = new List<ValueKey>();
             var outputs = new List<ValueKey>();
@@ -87,6 +88,7 @@ namespace CursiveCSharpBackend.Services
             var inputsByName = new Dictionary<string, ValueKey>();
             var outputsByName = new Dictionary<string, ValueKey>();
             var variablesByName = new Dictionary<string, ValueKey>();
+            var returnPaths = new HashSet<string>();
 
             RequiredProcess wrapper;
             if (!workspace.RequiredProcesses.TryGetValue(processName, out wrapper))
@@ -155,6 +157,12 @@ namespace CursiveCSharpBackend.Services
                 var type = workspace.GetType(variable.GetAttribute("type"));
                 var name = variable.GetAttribute("name");
                 var definition = new ValueKey(name, type);
+                if (variablesByName.ContainsKey(name))
+                {
+                    errors.Add(string.Format("Process '{0}' has multiple variables with the same name: '{1}'", processName, name));
+                    success = false;
+                    continue;
+                }
                 variablesByName.Add(name, definition);
 
                 var initialValue = variable.GetAttribute("initialValue");
@@ -163,6 +171,17 @@ namespace CursiveCSharpBackend.Services
                     defaultVariables[definition] = (definition.Type as IDeserializable).Deserialize(initialValue);
                 else
                     defaultVariables[definition] = definition.Type.GetDefaultValue();
+            }
+            foreach (XmlElement returnPath in returnPathNodes)
+            {
+                var pathName = returnPath.GetAttribute("name");
+                if (returnPaths.Contains(pathName))
+                {
+                    errors.Add(string.Format("Process '{0}' has multiple return paths with the same name: '{1}'. Multiple stop steps can return the same path, but the path must only be defined once.", processName, pathName));
+                    success = false;
+                    continue;
+                }
+                returnPaths.Add(pathName);
             }
 
             if (wrapper != null)
@@ -173,12 +192,41 @@ namespace CursiveCSharpBackend.Services
                         errors.Add(string.Format("Process '{0}' is required by the workspace, but is missing the required input '{1}'", processName, input.Name));
                         success = false;
                     }
+                if (inputsByName.Count != wrapper.Inputs.Count)
+                    foreach (var input in inputsByName.Values)
+                        if (!wrapper.Inputs.Any(i => i.Name == input.Name))
+                        {
+                            errors.Add(string.Format("Process '{0}' is required by the workspace, but contains unexpected input '{1}'", processName, input.Name));
+                            success = false;
+                        }
+
                 foreach (var output in wrapper.Outputs)
                     if (!outputsByName.ContainsKey(output.Name))
                     {
                         errors.Add(string.Format("Process '{0}' is required by the workspace, but is missing the required output '{1}'", processName, output.Name));
                         success = false;
                     }
+                if (outputsByName.Count != wrapper.Outputs.Count)
+                    foreach (var output in outputsByName.Values)
+                        if (!wrapper.Outputs.Any(o => o.Name == output.Name))
+                        {
+                            errors.Add(string.Format("Process '{0}' is required by the workspace, but contains unexpected output '{1}'", processName, output.Name));
+                            success = false;
+                        }
+
+                foreach (var returnPath in wrapper.ReturnPaths)
+                    if (!returnPaths.Contains(returnPath))
+                    {
+                        errors.Add(string.Format("Process '{0}' is required by the workspace, but is missing the required return path '{1}'", processName, returnPath));
+                        success = false;
+                    }
+                if (returnPaths.Count != wrapper.ReturnPaths.Count)
+                    foreach (var returnPath in returnPaths)
+                        if (!wrapper.ReturnPaths.Contains(returnPath))
+                        {
+                            errors.Add(string.Format("Process '{0}' is required by the workspace, but contains unexpected return path '{1}'", processName, returnPath));
+                            success = false;
+                        }
             }
 
             XmlElement steps = processNode.SelectSingleNode("Steps") as XmlElement;
@@ -188,7 +236,7 @@ namespace CursiveCSharpBackend.Services
             StartStep firstStep = null; XmlElement firstStepNode = null;
             foreach (XmlElement stepNode in steps.ChildNodes)
             {
-                var step = LoadProcessStep(stepNode, inputsByName, outputsByName, variablesByName, loadingSteps, errors);
+                var step = LoadProcessStep(stepNode, inputsByName, outputsByName, variablesByName, returnPaths, loadingSteps, errors);
                 if (step == null)
                 {
                     success = false;
@@ -199,9 +247,10 @@ namespace CursiveCSharpBackend.Services
                 {
                     firstStep = step as StartStep;
                     firstStepNode = stepNode;
+                    continue;
                 }
-                else
-                    stepsByName.Add(step.Name, step);
+                
+                stepsByName.Add(step.Name, step);
             }
 
             if (firstStep == null)
@@ -219,7 +268,7 @@ namespace CursiveCSharpBackend.Services
             if (!success)
                 return null;
 
-            UserProcess process = new UserProcess(processName, desc, inputs, outputs, defaultVariables, firstStep, stepsByName.Values);
+            UserProcess process = new UserProcess(processName, desc, inputs, outputs, returnPaths.ToArray(), defaultVariables, firstStep, stepsByName.Values);
             workspace.Processes.Add(processName, process);
 
             if (wrapper != null)
@@ -309,7 +358,7 @@ namespace CursiveCSharpBackend.Services
             return success;
         }
 
-        private static Step LoadProcessStep(XmlElement stepNode, Dictionary<string, ValueKey> inputs, Dictionary<string, ValueKey> outputs, Dictionary<string, ValueKey> variables, List<UserStepLoadingInfo> loadingSteps, List<string> errors)
+        private static Step LoadProcessStep(XmlElement stepNode, Dictionary<string, ValueKey> inputs, Dictionary<string, ValueKey> outputs, Dictionary<string, ValueKey> variables, HashSet<string> returnPaths, List<UserStepLoadingInfo> loadingSteps, List<string> errors)
         {
             var name = stepNode.GetAttribute("ID");
             var mapInputs = stepNode.SelectNodes("MapInput");
@@ -354,7 +403,24 @@ namespace CursiveCSharpBackend.Services
             {
                 var returnValue = stepNode.GetAttribute("name");
                 if (returnValue == string.Empty)
+                {
                     returnValue = null;
+
+                    if (returnPaths.Count > 0)
+                    {
+                        errors.Add(string.Format("The stop step '{0}' doesn't specify a return path name, but this process uses named return paths.", name));
+                        success = false;
+                    }
+                }
+                else if (!returnPaths.Contains(returnValue))
+                {
+                    if (returnPaths.Count == 0)
+                        errors.Add(string.Format("The stop step '{0}' specifies a return path name ('{1}'), but this process doesn't use named return paths.", name, returnValue));
+                    else
+                        errors.Add(string.Format("The stop step '{0}' specifies a return path name ('{1}') that isn't valid for this process.", name, returnValue));
+
+                    success = false;
+                }
 
                 step = new StopStep(name, returnValue);
                 foreach (XmlElement input in mapInputs)

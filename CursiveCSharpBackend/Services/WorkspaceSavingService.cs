@@ -113,7 +113,7 @@ namespace CursiveCSharpBackend.Services
             if (process.ReturnPaths != null)
                 foreach (var path in process.ReturnPaths)
                 {
-                    var pathNode = doc.CreateElement("NamedReturnPath");
+                    var pathNode = doc.CreateElement("ReturnPath");
                     pathNode.Attributes.Append(CreateAttribute(doc, "name", path));
                     processNode.AppendChild(pathNode);
                 }

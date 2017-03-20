@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>FTWinston.CursiveScripting.Runtime</id>
+    <version>$version$</version>
+    <title>Cursive Scripting Runtime</title>
+    <authors>FTWinston.com</authors>
+    <owners>FTWinston</owners>
+    <licenseUrl>https://opensource.org/licenses/MIT</licenseUrl>
+    <projectUrl>https://github.com/CursiveScripting/CSharpRuntime</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Runtime for executing scripts produced by the Cursive Scripting Frontend</description>
+    <releaseNotes>Initial release.</releaseNotes>
+    <copyright>Copyright 2017 FTWinston.com</copyright>
+    <tags>Cursive Scripting Runtime</tags>
+  </metadata>
+</package>

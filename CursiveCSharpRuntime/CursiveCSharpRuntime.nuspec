@@ -9,7 +9,7 @@
     <licenseUrl>https://opensource.org/licenses/MIT</licenseUrl>
     <projectUrl>https://github.com/CursiveScripting/CSharpRuntime</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>Runtime for executing scripts produced by the Cursive Scripting Frontend</description>
+    <description>Runtime for executing scripts produced by the Cursive Scripting UI</description>
     <releaseNotes>Initial release.</releaseNotes>
     <copyright>Copyright 2017 FTWinston.com</copyright>
     <tags>Cursive Scripting Runtime</tags>

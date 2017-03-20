@@ -70,9 +70,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\CursiveCSharpBackend\CursiveCSharpBackend.csproj">
+    <ProjectReference Include="..\CursiveCSharpRuntime\CursiveCSharpRuntime.csproj">
       <Project>{2b53e9fb-3bf3-414f-8650-5671f6a9992a}</Project>
-      <Name>CursiveCSharpBackend</Name>
+      <Name>CursiveCSharpRuntime</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

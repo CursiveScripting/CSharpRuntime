@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.25123.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CursiveCSharpBackend", "CursiveCSharpBackend\CursiveCSharpBackend.csproj", "{2B53E9FB-3BF3-414F-8650-5671F6A9992A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CursiveCSharpRuntime", "CursiveCSharpRuntime\CursiveCSharpRuntime.csproj", "{2B53E9FB-3BF3-414F-8650-5671F6A9992A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{5DB7080F-B86D-488B-AB20-E1A13FC60719}"
 EndProject

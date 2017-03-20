@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CursiveCSharpBackend.Services
+namespace CursiveCSharpRuntime.Services
 {
     internal static class DebuggingService
     {

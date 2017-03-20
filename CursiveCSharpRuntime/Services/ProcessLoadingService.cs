@@ -7,7 +7,7 @@ using System.Reflection;
 using System.Xml;
 using System.Xml.Schema;
 
-namespace CursiveCSharpBackend.Services
+namespace CursiveCSharpRuntime.Services
 {
     internal static class ProcessLoadingService
     {
@@ -16,7 +16,7 @@ namespace CursiveCSharpBackend.Services
             var success = true;
             errors = new List<string>();
 
-            var schemaResourceName = "CursiveCSharpBackend.processes.xsd";
+            var schemaResourceName = "CursiveCSharpRuntime.processes.xsd";
             using (Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(schemaResourceName))
             using (XmlReader reader = XmlReader.Create(stream))
             {

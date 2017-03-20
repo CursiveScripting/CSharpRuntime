@@ -5,8 +5,8 @@ namespace Cursive
 {
     public class RequiredProcess : Process
     {
-        public RequiredProcess(string description, IReadOnlyCollection<ValueKey> inputs, IReadOnlyCollection<ValueKey> outputs, IReadOnlyCollection<string> returnPaths)
-            : base(description)
+        public RequiredProcess(string description, IReadOnlyCollection<ValueKey> inputs, IReadOnlyCollection<ValueKey> outputs, IReadOnlyCollection<string> returnPaths, string folder = null)
+            : base(description, folder)
         {
             Inputs = inputs;
             Outputs = outputs;

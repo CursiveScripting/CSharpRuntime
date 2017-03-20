@@ -5,9 +5,10 @@ namespace Cursive
 {
     public abstract class Process
     {
-        protected Process(string description)
+        protected Process(string description, string folder)
         {
-            this.Description = description;
+            Description = description;
+            Folder = folder;
         }
 
         public string Run(ValueSet input)
@@ -16,7 +17,9 @@ namespace Cursive
             return Run(input, out output);
         }
 
-        public string Description { get; protected set; }
+        public string Description { get; }
+        public string Folder { get; }
+
         public abstract IReadOnlyCollection<string> ReturnPaths { get; }
         public abstract IReadOnlyCollection<ValueKey> Inputs { get; }
         public abstract IReadOnlyCollection<ValueKey> Outputs { get; }

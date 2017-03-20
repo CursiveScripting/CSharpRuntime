@@ -9,7 +9,7 @@ namespace Cursive
     internal class UserProcess : Process
     {
         public UserProcess(string name, string description, IReadOnlyCollection<ValueKey> inputs, IReadOnlyCollection<ValueKey> outputs, IReadOnlyCollection<string> returnPaths, ValueSet defaultVariables, StartStep firstStep, IEnumerable<Step> allSteps)
-            : base(description)
+            : base(description, null)
         {
             Name = name;
             Inputs = inputs;

@@ -88,6 +88,9 @@ namespace CursiveCSharpBackend.Services
             processNode.Attributes.Append(CreateAttribute(doc, "name", processName));
             parent.AppendChild(processNode);
 
+            if (!string.IsNullOrEmpty(process.Folder))
+                processNode.Attributes.Append(CreateAttribute(doc, "folder", process.Folder));
+
             if (!string.IsNullOrEmpty(process.Description))
             {
                 var descNode = doc.CreateElement("Description");

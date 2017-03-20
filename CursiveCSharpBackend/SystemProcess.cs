@@ -4,8 +4,8 @@ namespace Cursive
 {
     public class SystemProcess : Process
     {
-        public SystemProcess(SystemStep operation, string description, IReadOnlyCollection<ValueKey> inputs, IReadOnlyCollection<ValueKey> outputs, IReadOnlyCollection<string> returnPaths)
-            : base(description)
+        public SystemProcess(SystemStep operation, string description, IReadOnlyCollection<ValueKey> inputs, IReadOnlyCollection<ValueKey> outputs, IReadOnlyCollection<string> returnPaths, string folder = null)
+            : base(description, folder)
         {
             Operation = operation;
             Inputs = inputs;

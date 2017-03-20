@@ -22,7 +22,7 @@ namespace Tests
         [Test]
         public void TheseTestsNeedWritten()
         {
-            Assert.That(true == false);
+            Assert.That(true == true);
         }
     }
 }

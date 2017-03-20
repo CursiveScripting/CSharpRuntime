@@ -4,7 +4,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -16,126 +18,151 @@ namespace Tests
     public class ProcessRunningTests
     {
         #region system processes
-        public static readonly SystemProcess GetDayOfWeek = new SystemProcess(
-            (ValueSet inputs, out ValueSet outputs) =>
-            {
-                outputs = null;
-                return DateTime.Today.DayOfWeek.ToString();
-            },
-            "Returns the name of the current day of the week",
-            null, null,
-            new string[] {
-                DayOfWeek.Monday.ToString(),
-                DayOfWeek.Tuesday.ToString(),
-                DayOfWeek.Wednesday.ToString(),
-                DayOfWeek.Thursday.ToString(),
-                DayOfWeek.Friday.ToString(),
-                DayOfWeek.Saturday.ToString(),
-                DayOfWeek.Sunday.ToString()
-            }
-        );
-
-        private static ValueKey<string> messageParam = new ValueKey<string>("message", text);
-        public static readonly SystemProcess Print = new SystemProcess(
-            (ValueSet inputs, out ValueSet outputs) =>
-            {
-                Console.WriteLine(inputs.Get(messageParam));
-                outputs = null;
-                return string.Empty;
-            },
-            "Write a message to the system console.",
-            new ValueKey[] { messageParam },
-            null,
-            null
-        );
-
-        private static ValueKey<string> strValue1 = new ValueKey<string>("value1", text);
-        private static ValueKey<string> strValue2 = new ValueKey<string>("value2", text);
-
-        public static SystemProcess EqualsText = new SystemProcess(
-            (ValueSet inputs, out ValueSet outputs) =>
-            {
-                outputs = null;
-                return inputs.Get(strValue1).Equals(inputs.Get(strValue2)) ? "yes" : "no";
-            },
-            "Test to see if two values are equal.",
-            new ValueKey[] { strValue1, strValue2 },
-            null,
-            new string[] { "yes", "no" }
-        );
-
-        private static ValueKey<int> iValue1 = new ValueKey<int>("value1", integer);
-        private static ValueKey<int> iValue2 = new ValueKey<int>("value2", integer);
-        public static SystemProcess CompareIntegers = new SystemProcess(
-            (ValueSet inputs, out ValueSet outputs) =>
-            {
-                outputs = null;
-                int value1 = inputs.Get(iValue1);
-                int value2 = inputs.Get(iValue2);
-                
-                var comparison = value1.CompareTo(value2);
-                return comparison < 0 ? "less" : comparison > 0 ? "greater" : "equal";
-            },
-            "Compare two integers",
-            new ValueKey[] { iValue1, iValue2 },
-            null,
-            new string[] { "less", "greater", "equal" }
-        );
-
-        private static ValueKey<object> personVal = new ValueKey<object>("object", objectType);
-        private static ValueKey<string> property = new ValueKey<string>("property", text);
-        private static ValueKey<int> iValue = new ValueKey<int>("value", integer);
-        public static SystemProcess GetPropertyInteger = new SystemProcess(
-            (ValueSet inputs, out ValueSet outputs) =>
-            {
-                outputs = new ValueSet();
-
-                var source = inputs.Get(personVal);
-                var propertyName = inputs.Get(property).ToString();
-                var prop = source.GetType().GetProperty(propertyName);
-                if (prop == null)
-                    return "error";
-
-                try
+        public static SystemProcess GetDayOfWeek()
+        {
+            return new SystemProcess(
+                (ValueSet inputs, out ValueSet outputs) =>
                 {
-                    outputs.Set(iValue, (int)prop.GetValue(source));
+                    outputs = null;
+                    return DateTime.Today.DayOfWeek.ToString();
+                },
+                "Returns the name of the current day of the week",
+                null, null,
+                new string[] {
+                    DayOfWeek.Monday.ToString(),
+                    DayOfWeek.Tuesday.ToString(),
+                    DayOfWeek.Wednesday.ToString(),
+                    DayOfWeek.Thursday.ToString(),
+                    DayOfWeek.Friday.ToString(),
+                    DayOfWeek.Saturday.ToString(),
+                    DayOfWeek.Sunday.ToString()
                 }
-                catch
-                {
-                    return "error";
-                }
-                return "ok";
-            },
-            "Output the named property of a given object. Returns 'error' if the property does not exist, or if getting it fails.",
-            new ValueKey[] { personVal, property },
-            new ValueKey[] { iValue },
-            new string[] { "ok", "error" }
-        );
+            );
+        }
+        
+        public static SystemProcess Print()
+        {
+            ValueKey<string> messageParam = new ValueKey<string>("message", text);
 
-        public static SystemProcess SetPropertyInteger = new SystemProcess(
-            (ValueSet inputs, out ValueSet outputs) =>
-            {
-                outputs = null;
-                var destination = inputs.Get(personVal);
-                var prop = destination.GetType().GetProperty(inputs.Get(property));
-                if (prop == null)
-                    return "error";
+            return new SystemProcess(
+                (ValueSet inputs, out ValueSet outputs) =>
+                {
+                    Console.WriteLine(inputs.Get(messageParam));
+                    outputs = null;
+                    return string.Empty;
+                },
+                "Write a message to the system console.",
+                new ValueKey[] { messageParam },
+                null,
+                null
+            );
+        }
 
-                try
+        public static SystemProcess EqualsText()
+        {
+            ValueKey<string> strValue1 = new ValueKey<string>("value1", text);
+            ValueKey<string> strValue2 = new ValueKey<string>("value2", text);
+
+            return new SystemProcess(
+                (ValueSet inputs, out ValueSet outputs) =>
                 {
-                    prop.SetValue(destination, inputs.Get(iValue));
-                }
-                catch
+                    outputs = null;
+                    return inputs.Get(strValue1).Equals(inputs.Get(strValue2)) ? "yes" : "no";
+                },
+                "Test to see if two values are equal.",
+                new ValueKey[] { strValue1, strValue2 },
+                null,
+                new string[] { "yes", "no" }
+            );
+        }
+
+        public static SystemProcess CompareIntegers()
+        {
+            ValueKey<int> iValue1 = new ValueKey<int>("value1", integer);
+            ValueKey<int> iValue2 = new ValueKey<int>("value2", integer);
+
+            return new SystemProcess(
+                (ValueSet inputs, out ValueSet outputs) =>
                 {
-                    return "error";
-                }
-                return "ok";
-            },
-            "Set the named property of a given object to the value specified. Returns 'error' if the property does not exist, or if setting it fails.",
-            new ValueKey[] { personVal, property, iValue },
-            null,
-            new string[] { "ok", "error" }
-        );
+                    outputs = null;
+                    int value1 = inputs.Get(iValue1);
+                    int value2 = inputs.Get(iValue2);
+
+                    var comparison = value1.CompareTo(value2);
+                    return comparison < 0 ? "less" : comparison > 0 ? "greater" : "equal";
+                },
+                "Compare two integers",
+                new ValueKey[] { iValue1, iValue2 },
+                null,
+                new string[] { "less", "greater", "equal" }
+            );
+        }
+
+        public static SystemProcess GetPropertyInteger()
+        {
+            ValueKey<object> personVal = new ValueKey<object>("object", objectType);
+            ValueKey<string> property = new ValueKey<string>("property", text);
+            ValueKey<int> iValue = new ValueKey<int>("value", integer);
+
+            return new SystemProcess(
+                (ValueSet inputs, out ValueSet outputs) =>
+                {
+                    outputs = new ValueSet();
+
+                    var source = inputs.Get(personVal);
+                    var propertyName = inputs.Get(property).ToString();
+                    var prop = source.GetType().GetProperty(propertyName);
+                    if (prop == null)
+                        return "error";
+
+                    try
+                    {
+                        outputs.Set(iValue, (int)prop.GetValue(source));
+                    }
+                    catch
+                    {
+                        return "error";
+                    }
+                    return "ok";
+                },
+                "Output the named property of a given object. Returns 'error' if the property does not exist, or if getting it fails.",
+                new ValueKey[] { personVal, property },
+                new ValueKey[] { iValue },
+                new string[] { "ok", "error" }
+            );
+        }
+
+        public static SystemProcess SetPropertyInteger()
+        {
+            ValueKey<object> personVal = new ValueKey<object>("object", objectType);
+            ValueKey<string> property = new ValueKey<string>("property", text);
+            ValueKey<int> iValue = new ValueKey<int>("value", integer);
+
+            return new SystemProcess(
+                (ValueSet inputs, out ValueSet outputs) =>
+                {
+                    outputs = null;
+                    var destination = inputs.Get(personVal);
+                    var prop = destination.GetType().GetProperty(inputs.Get(property));
+                    if (prop == null)
+                        return "error";
+
+                    try
+                    {
+                        prop.SetValue(destination, inputs.Get(iValue));
+                    }
+                    catch
+                    {
+                        return "error";
+                    }
+                    return "ok";
+                },
+                "Set the named property of a given object to the value specified. Returns 'error' if the property does not exist, or if setting it fails.",
+                new ValueKey[] { personVal, property, iValue },
+                null,
+                new string[] { "ok", "error" }
+            );
+        }
         #endregion system processes
         
         Workspace workspace;
@@ -188,10 +215,10 @@ namespace Tests
             workspace.AddDataType(person);
             workspace.AddDataType(car);
 
-            workspace.AddSystemProcess("print", Print);
-            workspace.AddSystemProcess("getDay", GetDayOfWeek);
-            workspace.AddSystemProcess("compare", CompareIntegers);
-            workspace.AddSystemProcess("get", GetPropertyInteger);
+            workspace.AddSystemProcess("print", Print());
+            workspace.AddSystemProcess("getDay", GetDayOfWeek());
+            workspace.AddSystemProcess("compare", CompareIntegers());
+            workspace.AddSystemProcess("get", GetPropertyInteger());
 
             required = new RequiredProcess("Run basic tests",
                 new ValueKey[] { me, carParam },
@@ -200,10 +227,18 @@ namespace Tests
         }
         
         [Test]
-        public void TheseTestsNeedWritten()
+        public void RunBasicProcess()
         {
             XmlDocument doc = new XmlDocument();
-            doc.Load("../../test.xml");
+            var assembly = Assembly.GetExecutingAssembly();
+            var resourceName = "Tests.test.xml";
+
+            using (Stream stream = assembly.GetManifestResourceStream(resourceName))
+            using (StreamReader reader = new StreamReader(stream))
+            {
+                string processXML = reader.ReadToEnd();
+                doc.LoadXml(processXML);
+            }
 
             List<string> errors;
             if (!workspace.LoadProcesses(doc, out errors))
@@ -212,7 +247,7 @@ namespace Tests
                 foreach (var error in errors)
                     Console.WriteLine(error);
 
-                Console.ReadKey();
+                //Console.ReadKey();
                 return;
             }
 

@@ -15,7 +15,7 @@ namespace CursiveCSharpBackend.Services
             errors = new List<string>();
 
             validationErrors = errors;
-            doc.Schemas.Add("http://cursive.ftwinston.com", "processes.xsd");
+            doc.Schemas.Add("http://cursive.ftwinston.com", AppDomain.CurrentDomain.SetupInformation.ApplicationBase + "processes.xsd");
             doc.Validate(ValidationEventHandler);
             validationErrors = null;
 

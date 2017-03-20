@@ -1,7 +1,9 @@
 ﻿using Cursive;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Xml;
 using System.Xml.Schema;
 
@@ -14,8 +16,14 @@ namespace CursiveCSharpBackend.Services
             var success = true;
             errors = new List<string>();
 
+            var schemaResourceName = "CursiveCSharpBackend.processes.xsd";
+            using (Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(schemaResourceName))
+            using (XmlReader reader = XmlReader.Create(stream))
+            {
+                doc.Schemas.Add("http://cursive.ftwinston.com", reader);
+            }
+
             validationErrors = errors;
-            doc.Schemas.Add("http://cursive.ftwinston.com", AppDomain.CurrentDomain.SetupInformation.ApplicationBase + "processes.xsd");
             doc.Validate(ValidationEventHandler);
             validationErrors = null;
 

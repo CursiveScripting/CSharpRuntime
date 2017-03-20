@@ -214,15 +214,23 @@ namespace CursiveCSharpBackend.Services
                             success = false;
                         }
 
-                foreach (var returnPath in wrapper.ReturnPaths)
-                    if (!returnPaths.Contains(returnPath))
-                    {
-                        errors.Add(string.Format("Process '{0}' is required by the workspace, but is missing the required return path '{1}'", processName, returnPath));
-                        success = false;
-                    }
-                if (returnPaths.Count != wrapper.ReturnPaths.Count)
+                int numWrapperReturnPaths;
+                if (wrapper.ReturnPaths != null)
+                {
+                    numWrapperReturnPaths = wrapper.ReturnPaths.Count;
+                    foreach (var returnPath in wrapper.ReturnPaths)
+                        if (!returnPaths.Contains(returnPath))
+                        {
+                            errors.Add(string.Format("Process '{0}' is required by the workspace, but is missing the required return path '{1}'", processName, returnPath));
+                            success = false;
+                        }
+                }
+                else
+                    numWrapperReturnPaths = 0;
+                
+                if (returnPaths.Count != numWrapperReturnPaths)
                     foreach (var returnPath in returnPaths)
-                        if (!wrapper.ReturnPaths.Contains(returnPath))
+                        if (wrapper.ReturnPaths == null || !wrapper.ReturnPaths.Contains(returnPath))
                         {
                             errors.Add(string.Format("Process '{0}' is required by the workspace, but contains unexpected return path '{1}'", processName, returnPath));
                             success = false;

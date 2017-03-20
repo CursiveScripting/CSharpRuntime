@@ -88,6 +88,13 @@ namespace CursiveCSharpBackend.Services
             processNode.Attributes.Append(CreateAttribute(doc, "name", processName));
             parent.AppendChild(processNode);
 
+            if (!string.IsNullOrEmpty(process.Description))
+            {
+                var descNode = doc.CreateElement("Description");
+                descNode.InnerText = process.Description;
+                processNode.AppendChild(descNode);
+            }
+
             if (process.Inputs != null)
                 foreach (var input in process.Inputs)
                 {

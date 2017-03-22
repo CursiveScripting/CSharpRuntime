@@ -194,55 +194,14 @@ namespace CursiveCSharpRuntime.Services
 
             if (wrapper != null)
             {
-                foreach (var input in wrapper.Inputs)
-                    if (!inputsByName.ContainsKey(input.Name))
-                    {
-                        errors.Add(string.Format("Process '{0}' is required by the workspace, but is missing the required input '{1}'", processName, input.Name));
-                        success = false;
-                    }
-                if (inputsByName.Count != wrapper.Inputs.Count)
-                    foreach (var input in inputsByName.Values)
-                        if (!wrapper.Inputs.Any(i => i.Name == input.Name))
-                        {
-                            errors.Add(string.Format("Process '{0}' is required by the workspace, but contains unexpected input '{1}'", processName, input.Name));
-                            success = false;
-                        }
+                if (!CompareToRequiredSignature(processName, inputsByName.Keys, wrapper.Inputs, "input", errors, val => val.Name, (set, val) => set.Any(p => p.Name == val)))
+                    success = false;
 
-                foreach (var output in wrapper.Outputs)
-                    if (!outputsByName.ContainsKey(output.Name))
-                    {
-                        errors.Add(string.Format("Process '{0}' is required by the workspace, but is missing the required output '{1}'", processName, output.Name));
-                        success = false;
-                    }
-                if (outputsByName.Count != wrapper.Outputs.Count)
-                    foreach (var output in outputsByName.Values)
-                        if (!wrapper.Outputs.Any(o => o.Name == output.Name))
-                        {
-                            errors.Add(string.Format("Process '{0}' is required by the workspace, but contains unexpected output '{1}'", processName, output.Name));
-                            success = false;
-                        }
+                if (!CompareToRequiredSignature(processName, outputsByName.Keys, wrapper.Outputs, "output", errors, val => val.Name, (set, val) => set.Any(p => p.Name == val)))
+                    success = false;
 
-                int numWrapperReturnPaths;
-                if (wrapper.ReturnPaths != null)
-                {
-                    numWrapperReturnPaths = wrapper.ReturnPaths.Count;
-                    foreach (var returnPath in wrapper.ReturnPaths)
-                        if (!returnPaths.Contains(returnPath))
-                        {
-                            errors.Add(string.Format("Process '{0}' is required by the workspace, but is missing the required return path '{1}'", processName, returnPath));
-                            success = false;
-                        }
-                }
-                else
-                    numWrapperReturnPaths = 0;
-                
-                if (returnPaths.Count != numWrapperReturnPaths)
-                    foreach (var returnPath in returnPaths)
-                        if (wrapper.ReturnPaths == null || !wrapper.ReturnPaths.Contains(returnPath))
-                        {
-                            errors.Add(string.Format("Process '{0}' is required by the workspace, but contains unexpected return path '{1}'", processName, returnPath));
-                            success = false;
-                        }
+                if (!CompareToRequiredSignature(processName, returnPaths, wrapper.ReturnPaths, "return path", errors, val => val, (set, val) => set.Contains(val)))
+                    success = false;
             }
 
             XmlElement steps = processNode.SelectSingleNode("Steps") as XmlElement;
@@ -291,6 +250,35 @@ namespace CursiveCSharpRuntime.Services
                 wrapper.ActualProcess = process;
 
             return process;
+        }
+
+        private static bool CompareToRequiredSignature<T>(string processName, ICollection<string> paramNames, IReadOnlyCollection<T> wrapperParams, string paramType, List<string> errors, Func<T, string> getName, Func<IReadOnlyCollection<T>, string, bool> contains)
+        {
+            bool success = true;
+
+            int numWrapperParams;
+            if (wrapperParams != null)
+            {
+                numWrapperParams = wrapperParams.Count;
+                foreach (var param in wrapperParams)
+                    if (!paramNames.Contains(getName(param)))
+                    {
+                        errors.Add(string.Format("Process '{0}' is required by the workspace, but is missing the required {2} '{1}'", processName, getName(param), paramType));
+                        success = false;
+                    }
+            }
+            else
+                numWrapperParams = 0;
+
+            if (paramNames.Count != numWrapperParams)
+                foreach (var param in paramNames)
+                    if (wrapperParams == null || !contains(wrapperParams, param))
+                    {
+                        errors.Add(string.Format("Process '{0}' is required by the workspace, but contains unexpected {2} '{1}'", processName, param, paramType));
+                        success = false;
+                    }
+
+            return success;
         }
 
         private static bool LinkChildProcess(Dictionary<string, Process> processes, UserStepLoadingInfo stepInfo, List<string> errors)

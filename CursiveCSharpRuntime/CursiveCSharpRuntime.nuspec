@@ -10,7 +10,7 @@
     <projectUrl>https://github.com/CursiveScripting/CSharpRuntime</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Runtime for executing scripts produced by the Cursive Scripting UI</description>
-    <releaseNotes>Initial release.</releaseNotes>
+    <releaseNotes>Corrected a crash loading a required process with no inputs or outputs.</releaseNotes>
     <copyright>Copyright 2017 FTWinston.com</copyright>
     <tags>Cursive Scripting Runtime</tags>
   </metadata>

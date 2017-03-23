@@ -173,7 +173,7 @@ namespace CursiveCSharpRuntime.Services
                 }
                 variablesByName.Add(name, definition);
 
-                var initialValue = variable.GetAttribute("initialValue");
+                var initialValue = variable.HasAttribute("initialValue") ? variable.GetAttribute("initialValue") : null;
 
                 if (initialValue != null && definition.Type is IDeserializable)
                     defaultVariables[definition] = (definition.Type as IDeserializable).Deserialize(initialValue);

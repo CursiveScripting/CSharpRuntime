@@ -77,7 +77,7 @@ namespace CursiveRuntime.Services
             foreach (var step in process.EndSteps)
             {
                 foreach (var output in process.Outputs)
-                    if (!step.InputMapping.ContainsKey(output))
+                    if (!step.InputMapping.ContainsKey(output) && !step.FixedInputs.HasElement(output))
                     {
                         errors.Add(string.Format("The {0} end step doesn't set the '{1}' output.", string.IsNullOrEmpty(step.ReturnValue) ? "default" : "'" + step.ReturnValue + "'", output.Name));
                         success = false;

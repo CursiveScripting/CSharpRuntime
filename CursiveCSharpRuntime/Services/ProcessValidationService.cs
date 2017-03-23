@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace CursiveCSharpRuntime.Services
+namespace CursiveRuntime.Services
 {
     internal static class ProcessValidationService
     {

@@ -7,8 +7,8 @@
     <ProjectGuid>{2B53E9FB-3BF3-414F-8650-5671F6A9992A}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>CursiveCSharpRuntime</RootNamespace>
-    <AssemblyName>CursiveCSharpRuntime</AssemblyName>
+    <RootNamespace>CursiveRuntime</RootNamespace>
+    <AssemblyName>CursiveRuntime</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />

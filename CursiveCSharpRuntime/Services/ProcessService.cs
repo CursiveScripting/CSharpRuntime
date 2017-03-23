@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CursiveCSharpRuntime.Services
+namespace CursiveRuntime.Services
 {
     internal static class ProcessService
     {

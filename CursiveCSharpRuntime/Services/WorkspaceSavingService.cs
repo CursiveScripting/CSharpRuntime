@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Schema;
 
-namespace CursiveCSharpRuntime.Services
+namespace CursiveRuntime.Services
 {
     internal static class WorkspaceSavingService
     {

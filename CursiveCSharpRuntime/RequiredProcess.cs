@@ -1,4 +1,4 @@
-﻿using CursiveCSharpRuntime.Services;
+﻿using CursiveRuntime.Services;
 using System.Collections.Generic;
 
 namespace Cursive

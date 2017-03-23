@@ -273,11 +273,10 @@ namespace CursiveRuntime.Services
 
             step.ChildProcess = process;
             bool success = true;
-
-            var fixedInputs = stepInfo.Element.SelectNodes("FixedInput");
-            foreach (XmlElement inputNode in fixedInputs)
+            
+            foreach (var fixedInput in stepInfo.FixedInputs)
             {
-                var name = inputNode.GetAttribute("name");
+                var name = fixedInput.Key;
                 ValueKey input = process.Inputs.FirstOrDefault(p => p.Name == name);
                 if (input == null)
                 {
@@ -293,8 +292,7 @@ namespace CursiveRuntime.Services
                     continue;
                 }
                 
-                var strValue = inputNode.GetAttribute("value");
-                object value = (input.Type as IDeserializable).Deserialize(strValue);
+                object value = (input.Type as IDeserializable).Deserialize(fixedInput.Value);
                 step.SetInputParameter(input, value);
             }
 
@@ -344,11 +342,12 @@ namespace CursiveRuntime.Services
         private static Step LoadProcessStep(XmlElement stepNode, Dictionary<string, ValueKey> inputs, Dictionary<string, ValueKey> outputs, Dictionary<string, ValueKey> variables, HashSet<string> returnPaths, List<UserStepLoadingInfo> loadingSteps, List<string> errors)
         {
             var name = stepNode.GetAttribute("ID");
+            var fixedInputs = stepNode.SelectNodes("FixedInput");
             var mapInputs = stepNode.SelectNodes("MapInput");
             var mapOutputs = stepNode.SelectNodes("MapOutput");
             bool success = true;
             Step step;
-
+            
             if (stepNode.Name == "Start")
             {
                 step = new StartStep(name);
@@ -406,6 +405,29 @@ namespace CursiveRuntime.Services
                 }
 
                 step = new StopStep(name, returnValue);
+                foreach (XmlElement fixedInput in fixedInputs)
+                {
+                    var paramName = fixedInput.GetAttribute("name");
+                    var strValue = fixedInput.GetAttribute("value");
+
+                    ValueKey outputParam;
+                    if (!outputs.TryGetValue(paramName, out outputParam))
+                    {
+                        errors.Add(string.Format("The stop step '{0}' tries to write a fixed value to non-existant output parameter '{1}': {2}", step.Name, paramName, strValue));
+                        success = false;
+                        continue;
+                    }
+
+                    if (!(outputParam.Type is IDeserializable))
+                    {
+                        errors.Add(string.Format("Only a FixedType can be used as a fixed input parameter. '{0}' type used for '{1}' stop step's '{2}' parameter is not a FixedType.", outputParam.Type.Name, step.Name, paramName));
+                        success = false;
+                        continue;
+                    }
+
+                    object value = (outputParam.Type as IDeserializable).Deserialize(strValue);
+                    step.SetInputParameter(outputParam, value);
+                }
                 foreach (XmlElement input in mapInputs)
                 {
                     var paramName = input.GetAttribute("name");
@@ -442,6 +464,12 @@ namespace CursiveRuntime.Services
                 var stepInfo = new UserStepLoadingInfo(userStep, stepNode);
                 step = userStep;
 
+                foreach (XmlElement fixedInput in fixedInputs)
+                {
+                    var inputName = fixedInput.GetAttribute("name");
+                    var strValue = fixedInput.GetAttribute("value");
+                    stepInfo.FixedInputs.Add(inputName, strValue);
+                }
                 foreach (XmlElement input in mapInputs)
                 {
                     var paramName = input.GetAttribute("name");

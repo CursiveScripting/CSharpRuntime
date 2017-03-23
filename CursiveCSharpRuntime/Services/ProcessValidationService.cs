@@ -79,14 +79,14 @@ namespace CursiveRuntime.Services
                 foreach (var output in process.Outputs)
                     if (!step.InputMapping.ContainsKey(output) && !step.FixedInputs.HasElement(output))
                     {
-                        errors.Add(string.Format("The {0} end step doesn't set the '{1}' output.", string.IsNullOrEmpty(step.ReturnValue) ? "default" : "'" + step.ReturnValue + "'", output.Name));
+                        errors.Add(string.Format("The {0} stop step doesn't set the '{1}' output.", string.IsNullOrEmpty(step.ReturnValue) ? "default" : "'" + step.ReturnValue + "'", output.Name));
                         success = false;
                     }
 
                 foreach (var kvp in step.InputMapping)
                     if (!process.Outputs.Any(p => p == kvp.Key))
                     {
-                        errors.Add(string.Format("The {0} end step sets the '{1}' output, which is not defined for this process.", string.IsNullOrEmpty(step.ReturnValue) ? "default" : "'" + step.ReturnValue + "'", kvp.Key.Name));
+                        errors.Add(string.Format("The {0} stop step sets the '{1}' output, which is not defined for this process.", string.IsNullOrEmpty(step.ReturnValue) ? "default" : "'" + step.ReturnValue + "'", kvp.Key.Name));
                         success = false;
                     }
             }

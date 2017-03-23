@@ -102,64 +102,9 @@ namespace CursiveCSharpRuntime.Services
             if (!workspace.RequiredProcesses.TryGetValue(processName, out wrapper))
                 wrapper = null;
 
-            bool success = true;
+            bool success = LoadProcessParameters(workspace, inputNodes, wrapper?.Inputs, inputs, inputsByName, processName, "input", errors);
+            success |= LoadProcessParameters(workspace, outputNodes, wrapper?.Outputs, outputs, outputsByName, processName, "output", errors);
 
-            foreach (XmlElement input in inputNodes)
-            {
-                var type = workspace.GetType(input.GetAttribute("type"));
-                var name = input.GetAttribute("name");
-                ValueKey param;
-
-                if (wrapper != null)
-                {
-                    param = wrapper.Inputs.FirstOrDefault(p => p.Name == name);
-                    if (param == null)
-                    {
-                        errors.Add(string.Format("Process '{0}' is required by the workspace, but has an input not defined in the workspace: '{1}'", processName, name));
-                        success = false;
-                        continue;
-                    }
-                    else if (!type.IsAssignableFrom(param.Type))
-                    {
-                        errors.Add(string.Format("Process '{0}' is required by the workspace, but its '{1}' input is of type '{2}', where the workspace expects type '{3}'", processName, name, type.Name, param.Type.Name));
-                        success = false;
-                        continue;
-                    }
-                }
-                else
-                    param = new ValueKey(name, type);
-
-                inputs.Add(param);
-                inputsByName.Add(name, param);
-            }
-            foreach (XmlElement output in outputNodes)
-            {
-                var type = workspace.GetType(output.GetAttribute("type"));
-                var name = output.GetAttribute("name");
-                ValueKey param;
-
-                if (wrapper != null)
-                {
-                    param = wrapper.Outputs.FirstOrDefault(p => p.Name == name);
-                    if (param == null)
-                    {
-                        errors.Add(string.Format("Process '{0}' is required by the workspace, but has an output not defined in the workspace: '{1}'", processName, name));
-                        success = false;
-                        continue;
-                    }
-                    else if (!type.IsAssignableFrom(param.Type))
-                    {
-                        errors.Add(string.Format("Process '{0}' is required by the workspace, but its '{1}' output is of type '{2}', where the workspace expects type '{3}'", processName, name, type.Name, param.Type.Name));
-                        success = false;
-                        continue;
-                    }
-                }
-                else
-                    param = new ValueKey(name, type);
-
-                outputs.Add(param);
-                outputsByName.Add(name, param);
-            }
             foreach (XmlElement variable in variableNodes)
             {
                 var type = workspace.GetType(variable.GetAttribute("type"));
@@ -250,6 +195,40 @@ namespace CursiveCSharpRuntime.Services
                 wrapper.ActualProcess = process;
 
             return process;
+        }
+
+        private static bool LoadProcessParameters(Workspace workspace, XmlNodeList parameterNodes, IReadOnlyCollection<ValueKey> requiredParams, List<ValueKey> parameters, Dictionary<string, ValueKey> parametersByName, string processName, string parameterType, List<string> errors)
+        {
+            bool success = true;
+            foreach (XmlElement parameterNode in parameterNodes)
+            {
+                var type = workspace.GetType(parameterNode.GetAttribute("type"));
+                var name = parameterNode.GetAttribute("name");
+                ValueKey param;
+
+                if (requiredParams != null)
+                {
+                    param = requiredParams.FirstOrDefault(p => p.Name == name);
+                    if (param == null)
+                    {
+                        errors.Add(string.Format("Process '{0}' is required by the workspace, but has an {2} not defined in the workspace: '{1}'", processName, name, parameterType));
+                        success = false;
+                        continue;
+                    }
+                    else if (!type.IsAssignableFrom(param.Type))
+                    {
+                        errors.Add(string.Format("Process '{0}' is required by the workspace, but its '{1}' {3} is of type '{2}', where the workspace expects type '{3}'", processName, name, type.Name, param.Type.Name, parameterType));
+                        success = false;
+                        continue;
+                    }
+                }
+                else
+                    param = new ValueKey(name, type);
+
+                parameters.Add(param);
+                parametersByName.Add(name, param);
+            }
+            return success;
         }
 
         private static bool CompareToRequiredSignature<T>(string processName, ICollection<string> paramNames, IReadOnlyCollection<T> wrapperParams, string paramType, List<string> errors, Func<T, string> getName, Func<IReadOnlyCollection<T>, string, bool> contains)

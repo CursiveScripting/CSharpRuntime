@@ -29,12 +29,12 @@ namespace CursiveRuntime.Services
                 {
                     if (!step.ChildProcess.Inputs.Any(p => p == kvp.Key))
                     {
-                        errors.Add(string.Format("The '{0}' step sets the '{1}' input parameter, which isn't defined for the '{0}' process.", step.Name, kvp.Key));
+                        errors.Add(string.Format("Step {0} sets the '{1}' input parameter, which isn't defined for the '{0}' process.", step.Name, kvp.Key));
                         success = false;
                     }
                     if (step.InputMapping.ContainsValue(kvp.Key))
                     {
-                        errors.Add(string.Format("The '{0}' step sets the '{1}' input parameter twice - mapping it in and also setting a fixed value.", step.Name, kvp.Key.Name));
+                        errors.Add(string.Format("Step {0} sets the '{1}' input parameter twice - mapping it in and also setting a fixed value.", step.Name, kvp.Key.Name));
                         success = false;
                     }
                 }
@@ -43,7 +43,7 @@ namespace CursiveRuntime.Services
                     foreach (var parameter in step.ChildProcess.Inputs)
                         if (!step.FixedInputs.HasElement(parameter) && !step.InputMapping.ContainsKey(parameter))
                         {
-                            errors.Add(string.Format("The '{0}' step requires the '{1}' input parameter, which has not been set.", step.Name, parameter.Name));
+                            errors.Add(string.Format("Step {0} requires the '{1}' input parameter, which has not been set.", step.Name, parameter.Name));
                             success = false;
                         }
 
@@ -51,7 +51,7 @@ namespace CursiveRuntime.Services
                     foreach (var parameter in step.ChildProcess.Outputs)
                         if (!step.OutputMapping.ContainsKey(parameter))
                         {
-                            errors.Add(string.Format("The '{0}' step requires the '{1}' output parameter, which has not been set.", step.Name, parameter.Name));
+                            errors.Add(string.Format("Step {0} requires the '{1}' output parameter, which has not been set.", step.Name, parameter.Name));
                             success = false;
                         }
             }
@@ -98,7 +98,7 @@ namespace CursiveRuntime.Services
                     foreach (var path in step.ChildProcess.ReturnPaths)
                         if (!step.ReturnPaths.ContainsKey(path))
                         {
-                            errors.Add(string.Format("The '{0}' step doesn't have a default return path, but doesn't map every possible output of it's function.", step.Name));
+                            errors.Add(string.Format("Step {0} doesn't have a default return path, but doesn't map every possible output of it's function.", step.Name));
                             success = false;
                         }
             }

@@ -267,7 +267,7 @@ namespace CursiveRuntime.Services
             Process process;
             if (!processes.TryGetValue(processName, out process))
             {
-                errors.Add(string.Format("Child process name not recognised for '{0}' step: {1}", step.Name, processName));
+                errors.Add(string.Format("Child process name not recognised for step {0}: {1}", step.Name, processName));
                 return false;
             }
 
@@ -280,14 +280,14 @@ namespace CursiveRuntime.Services
                 ValueKey input = process.Inputs.FirstOrDefault(p => p.Name == name);
                 if (input == null)
                 {
-                    errors.Add(string.Format("Input name not recognised for '{0}' step calling '{1}' process: {2}", step.Name, processName, name));
+                    errors.Add(string.Format("Input name not recognised for step {0} calling '{1}' process: {2}", step.Name, processName, name));
                     success = false;
                     continue;
                 }
                 
                 if (!(input.Type is IDeserializable))
                 {
-                    errors.Add(string.Format("Only a FixedType can be used as a fixed input parameter. '{0}' type used for '{1}' step's '{2}' parameter is not a FixedType.", input.Type.Name, step.Name, name));
+                    errors.Add(string.Format("Only a FixedType can be used as a fixed input parameter. '{0}' type used for step {1}'s '{2}' parameter is not a FixedType.", input.Type.Name, step.Name, name));
                     success = false;
                     continue;
                 }
@@ -301,14 +301,14 @@ namespace CursiveRuntime.Services
                 ValueKey input = process.Inputs.FirstOrDefault(p => p.Name == inputInfo.Key);
                 if (input == null)
                 {
-                    errors.Add(string.Format("The '{0}' step tries to map '{1}' variable to non-existant input '{2}'", step.Name, inputInfo.Value.Name, inputInfo.Key));
+                    errors.Add(string.Format("Step {0} tries to map '{1}' variable to non-existant input '{2}'", step.Name, inputInfo.Value.Name, inputInfo.Key));
                     success = false;
                     continue;
                 }
 
                 if (!inputInfo.Value.Type.IsAssignableFrom(input.Type))
                 {
-                    errors.Add(string.Format("The '{0}' step tries to map the '{1}' variable to the '{2}' input, but these have different types ('{3}' and '{4}')", step.Name, inputInfo.Value.Name, inputInfo.Key, inputInfo.Value.Type.Name, input.Type.Name));
+                    errors.Add(string.Format("Step {0} tries to map the '{1}' variable to the '{2}' input, but these have different types ('{3}' and '{4}')", step.Name, inputInfo.Value.Name, inputInfo.Key, inputInfo.Value.Type.Name, input.Type.Name));
                     success = false;
                     continue;
                 }
@@ -321,14 +321,14 @@ namespace CursiveRuntime.Services
                 ValueKey output = process.Outputs.FirstOrDefault(p => p.Name == outputInfo.Key);
                 if (output == null)
                 {
-                    errors.Add(string.Format("The '{0}' step tries to map non-existant output '{2}' to '{1}' variable", step.Name, outputInfo.Value.Name, outputInfo.Key));
+                    errors.Add(string.Format("Step {0} tries to map non-existant output '{2}' to '{1}' variable", step.Name, outputInfo.Value.Name, outputInfo.Key));
                     success = false;
                     continue;
                 }
 
                 if (!output.Type.IsAssignableFrom(outputInfo.Value.Type))
                 {
-                    errors.Add(string.Format("The '{0}' step tries to map the '{2}' output to the '{1}' variable, but these have different types ('{3}' and '{4}')", step.Name, outputInfo.Value.Name, outputInfo.Key, outputInfo.Value.Type.Name, output.Type.Name));
+                    errors.Add(string.Format("Step {0} step tries to map the '{2}' output to the '{1}' variable, but these have different types ('{3}' and '{4}')", step.Name, outputInfo.Value.Name, outputInfo.Key, outputInfo.Value.Type.Name, output.Type.Name));
                     success = false;
                     continue;
                 }
@@ -519,7 +519,7 @@ namespace CursiveRuntime.Services
                 Step returnStep;
                 if (!stepsByName.TryGetValue(pathStepName, out returnStep))
                 {
-                    errors.Add(string.Format("Return path target of '{0}' step not recognised: {1}", step.Name, pathStepName));
+                    errors.Add(string.Format("Return path target of step {0} not recognised: {1}", step.Name, pathStepName));
                     return false;
                 }
 
@@ -529,7 +529,7 @@ namespace CursiveRuntime.Services
 
             if (step is StartStep)
             {
-                errors.Add(string.Format("Start step '{0}' doesn't have a single, unnamed return path", step.Name));
+                errors.Add(string.Format("Start step {0} doesn't have a single, unnamed return path", step.Name));
                 return false;
             }
 
@@ -545,14 +545,14 @@ namespace CursiveRuntime.Services
                 Step returnStep;
                 if (!stepsByName.TryGetValue(pathStepName, out returnStep))
                 {
-                    errors.Add(string.Format("'{0}' return path target of '{1}' step not recognised: {2}", pathName, step.Name, pathStepName));
+                    errors.Add(string.Format("'{0}' return path target of step {1} not recognised: {2}", pathName, step.Name, pathStepName));
                     success = false;
                     continue;
                 }
 
                 if (userStep.ReturnPaths.ContainsKey(pathName))
                 {
-                    errors.Add(string.Format("Step '{0}' contains multiple '{1}' return paths. Return path names must be unique.", step.Name, pathName));
+                    errors.Add(string.Format("Step {0} contains multiple '{1}' return paths. Return path names must be unique.", step.Name, pathName));
                     success = false;
                     continue;
                 }

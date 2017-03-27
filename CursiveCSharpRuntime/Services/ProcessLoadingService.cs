@@ -306,7 +306,7 @@ namespace CursiveRuntime.Services
                     continue;
                 }
 
-                if (!input.Type.IsAssignableFrom(inputInfo.Value.Type))
+                if (!inputInfo.Value.Type.IsAssignableFrom(input.Type))
                 {
                     errors.Add(string.Format("The '{0}' step tries to map the '{1}' variable to the '{2}' input, but these have different types ('{3}' and '{4}')", step.Name, inputInfo.Value.Name, inputInfo.Key, inputInfo.Value.Type.Name, input.Type.Name));
                     success = false;
@@ -326,7 +326,7 @@ namespace CursiveRuntime.Services
                     continue;
                 }
 
-                if (!outputInfo.Value.Type.IsAssignableFrom(output.Type))
+                if (!output.Type.IsAssignableFrom(outputInfo.Value.Type))
                 {
                     errors.Add(string.Format("The '{0}' step tries to map the '{2}' output to the '{1}' variable, but these have different types ('{3}' and '{4}')", step.Name, outputInfo.Value.Name, outputInfo.Key, outputInfo.Value.Type.Name, output.Type.Name));
                     success = false;

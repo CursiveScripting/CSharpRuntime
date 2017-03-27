@@ -52,10 +52,10 @@ namespace Cursive
                 return end.ReturnValue;
             }
 
-            throw new InvalidOperationException("The last step of a completed process wasn't an EndStep");
+            throw new InvalidOperationException("The last step of a completed process wasn't a StopStep");
         }
 
-        internal IEnumerable<StopStep> EndSteps
+        internal IEnumerable<StopStep> StopSteps
         {
             get
             {

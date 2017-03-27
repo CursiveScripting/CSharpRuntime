@@ -19,6 +19,7 @@ namespace Cursive
         public void AddSystemProcess(string name, SystemProcess process)
         {
             Processes.Add(name, process);
+            process.Name = name;
         }
 
         public void AddRequiredProcess(string name, RequiredProcess process)

@@ -13,7 +13,7 @@ namespace Cursive
             ReturnPaths = returnPaths;
         }
 
-        public string Name { get; }
+        public string Name { get; internal set; }
         public delegate string SystemStep(ValueSet input, out ValueSet output);
 
         private SystemStep Operation { get; }

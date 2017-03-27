@@ -15,9 +15,11 @@ namespace Cursive
         
         internal Dictionary<string, Step> ReturnPaths { get; } = new Dictionary<string, Step>();
 
+        private bool NoReturnPaths = true;
         public void AddReturnPath(string name, Step nextStep)
         {
             ReturnPaths.Add(name, nextStep);
+            NoReturnPaths = false;
         }
 
         public override Step Run(ValueSet variables)
@@ -37,9 +39,25 @@ namespace Cursive
                 foreach (var kvp in OutputMapping)
                     variables[kvp.Value] = outputs[kvp.Key];
 
+            if (returnPath == null)
+            {
+                if (NoReturnPaths)
+                    return DefaultReturnPath;
+
+                if (ChildProcess is SystemProcess)
+                    throw new Exception($"System process {(ChildProcess as SystemProcess).Name} unexpectedly returned a null value");
+                else
+                    throw new Exception($"Step {Name} unexpectedly returned a null value");
+            }
+
             Step nextStep;
-            if (returnPath == null || !ReturnPaths.TryGetValue(returnPath, out nextStep))
-                return DefaultReturnPath;
+            if (!ReturnPaths.TryGetValue(returnPath, out nextStep))
+            {
+                if (ChildProcess is SystemProcess)
+                    throw new Exception($"System process {(ChildProcess as SystemProcess).Name} returned an unexpected value: {returnPath}");
+                else
+                    throw new Exception($"Step {Name} returned an unexpected value: {returnPath}");
+            }
 
             return nextStep;
         }

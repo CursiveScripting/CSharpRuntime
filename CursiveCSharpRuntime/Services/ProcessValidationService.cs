@@ -72,9 +72,9 @@ namespace CursiveRuntime.Services
                     success = false;
                 }
 
-            // 3a. each end step must set every output defined for its process.
-            // 3b. each end step must not set any output not defined for its process.
-            foreach (var step in process.EndSteps)
+            // 3a. each stop step must set every output defined for its process.
+            // 3b. each stop step must not set any output not defined for its process.
+            foreach (var step in process.StopSteps)
             {
                 foreach (var output in process.Outputs)
                     if (!step.InputMapping.ContainsKey(output) && !step.FixedInputs.HasElement(output))

@@ -4,14 +4,15 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{5DB7080F-B86D-488B-AB20-E1A13FC60719}</ProjectGuid>
+    <ProjectGuid>{4F3954F5-2AA0-4EDE-8C61-EC04DB339AA6}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Tests</RootNamespace>
     <AssemblyName>Tests</AssemblyName>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -70,16 +71,16 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\CursiveCSharpRuntime\CursiveCSharpRuntime.csproj">
-      <Project>{2b53e9fb-3bf3-414f-8650-5671f6a9992a}</Project>
-      <Name>CursiveCSharpRuntime</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="test.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\CursiveDotNetRuntime\CursiveDotNetRuntime.csproj">
+      <Project>{b5dd7ec7-b027-4e21-a041-2fc51f3ce1ee}</Project>
+      <Name>CursiveDotNetRuntime</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

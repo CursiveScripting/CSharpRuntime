@@ -16,7 +16,7 @@ namespace CursiveRuntime.Services
             var success = true;
             errors = new List<string>();
 
-            var schemaResourceName = "CursiveRuntime.processes.xsd";
+            var schemaResourceName = "Cursive.processes.xsd";
             using (Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(schemaResourceName))
             using (XmlReader reader = XmlReader.Create(stream))
             {

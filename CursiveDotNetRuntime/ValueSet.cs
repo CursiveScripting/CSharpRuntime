@@ -3,6 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
+[assembly: System.Runtime.CompilerServices.InternalsVisibleTo("Tests")]
+
 namespace Cursive
 {
     public class ValueSet : IEnumerable<KeyValuePair<ValueKey, object>>

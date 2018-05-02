@@ -30,10 +30,9 @@ namespace Tests
             value3 = new ValueKey<int>("value3", number);
 
             IsEqual = new SystemProcess(
-                (ValueSet inputs, out ValueSet outputs) =>
+                (ValueSet inputs) =>
                 {
-                    outputs = null;
-                    return inputs.Get(value1) == inputs.Get(value2) ? "yes" : "no";
+                    return Response.Task(inputs.Get(value1) == inputs.Get(value2) ? "yes" : "no");
                 },
                 "Test to see if two values are equal.",
                 new Cursive.ValueKey[] { value1, value2 },
@@ -42,13 +41,13 @@ namespace Tests
             );
 
             Add = new SystemProcess(
-                (ValueSet inputs, out ValueSet outputs) =>
+                (ValueSet inputs) =>
                 {
-                    outputs = new ValueSet();
+                    var outputs = new ValueSet();
                     int i1 = inputs.Get(value1);
                     int i2 = inputs.Get(value2);
                     outputs.Set(value3, i1 + i2);
-                    return null;
+                    return Response.Task(outputs);
                 },
                 "Test to see if two values are equal.",
                 new Cursive.ValueKey[] { value1, value2 },
@@ -58,25 +57,24 @@ namespace Tests
         }
 
         [Test]
-        public void TestReturnPath()
+        public async Task TestReturnPath()
         {
             var inputs = new ValueSet();
             inputs.Set(value1, 1);
             inputs.Set(value2, 2);
 
-            Assert.That(IsEqual.Run(inputs), Is.EqualTo("no"));
+            Assert.That((await IsEqual.Run(inputs)).ReturnPath, Is.EqualTo("no"));
         }
         
         [Test]
-        public void TestOutputs()
+        public async Task TestOutputs()
         {
             var inputs = new ValueSet();
             inputs.Set(value1, 1);
             inputs.Set(value2, 2);
-
-            ValueSet outputs;
-            Add.Run(inputs, out outputs);
             
+            ValueSet outputs = (await Add.Run(inputs)).Outputs;
+
             Assert.That(outputs.Get(value3), Is.EqualTo(3));
         }
     }

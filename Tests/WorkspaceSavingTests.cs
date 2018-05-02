@@ -90,10 +90,9 @@ namespace Tests
             iValue = new ValueKey<int>("value", integer);
 
             GetDayOfWeek = new SystemProcess(
-                (ValueSet inputs, out ValueSet outputs) =>
+                (ValueSet inputs) =>
                 {
-                    outputs = null;
-                    return DateTime.Today.DayOfWeek.ToString();
+                    return Response.Task(DateTime.Today.DayOfWeek.ToString());
                 },
                 "Returns the name of the current day of the week",
                 null, null,
@@ -109,11 +108,10 @@ namespace Tests
             );
 
             Print = new SystemProcess(
-                (ValueSet inputs, out ValueSet outputs) =>
+                (ValueSet inputs) =>
                 {
                     Console.WriteLine(inputs.Get(messageParam));
-                    outputs = null;
-                    return string.Empty;
+                    return Response.Task();
                 },
                 "Write a message to the system console.",
                 new ValueKey[] { messageParam },
@@ -122,10 +120,9 @@ namespace Tests
             );
 
             EqualsText = new SystemProcess(
-                (ValueSet inputs, out ValueSet outputs) =>
+                (ValueSet inputs) =>
                 {
-                    outputs = null;
-                    return inputs.Get(strValue1) == inputs.Get(strValue2) ? "yes" : "no";
+                    return Response.Task(inputs.Get(strValue1) == inputs.Get(strValue2) ? "yes" : "no");
                 },
                 "Test to see if two values are equal.",
                 new ValueKey[] { strValue1, strValue2 },
@@ -134,14 +131,13 @@ namespace Tests
             );
 
             CompareIntegers = new SystemProcess(
-                (ValueSet inputs, out ValueSet outputs) =>
+                (ValueSet inputs) =>
                 {
-                    outputs = null;
                     int value1 = inputs.Get(iValue1);
                     int value2 = inputs.Get(iValue2);
                     
                     var comparison = value1.CompareTo(value2);
-                    return comparison < 0 ? "less" : comparison > 0 ? "greater" : "equal";
+                    return Response.Task(comparison < 0 ? "less" : comparison > 0 ? "greater" : "equal");
                 },
                 "Compare two integers.",
                 new ValueKey[] { iValue1, iValue2 },
@@ -150,15 +146,15 @@ namespace Tests
             );
 
             GetPropertyInteger = new SystemProcess(
-                (ValueSet inputs, out ValueSet outputs) =>
+                (ValueSet inputs) =>
                 {
-                    outputs = new ValueSet();
+                    var outputs = new ValueSet();
 
                     var source = inputs.Get(personVal);
                     var propertyName = inputs.Get(property);
                     var prop = source.GetType().GetProperty(propertyName);
                     if (prop == null)
-                        return "error";
+                        return Response.Task("error", outputs);
 
                     try
                     {
@@ -166,9 +162,9 @@ namespace Tests
                     }
                     catch
                     {
-                        return "error";
+                        return Response.Task("error", outputs);
                     }
-                    return "ok";
+                    return Response.Task("ok", outputs);
                 },
                 "Output the named property of a given object. Returns 'error' if the property does not exist, or if getting it fails.",
                 new ValueKey[] { personVal, property },
@@ -177,13 +173,12 @@ namespace Tests
             );
 
             SetPropertyInteger = new SystemProcess(
-                (ValueSet inputs, out ValueSet outputs) =>
+                (ValueSet inputs) =>
                 {
-                    outputs = null;
                     var destination = inputs.Get(personVal);
                     var prop = destination.GetType().GetProperty(inputs.Get(property));
                     if (prop == null)
-                        return "error";
+                        return Response.Task("error");
 
                     try
                     {
@@ -191,9 +186,9 @@ namespace Tests
                     }
                     catch
                     {
-                        return "error";
+                        return Response.Task("error");
                     }
-                    return "ok";
+                    return Response.Task("ok");
                 },
                 "Set the named property of a given object to the value specified. Returns 'error' if the property does not exist, or if setting it fails.",
                 new ValueKey[] { personVal, property, iValue },

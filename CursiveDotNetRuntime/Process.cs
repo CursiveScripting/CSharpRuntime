@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Cursive
 {
@@ -10,13 +11,7 @@ namespace Cursive
             Description = description;
             Folder = folder;
         }
-
-        public string Run(ValueSet input)
-        {
-            ValueSet output;
-            return Run(input, out output);
-        }
-
+        
         public string Description { get; }
         public string Folder { get; }
 
@@ -24,6 +19,6 @@ namespace Cursive
         public abstract IReadOnlyCollection<ValueKey> Inputs { get; }
         public abstract IReadOnlyCollection<ValueKey> Outputs { get; }
 
-        public abstract string Run(ValueSet input, out ValueSet output);
+        public abstract Task<Response> Run(ValueSet input);
     }
 }

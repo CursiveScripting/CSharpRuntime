@@ -1,4 +1,6 @@
-﻿namespace Cursive
+﻿using System.Threading.Tasks;
+
+namespace Cursive
 {
     internal class StartStep : ReturningStep
     {
@@ -12,12 +14,12 @@
             this.inputs = inputs;
         }
 
-        public override Step Run(ValueSet variables)
+        public override Task<Step> Run(ValueSet variables)
         {
             foreach (var kvp in OutputMapping)
                 variables[kvp.Value] = inputs[kvp.Key];
 
-            return DefaultReturnPath;
+            return Task.FromResult(DefaultReturnPath);
         }
     }
 }

@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Cursive
 {
@@ -14,16 +16,16 @@ namespace Cursive
         }
 
         public string Name { get; internal set; }
-        public delegate string SystemStep(ValueSet input, out ValueSet output);
+        public delegate Task<Response> SystemStep(ValueSet input);
 
         private SystemStep Operation { get; }
         public override IReadOnlyCollection<string> ReturnPaths { get; }
         public override IReadOnlyCollection<ValueKey> Inputs { get; }
         public override IReadOnlyCollection<ValueKey> Outputs { get; }
 
-        public override string Run(ValueSet inputs, out ValueSet outputs)
+        public override async Task<Response> Run(ValueSet inputs)
         {
-            return Operation(inputs, out outputs);
+            return await Operation(inputs);
         }
     }
 }

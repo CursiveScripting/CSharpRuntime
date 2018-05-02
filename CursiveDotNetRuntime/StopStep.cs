@@ -1,4 +1,6 @@
-﻿namespace Cursive
+﻿using System.Threading.Tasks;
+
+namespace Cursive
 {
     internal class StopStep : Step
     {
@@ -18,14 +20,14 @@
             return outputs;
         }
 
-        public override Step Run(ValueSet variables)
+        public override Task<Step> Run(ValueSet variables)
         {
             outputs = new ValueSet();
             foreach (var kvp in InputMapping)
                 outputs[kvp.Key] = variables[kvp.Value];
             foreach (var kvp in FixedInputs)
                 outputs[kvp.Key] = kvp.Value;
-            return null;
+            return Task.FromResult<Step>(null);
         }
     }
 }

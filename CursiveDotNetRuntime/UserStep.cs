@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Cursive
 {
@@ -22,17 +23,19 @@ namespace Cursive
             NoReturnPaths = false;
         }
 
-        public override Step Run(ValueSet variables)
+        public override async Task<Step> Run(ValueSet variables)
         {
             // set up fixed input parameters
-            ValueSet inputs = FixedInputs.Clone(), outputs;
+            ValueSet inputs = FixedInputs.Clone();
 
             // map any other input parameters in from variables
             foreach (var kvp in InputMapping)
                 inputs[kvp.Key] = variables[kvp.Value];
             
             // actually run the process, with the inputs named as it expects
-            var returnPath = ChildProcess.Run(inputs, out outputs);
+            var response = await ChildProcess.Run(inputs);
+            string returnPath = response.ReturnPath;
+            ValueSet outputs = response.Outputs;
 
             // map any output parameters back out into variables
             if (outputs != null)

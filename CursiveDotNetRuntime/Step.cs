@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Cursive
 {
@@ -9,7 +10,7 @@ namespace Cursive
             Name = name;
         }
 
-        public abstract Step Run(ValueSet variables);
+        public abstract Task<Step> Run(ValueSet variables);
 
         public string Name { get; }
         protected internal ValueSet FixedInputs { get; } = new ValueSet();

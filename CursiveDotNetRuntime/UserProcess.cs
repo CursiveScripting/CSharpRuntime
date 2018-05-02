@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Cursive
 {
@@ -30,7 +31,7 @@ namespace Cursive
         internal StartStep FirstStep { get; }
         internal IEnumerable<Step> Steps { get; }
         
-        public override string Run(ValueSet inputs, out ValueSet outputs)
+        public override async Task<Response> Run(ValueSet inputs)
         {
             DebuggingService.EnterProcess(this);
             ValueSet variables = DefaultVariables.Clone();
@@ -41,15 +42,14 @@ namespace Cursive
             while (currentStep != null)
             {
                 lastStep = currentStep;
-                currentStep = currentStep.Run(variables);
+                currentStep = await currentStep.Run(variables);
             }
 
             if (lastStep is StopStep)
             {
                 var end = lastStep as StopStep;
-                outputs = end.GetOutputs();
                 DebuggingService.ExitProcess(this);
-                return end.ReturnValue;
+                return new Response(end.ReturnValue, end.GetOutputs());
             }
 
             throw new InvalidOperationException("The last step of a completed process wasn't a StopStep");

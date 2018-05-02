@@ -1,5 +1,7 @@
 ﻿using CursiveRuntime.Services;
+using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Cursive
 {
@@ -18,10 +20,10 @@ namespace Cursive
         public override IReadOnlyCollection<ValueKey> Inputs { get; }
         public override IReadOnlyCollection<ValueKey> Outputs { get; }
 
-        public override string Run(ValueSet inputs, out ValueSet outputs)
+        public override async Task<Response> Run(ValueSet inputs)
         {
             DebuggingService.StartNewCall(this);
-            return ActualProcess.Run(inputs, out outputs);
+            return await ActualProcess.Run(inputs);
         }
     }
 }

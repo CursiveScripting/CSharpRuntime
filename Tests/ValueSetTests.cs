@@ -47,7 +47,7 @@ namespace Tests
         {
             values = new ValueSet();
 
-            Assert.That(() => values.Get(testShort), Throws.TypeOf<Exception>());
+            Assert.That(() => values.Get(testShort), Throws.TypeOf<CursiveRunException>());
         }
 
 

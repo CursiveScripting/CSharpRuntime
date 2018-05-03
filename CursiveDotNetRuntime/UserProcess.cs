@@ -1,8 +1,5 @@
-﻿using CursiveRuntime.Services;
-using System;
+﻿using Cursive.Debugging;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace Cursive
@@ -41,9 +38,9 @@ namespace Cursive
             while (currentStep != null)
             {
                 lastStep = currentStep;
-                await stack.Push(new StackFrame(this, currentStep));
+                await stack.EnterStep(this, currentStep, variables);
                 currentStep = await currentStep.Run(variables, stack);
-                stack.Pop();
+                stack.ExitStep();
             }
 
             if (lastStep is StopStep)
@@ -52,7 +49,7 @@ namespace Cursive
                 return new Response(end.ReturnValue, end.GetOutputs());
             }
 
-            throw new InvalidOperationException("The last step of a completed process wasn't a StopStep");
+            throw new CursiveRunException(stack, "The last step of a completed process wasn't a StopStep");
         }
 
         internal IEnumerable<StopStep> StopSteps

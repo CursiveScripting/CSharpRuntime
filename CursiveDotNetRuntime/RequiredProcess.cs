@@ -1,4 +1,4 @@
-﻿using CursiveRuntime.Services;
+﻿using Cursive.Debugging;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -15,7 +15,7 @@ namespace Cursive
             ReturnPaths = returnPaths;
         }
         
-        internal Process ActualProcess { get; set; }
+        internal UserProcess ActualProcess { get; set; }
         public override IReadOnlyCollection<string> ReturnPaths { get; }
         public override IReadOnlyCollection<ValueKey> Inputs { get; }
         public override IReadOnlyCollection<ValueKey> Outputs { get; }
@@ -27,13 +27,13 @@ namespace Cursive
 
         public async Task<Response> Run(ValueSet inputs)
         {
-            var stack = new CallStack();
+            var stack = new RunCallStack();
             return await Run(inputs, stack);
         }
 
-        public async Task<Response> Debug(ValueSet inputs, Func<Process, Step, Task> enteredStep)
+        public async Task<Response> Debug(ValueSet inputs, Func<DebugStackFrame, Task> enteredStep)
         {
-            var stack = new DebugStack(enteredStep);
+            var stack = new DebugCallStack(enteredStep);
             return await Run(inputs, stack);
         }
     }

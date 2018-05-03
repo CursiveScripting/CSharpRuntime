@@ -32,7 +32,7 @@ namespace Tests
             IsEqual = new SystemProcess(
                 (ValueSet inputs) =>
                 {
-                    return Response.Task(inputs.Get(value1) == inputs.Get(value2) ? "yes" : "no");
+                    return Response.SyncTask(inputs.Get(value1) == inputs.Get(value2) ? "yes" : "no");
                 },
                 "Test to see if two values are equal.",
                 new Cursive.ValueKey[] { value1, value2 },
@@ -47,7 +47,7 @@ namespace Tests
                     int i1 = inputs.Get(value1);
                     int i2 = inputs.Get(value2);
                     outputs.Set(value3, i1 + i2);
-                    return Response.Task(outputs);
+                    return Response.SyncTask(outputs);
                 },
                 "Test to see if two values are equal.",
                 new Cursive.ValueKey[] { value1, value2 },

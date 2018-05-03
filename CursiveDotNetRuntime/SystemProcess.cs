@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Cursive.Debugging;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -25,7 +26,14 @@ namespace Cursive
 
         internal override async Task<Response> Run(ValueSet inputs, CallStack stack = null)
         {
-            return await Operation(inputs);
+            try
+            {
+                return await Operation(inputs);
+            }
+            catch (Exception e)
+            {
+                throw new CursiveRunException(stack, $"An error occurred running system process ${Name}", e);
+            }
         }
     }
 }

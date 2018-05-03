@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using Cursive.Debugging;
+using System.Threading.Tasks;
 
 namespace Cursive
 {
@@ -22,7 +23,7 @@ namespace Cursive
 
         public override Task<Step> Run(ValueSet variables, CallStack stack)
         {
-            outputs = new ValueSet();
+            outputs = new ValueSet(stack);
             foreach (var kvp in InputMapping)
                 outputs[kvp.Key] = variables[kvp.Value];
             foreach (var kvp in FixedInputs)

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Cursive.Debugging;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -48,18 +49,18 @@ namespace Cursive
                     return DefaultReturnPath;
 
                 if (ChildProcess is SystemProcess)
-                    throw new Exception($"System process {(ChildProcess as SystemProcess).Name} unexpectedly returned a null value");
+                    throw new CursiveRunException(stack, $"System process {(ChildProcess as SystemProcess).Name} unexpectedly returned a null value");
                 else
-                    throw new Exception($"Step {Name} unexpectedly returned a null value");
+                    throw new CursiveRunException(stack, $"Step {Name} unexpectedly returned a null value");
             }
 
             Step nextStep;
             if (!ReturnPaths.TryGetValue(returnPath, out nextStep))
             {
                 if (ChildProcess is SystemProcess)
-                    throw new Exception($"System process {(ChildProcess as SystemProcess).Name} returned an unexpected value: {returnPath}");
+                    throw new CursiveRunException(stack, $"System process {(ChildProcess as SystemProcess).Name} returned an unexpected value: {returnPath}");
                 else
-                    throw new Exception($"Step {Name} returned an unexpected value: {returnPath}");
+                    throw new CursiveRunException(stack, $"Step {Name} returned an unexpected value: {returnPath}");
             }
 
             return nextStep;

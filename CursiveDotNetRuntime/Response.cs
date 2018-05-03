@@ -16,14 +16,14 @@ namespace Cursive
             Outputs = outputs;
         }
 
-        public static Task<Response> Task(string returnPath = "", ValueSet outputs = null)
+        public static Task<Response> SyncTask(string returnPath = "", ValueSet outputs = null)
         {
-            return System.Threading.Tasks.Task.FromResult(new Response(returnPath, outputs));
+            return Task.FromResult(new Response(returnPath, outputs));
         }
 
-        public static Task<Response> Task(ValueSet outputs)
+        public static Task<Response> SyncTask(ValueSet outputs)
         {
-            return System.Threading.Tasks.Task.FromResult(new Response(outputs));
+            return Task.FromResult(new Response(outputs));
         }
 
         public string ReturnPath { get; }

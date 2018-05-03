@@ -20,7 +20,7 @@ namespace Cursive
             return outputs;
         }
 
-        public override Task<Step> Run(ValueSet variables)
+        public override Task<Step> Run(ValueSet variables, CallStack stack)
         {
             outputs = new ValueSet();
             foreach (var kvp in InputMapping)

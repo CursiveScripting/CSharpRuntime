@@ -20,10 +20,21 @@ namespace Cursive
         public override IReadOnlyCollection<ValueKey> Inputs { get; }
         public override IReadOnlyCollection<ValueKey> Outputs { get; }
 
-        public override async Task<Response> Run(ValueSet inputs)
+        internal override async Task<Response> Run(ValueSet inputs, CallStack stack)
         {
-            DebuggingService.StartNewCall(this);
-            return await ActualProcess.Run(inputs);
+            return await ActualProcess.Run(inputs, stack);
+        }
+
+        public async Task<Response> Run(ValueSet inputs)
+        {
+            var stack = new CallStack();
+            return await Run(inputs, stack);
+        }
+
+        public async Task<Response> Debug(ValueSet inputs, Func<Process, Step, Task> enteredStep)
+        {
+            var stack = new DebugStack(enteredStep);
+            return await Run(inputs, stack);
         }
     }
 }

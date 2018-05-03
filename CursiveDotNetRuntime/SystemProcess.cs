@@ -23,7 +23,7 @@ namespace Cursive
         public override IReadOnlyCollection<ValueKey> Inputs { get; }
         public override IReadOnlyCollection<ValueKey> Outputs { get; }
 
-        public override async Task<Response> Run(ValueSet inputs)
+        internal override async Task<Response> Run(ValueSet inputs, CallStack stack = null)
         {
             return await Operation(inputs);
         }

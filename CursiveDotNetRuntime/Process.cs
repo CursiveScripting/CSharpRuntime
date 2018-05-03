@@ -19,6 +19,6 @@ namespace Cursive
         public abstract IReadOnlyCollection<ValueKey> Inputs { get; }
         public abstract IReadOnlyCollection<ValueKey> Outputs { get; }
 
-        public abstract Task<Response> Run(ValueSet input);
+        internal abstract Task<Response> Run(ValueSet inputs, CallStack stack);
     }
 }

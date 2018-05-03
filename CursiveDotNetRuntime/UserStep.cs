@@ -23,7 +23,7 @@ namespace Cursive
             NoReturnPaths = false;
         }
 
-        public override async Task<Step> Run(ValueSet variables)
+        public override async Task<Step> Run(ValueSet variables, CallStack stack)
         {
             // set up fixed input parameters
             ValueSet inputs = FixedInputs.Clone();
@@ -33,7 +33,7 @@ namespace Cursive
                 inputs[kvp.Key] = variables[kvp.Value];
             
             // actually run the process, with the inputs named as it expects
-            var response = await ChildProcess.Run(inputs);
+            var response = await ChildProcess.Run(inputs, stack);
             string returnPath = response.ReturnPath;
             ValueSet outputs = response.Outputs;
 

@@ -3,31 +3,31 @@ using System.Threading.Tasks;
 
 namespace Cursive
 {
-    internal abstract class Step
+    public abstract class Step
     {
         protected Step(string name)
         {
             Name = name;
         }
 
-        public abstract Task<Step> Run(ValueSet variables);
+        public abstract Task<Step> Run(ValueSet variables, CallStack stack);
 
         public string Name { get; }
         protected internal ValueSet FixedInputs { get; } = new ValueSet();
         protected internal Dictionary<ValueKey, ValueKey> InputMapping { get; } = new Dictionary<ValueKey, ValueKey>();
         protected internal Dictionary<ValueKey, ValueKey> OutputMapping { get; } = new Dictionary<ValueKey, ValueKey>();
 
-        public void SetInputParameter(ValueKey parameter, object value)
+        internal void SetInputParameter(ValueKey parameter, object value)
         {
             FixedInputs[parameter] = value;
         }
 
-        public void MapInputParameter(ValueKey parameter, ValueKey source)
+        internal void MapInputParameter(ValueKey parameter, ValueKey source)
         {
             InputMapping[parameter] = source;
         }
 
-        public void MapOutputParameter(ValueKey parameter, ValueKey destination)
+        internal void MapOutputParameter(ValueKey parameter, ValueKey destination)
         {
             OutputMapping[parameter] = destination;
         }

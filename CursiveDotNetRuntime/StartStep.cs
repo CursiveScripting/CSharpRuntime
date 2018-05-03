@@ -14,7 +14,7 @@ namespace Cursive
             this.inputs = inputs;
         }
 
-        public override Task<Step> Run(ValueSet variables)
+        public override Task<Step> Run(ValueSet variables, CallStack stack)
         {
             foreach (var kvp in OutputMapping)
                 variables[kvp.Value] = inputs[kvp.Key];

@@ -31,9 +31,8 @@ namespace Cursive
         internal StartStep FirstStep { get; }
         internal IEnumerable<Step> Steps { get; }
         
-        public override async Task<Response> Run(ValueSet inputs)
+        internal override async Task<Response> Run(ValueSet inputs, CallStack stack)
         {
-            DebuggingService.EnterProcess(this);
             ValueSet variables = DefaultVariables.Clone();
 
             FirstStep.SetInputs(inputs);
@@ -42,13 +41,14 @@ namespace Cursive
             while (currentStep != null)
             {
                 lastStep = currentStep;
-                currentStep = await currentStep.Run(variables);
+                await stack.Push(new StackFrame(this, currentStep));
+                currentStep = await currentStep.Run(variables, stack);
+                stack.Pop();
             }
 
             if (lastStep is StopStep)
             {
                 var end = lastStep as StopStep;
-                DebuggingService.ExitProcess(this);
                 return new Response(end.ReturnValue, end.GetOutputs());
             }
 

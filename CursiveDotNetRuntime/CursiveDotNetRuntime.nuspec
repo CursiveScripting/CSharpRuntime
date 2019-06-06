@@ -10,8 +10,8 @@
     <projectUrl>https://github.com/CursiveScripting/DotNetRuntime</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Runtime for executing scripts produced by the Cursive Scripting UI</description>
-    <releaseNotes>Converted project to .NET Core 2.0</releaseNotes>
-    <copyright>Copyright 2018 FTWinston.com</copyright>
+    <releaseNotes>Converted project to .NET Standard 2.0</releaseNotes>
+    <copyright>Copyright 2019 FTWinston.com</copyright>
     <tags>Cursive Scripting Runtime</tags>
   </metadata>
 </package>

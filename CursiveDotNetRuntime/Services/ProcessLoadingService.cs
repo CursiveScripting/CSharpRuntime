@@ -320,15 +320,15 @@ namespace CursiveRuntime.Services
         private static Step LoadProcessStep(XmlElement stepNode, Dictionary<string, ValueKey> inputs, Dictionary<string, ValueKey> outputs, Dictionary<string, ValueKey> variables, HashSet<string> returnPaths, List<UserStepLoadingInfo> loadingSteps, List<string> errors)
         {
             var name = stepNode.GetAttribute("ID");
-            var mapInputs = stepNode.SelectNodes("MapInput");
-            var mapOutputs = stepNode.SelectNodes("MapOutput");
+            var inputNodes = stepNode.SelectNodes("Input");
+            var outputNodes = stepNode.SelectNodes("Output");
             bool success = true;
             Step step;
             
             if (stepNode.Name == "Start")
             {
                 step = new StartStep(name);
-                foreach (XmlElement output in mapOutputs)
+                foreach (XmlElement output in outputNodes)
                 {
                     var paramName = output.GetAttribute("name");
                     var variableName = output.GetAttribute("destination");
@@ -382,7 +382,7 @@ namespace CursiveRuntime.Services
                 }
 
                 step = new StopStep(name, returnValue);
-                foreach (XmlElement input in mapInputs)
+                foreach (XmlElement input in inputNodes)
                 {
                     var paramName = input.GetAttribute("name");
                     var variableName = input.GetAttribute("source");
@@ -418,10 +418,10 @@ namespace CursiveRuntime.Services
                 var stepInfo = new UserStepLoadingInfo(userStep, stepNode);
                 step = userStep;
 
-                foreach (XmlElement input in mapInputs)
+                foreach (XmlElement inputNode in inputNodes)
                 {
-                    var paramName = input.GetAttribute("name");
-                    var variableName = input.GetAttribute("source");
+                    var paramName = inputNode.GetAttribute("name");
+                    var variableName = inputNode.GetAttribute("source");
 
                     ValueKey variableParam;
                     if (!variables.TryGetValue(variableName, out variableParam))
@@ -433,10 +433,10 @@ namespace CursiveRuntime.Services
 
                     stepInfo.InputsToMap.Add(paramName, variableParam);
                 }
-                foreach (XmlElement output in mapOutputs)
+                foreach (XmlElement outputNode in outputNodes)
                 {
-                    var paramName = output.GetAttribute("name");
-                    var variableName = output.GetAttribute("destination");
+                    var paramName = outputNode.GetAttribute("name");
+                    var variableName = outputNode.GetAttribute("destination");
 
                     ValueKey variableParam;
                     if (!variables.TryGetValue(variableName, out variableParam))

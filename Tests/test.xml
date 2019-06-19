@@ -18,38 +18,38 @@
   
 	<Steps>
     <Start ID="start">
-      <MapOutput name="Me" destination="who" />
-      <MapOutput name="Car" destination="car" />
+      <Output name="Me" destination="who" />
+      <Output name="Car" destination="car" />
       <ReturnPath targetStepID="getAge" />
     </Start>
 		<Step ID="getAge" process="get">
-			<MapInput name="property" source="ageID" />
-			<MapInput name="object" source="who" />
-			<MapOutput name="value" destination="age" />
+			<Input name="property" source="ageID" />
+			<Input name="object" source="who" />
+			<Output name="value" destination="age" />
       <ReturnPath targetStepID="breakfastAgeCheck" />
 		</Step>
 		<Step ID="breakfastAgeCheck" process="compare">
-			<MapInput name="value1" source="age" />
-			<MapInput name="value2" source="lowerAgeLimit" />
+			<Input name="value1" source="age" />
+			<Input name="value2" source="lowerAgeLimit" />
       <NamedReturnPath name="greater" targetStepID="makeBreakfast" />
       <NamedReturnPath name="equal" targetStepID="makeBreakfast" />
       <NamedReturnPath name="error" targetStepID="demandBreakfast" />
 			<NamedReturnPath name="less" targetStepID="demandBreakfast" />
 		</Step>
 		<Step ID="makeBreakfast" process="print">
-			<MapInput name="message" source="breakfastMsg1" />
+			<Input name="message" source="breakfastMsg1" />
 			<ReturnPath targetStepID="eatBreakfast" />
 		</Step>
 		<Step ID="demandBreakfast" process="print">
-      <MapInput name="message" source="breakfastMsg2" />
+      <Input name="message" source="breakfastMsg2" />
 			<ReturnPath targetStepID="eatBreakfast" />
 		</Step>
 		<Step ID="eatBreakfast" process="print">
-      <MapInput name="message" source="breakfastMsg3" />
+      <Input name="message" source="breakfastMsg3" />
       <ReturnPath targetStepID="getReady" />
 		</Step>
 		<Step ID="getReady" process="print">
-      <MapInput name="message" source="dressMsg1" />
+      <Input name="message" source="dressMsg1" />
       <ReturnPath targetStepID="checkDay" />
 		</Step>
 		<Step ID="checkDay" process="getDay">
@@ -62,11 +62,11 @@
       <NamedReturnPath name="Friday" targetStepID="getInCar" />
 		</Step>
 		<Step ID="getInCar" process="print">
-      <MapInput name="message" source="carMsg1" />
+      <Input name="message" source="carMsg1" />
 			<ReturnPath targetStepID="done" />
 		</Step>
 		<Stop ID="done">
-			<MapInput name="My age" source="age" />
+			<Input name="My age" source="age" />
 		</Stop>
 	</Steps>
 </Process>

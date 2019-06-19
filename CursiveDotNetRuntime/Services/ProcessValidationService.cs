@@ -21,27 +21,12 @@ namespace CursiveRuntime.Services
                     success = false;
                 }
             
-            // 1a. any input parameter can only be mapped in OR have a fixed value, not both.
-            // 1b. any child process must have all the input and output parameters mapped that it expects.
+            // 1. any child process must have all the input and output parameters mapped that it expects.
             foreach (var step in process.UserSteps)
             {
-                foreach (var kvp in step.FixedInputs)
-                {
-                    if (!step.ChildProcess.Inputs.Any(p => p == kvp.Key))
-                    {
-                        errors.Add(string.Format("Step {0} sets the '{1}' input parameter, which isn't defined for the '{0}' process.", step.Name, kvp.Key));
-                        success = false;
-                    }
-                    if (step.InputMapping.ContainsValue(kvp.Key))
-                    {
-                        errors.Add(string.Format("Step {0} sets the '{1}' input parameter twice - mapping it in and also setting a fixed value.", step.Name, kvp.Key.Name));
-                        success = false;
-                    }
-                }
-
                 if (step.ChildProcess.Inputs != null)
                     foreach (var parameter in step.ChildProcess.Inputs)
-                        if (!step.FixedInputs.HasElement(parameter) && !step.InputMapping.ContainsKey(parameter))
+                        if (!step.InputMapping.ContainsKey(parameter))
                         {
                             errors.Add(string.Format("Step {0} requires the '{1}' input parameter, which has not been set.", step.Name, parameter.Name));
                             success = false;
@@ -77,7 +62,7 @@ namespace CursiveRuntime.Services
             foreach (var step in process.StopSteps)
             {
                 foreach (var output in process.Outputs)
-                    if (!step.InputMapping.ContainsKey(output) && !step.FixedInputs.HasElement(output))
+                    if (!step.InputMapping.ContainsKey(output))
                     {
                         errors.Add(string.Format("The {0} stop step doesn't set the '{1}' output.", string.IsNullOrEmpty(step.ReturnValue) ? "default" : "'" + step.ReturnValue + "'", output.Name));
                         success = false;

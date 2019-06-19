@@ -26,10 +26,8 @@ namespace Cursive
 
         public override async Task<Step> Run(ValueSet variables, CallStack stack)
         {
-            // set up fixed input parameters
-            ValueSet inputs = FixedInputs.Clone();
-
-            // map any other input parameters in from variables
+            // map input parameters in from variables
+            ValueSet inputs = new ValueSet();
             foreach (var kvp in InputMapping)
                 inputs[kvp.Key] = variables[kvp.Value];
             

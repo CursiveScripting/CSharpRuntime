@@ -8,6 +8,14 @@
   <Variable name="who" type="person" />
   <Variable name="car" type="car" />
   <Variable name="age" type="integer" initialValue="99" />
+  <Variable name="ageID" type="text" initialValue="Age" />
+  <Variable name="lowerAgeLimit" type="text" initialValue="10" />
+  <Variable name="breakfastMsg1" type="text" initialValue="Making breakfast..." />
+  <Variable name="breakfastMsg2" type="text" initialValue="Demanding breakfast... (young enough to get away with this)" />
+  <Variable name="breakfastMsg3" type="text" initialValue="Eating breakfast..." />
+  <Variable name="dressMsg1" type="text" initialValue="Getting dressed etc..." />
+  <Variable name="carMsg1" type="text" initialValue="Getting in the car..." />
+  
 	<Steps>
     <Start ID="start">
       <MapOutput name="Me" destination="who" />
@@ -15,33 +23,33 @@
       <ReturnPath targetStepID="getAge" />
     </Start>
 		<Step ID="getAge" process="get">
-			<FixedInput name="property" value="Age" />
+			<MapInput name="property" source="ageID" />
 			<MapInput name="object" source="who" />
 			<MapOutput name="value" destination="age" />
       <ReturnPath targetStepID="breakfastAgeCheck" />
 		</Step>
 		<Step ID="breakfastAgeCheck" process="compare">
 			<MapInput name="value1" source="age" />
-			<FixedInput name="value2" value="10" />
+			<MapInput name="value2" source="lowerAgeLimit" />
       <NamedReturnPath name="greater" targetStepID="makeBreakfast" />
       <NamedReturnPath name="equal" targetStepID="makeBreakfast" />
       <NamedReturnPath name="error" targetStepID="demandBreakfast" />
 			<NamedReturnPath name="less" targetStepID="demandBreakfast" />
 		</Step>
 		<Step ID="makeBreakfast" process="print">
-			<FixedInput name="message" value="Making breakfast..." />
+			<MapInput name="message" source="breakfastMsg1" />
 			<ReturnPath targetStepID="eatBreakfast" />
 		</Step>
 		<Step ID="demandBreakfast" process="print">
-			<FixedInput name="message" value="Demanding breakfast... (young enough to get away with this)" />
+      <MapInput name="message" source="breakfastMsg2" />
 			<ReturnPath targetStepID="eatBreakfast" />
 		</Step>
 		<Step ID="eatBreakfast" process="print">
-			<FixedInput name="message" value="Eating breakfast..." />
+      <MapInput name="message" source="breakfastMsg3" />
       <ReturnPath targetStepID="getReady" />
 		</Step>
 		<Step ID="getReady" process="print">
-			<FixedInput name="message" value="Getting dressed etc..." />
+      <MapInput name="message" source="dressMsg1" />
       <ReturnPath targetStepID="checkDay" />
 		</Step>
 		<Step ID="checkDay" process="getDay">
@@ -54,7 +62,7 @@
       <NamedReturnPath name="Friday" targetStepID="getInCar" />
 		</Step>
 		<Step ID="getInCar" process="print">
-			<FixedInput name="message" value="Getting in the car..." />
+      <MapInput name="message" source="carMsg1" />
 			<ReturnPath targetStepID="done" />
 		</Step>
 		<Stop ID="done">

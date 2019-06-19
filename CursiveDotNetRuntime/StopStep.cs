@@ -26,8 +26,6 @@ namespace Cursive
             outputs = new ValueSet(stack);
             foreach (var kvp in InputMapping)
                 outputs[kvp.Key] = variables[kvp.Value];
-            foreach (var kvp in FixedInputs)
-                outputs[kvp.Key] = kvp.Value;
             return Task.FromResult<Step>(null);
         }
     }

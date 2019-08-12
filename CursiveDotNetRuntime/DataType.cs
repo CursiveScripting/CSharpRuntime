@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace Cursive
@@ -89,5 +91,22 @@ namespace Cursive
         }
         
         private Func<string, T> DeserializationFunction { get; }
+    }
+
+    // TODO: run these off of enums?
+    public class LookupType : DataType<string>, IDeserializable
+    {
+        public LookupType(string name, Color color, IEnumerable<string> options, string guidance = null)
+            : base(name, color, null, null, null, guidance)
+        {
+            Options = options.ToArray();
+        }
+
+        public string[] Options { get; }
+
+        public object Deserialize(string value)
+        {
+            return value;
+        }
     }
 }

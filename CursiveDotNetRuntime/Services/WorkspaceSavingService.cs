@@ -1,12 +1,8 @@
 ﻿using Cursive;
-using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Xml;
-using System.Xml.Schema;
 
 namespace CursiveRuntime.Services
 {
@@ -19,7 +15,8 @@ namespace CursiveRuntime.Services
             var root = doc.CreateElement("Workspace");
             doc.AppendChild(root);
 
-            Queue<DataType> typesToWrite = new Queue<DataType>(workspace.TypesByName.Values);
+            var allTypes = workspace.TypesByName.Values;
+            Queue<DataType> typesToWrite = new Queue<DataType>(allTypes.Where(t => !(t is LookupType)));
             HashSet<DataType> typesWritten = new HashSet<DataType>();
 
             while (typesToWrite.Any())
@@ -34,6 +31,11 @@ namespace CursiveRuntime.Services
 
                 WriteType(root, type);
                 typesWritten.Add(type);
+            }
+
+            foreach (var type in allTypes.Where(t => t is LookupType))
+            {
+                WriteLookupType(root, type as LookupType);
             }
 
             foreach (var kvp in workspace.RequiredProcesses)
@@ -76,6 +78,28 @@ namespace CursiveRuntime.Services
             if (!string.IsNullOrEmpty(type.Guidance))
             {
                 node.Attributes.Append(CreateAttribute(doc, "guidance", type.Guidance));
+            }
+
+            parent.AppendChild(node);
+        }
+
+        private static void WriteLookupType(XmlElement parent, LookupType type)
+        {
+            var doc = parent.OwnerDocument;
+            var node = doc.CreateElement("Type");
+            node.Attributes.Append(CreateAttribute(doc, "name", type.Name));
+            node.Attributes.Append(CreateAttribute(doc, "color", type.Color.ToHexString()));
+
+            if (!string.IsNullOrEmpty(type.Guidance))
+            {
+                node.Attributes.Append(CreateAttribute(doc, "guidance", type.Guidance));
+            }
+
+            foreach (var option in type.Options)
+            {
+                var optionNode = doc.CreateElement("Option");
+                optionNode.InnerText = option;
+                node.AppendChild(optionNode);
             }
 
             parent.AppendChild(node);

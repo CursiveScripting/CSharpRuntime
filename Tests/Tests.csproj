@@ -17,7 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\Schema\workspace.xsd" Link="workspace.xsd">
+    <None Include="..\Schema\workspace.json" Link="workspace.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

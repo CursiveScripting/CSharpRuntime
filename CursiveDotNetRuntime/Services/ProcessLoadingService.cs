@@ -16,9 +16,9 @@ namespace CursiveRuntime.Services
             var success = true;
             errors = new List<string>();
 
-            var schemaResourceName = "Cursive.processes.xsd";
+            var schemaResourceName = "Cursive.processes.json";
             using (Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(schemaResourceName))
-            using (XmlReader reader = XmlReader.Create(stream))
+            using (XmlReader reader = XmlReader.Create(stream)) // TODO: json schema not xml
             {
                 doc.Schemas.Add("http://cursive.ftwinston.com", reader);
             }

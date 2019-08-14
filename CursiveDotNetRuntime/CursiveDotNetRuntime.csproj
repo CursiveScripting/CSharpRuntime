@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="..\Schema\processes.xsd" Link="processes.xsd" />
+    <EmbeddedResource Include="..\Schema\processes.json" Link="processes.json" />
   </ItemGroup>
 
 </Project>

@@ -16,17 +16,7 @@ namespace CursiveRuntime.Services
     {
         internal static async Task<IList<string>> LoadProcesses(Workspace workspace, string processJson)
         {
-            string schemaJson;
-            var schemaResourceName = "Cursive.processes.json";
-            using (Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(schemaResourceName))
-            using (StreamReader reader = new StreamReader(stream))
-            {
-                schemaJson = reader.ReadToEnd();
-            }
-
-            var schema = await JsonSchema.FromJsonAsync(schemaJson);
-
-            var validationErrors = schema.Validate(processJson);
+            var validationErrors = Schemas.Processes.Value.Validate(processJson);
 
             if (validationErrors.Any())
             {

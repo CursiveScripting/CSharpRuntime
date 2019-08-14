@@ -1,13 +1,10 @@
 ﻿using Cursive;
 using Newtonsoft.Json;
-using NJsonSchema;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.IO;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace Tests
 {
@@ -221,26 +218,13 @@ namespace Tests
         }
 
         [Test]
-        public async Task SavedWorkspaceValidates()
+        public void SavedWorkspaceValidates()
         {
             var workspaceJson = JsonConvert.SerializeObject(workspace);
 
             Assert.That(workspaceJson, Is.Not.Null);
 
-            string schemaJson;
-
-            var schemaResourceName = "Cursive.workspace.json";
-            using (Stream stream = typeof(Workspace).Assembly.GetManifestResourceStream(schemaResourceName))
-            using (StreamReader reader = new StreamReader(stream))
-            {
-                schemaJson = reader.ReadToEnd();
-            }
-
-            Assert.That(schemaJson, Is.Not.Null);
-
-            var schema = await JsonSchema.FromJsonAsync(schemaJson);
-
-            var validationErrors = schema.Validate(workspaceJson);
+            var validationErrors = Schemas.Workspace.Value.Validate(workspaceJson);
 
             Assert.IsEmpty(validationErrors);
         }

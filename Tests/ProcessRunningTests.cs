@@ -1,6 +1,4 @@
 ﻿using Cursive;
-using Newtonsoft.Json;
-using NJsonSchema;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;

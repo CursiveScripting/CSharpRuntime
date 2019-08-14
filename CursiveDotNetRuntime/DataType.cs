@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
@@ -6,6 +7,7 @@ using System.Text.RegularExpressions;
 
 namespace Cursive
 {
+    [JsonObject(ItemNullValueHandling = NullValueHandling.Ignore)]
     public abstract class DataType
     {
         protected DataType(string name, Color color, DataType extends = null, Regex validation = null, string guidance = null)
@@ -17,11 +19,31 @@ namespace Cursive
             Guidance = guidance;
         }
 
+        [JsonProperty(PropertyName = "name", Order = 1)]
         public string Name { get; }
+
+        [JsonIgnore]
         public Color Color { get; }
+
+        [JsonProperty(PropertyName = "color", Order = 2)]
+        private string ColorCode => $"#{Color.R:X2}{Color.G:X2}{Color.B:X2}";
+
+        [JsonProperty(PropertyName = "guidance", Order = 3)]
         public string Guidance { get; }
+
+        [JsonIgnore]
         public DataType Extends { get; }
+
+        [JsonProperty(PropertyName = "extends")]
+        private string ExtendsName => Extends?.Name;
+
+        [JsonIgnore]        
         public Regex Validation { get; }
+
+        [JsonProperty(PropertyName = "validation")]
+        private string ValidationPattern => Validation?.ToString();
+
+        [JsonIgnore]
         public abstract Type SystemType { get; }
 
         public abstract object GetDefaultValue();
@@ -31,6 +53,7 @@ namespace Cursive
             Func<object> f = GetTypeDefault<object>;
             return f.Method.GetGenericMethodDefinition().MakeGenericMethod(t).Invoke(null, null);
         }
+
         private static T GetTypeDefault<T>() { return default(T); }
 
         public bool IsAssignableFrom(DataType other)
@@ -102,6 +125,7 @@ namespace Cursive
             Options = options.ToArray();
         }
 
+        [JsonProperty(PropertyName = "options")]
         public string[] Options { get; }
 
         public object Deserialize(string value)

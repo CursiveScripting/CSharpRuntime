@@ -10,15 +10,10 @@
 
   <ItemGroup>
     <None Remove="test.xml" />
-    <None Remove="workspace.xml" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="test.xml" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Include="workspace.xml" />
   </ItemGroup>
 
   <ItemGroup>

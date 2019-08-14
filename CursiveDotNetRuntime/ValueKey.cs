@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 
 namespace Cursive
 {
@@ -10,8 +11,14 @@ namespace Cursive
             Type = type;
         }
 
+        [JsonProperty(PropertyName = "name")]
         public string Name { get; }
+
+        [JsonIgnore]
         public DataType Type { get; }
+
+        [JsonProperty(PropertyName = "type")]
+        private string TypeName => Type.Name;
 
         public int CompareTo(ValueKey other)
         {

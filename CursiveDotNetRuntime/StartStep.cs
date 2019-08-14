@@ -5,8 +5,8 @@ namespace Cursive
 {
     internal class StartStep : ReturningStep
     {
-        public StartStep(string name)
-            : base(name) { }
+        public StartStep(string id)
+            : base(id) { }
         
         private ValueSet inputs;
 

@@ -5,13 +5,13 @@ namespace Cursive
 {
     internal class StopStep : Step
     {
-        public StopStep(string name, string returnValue = null)
-            : base(name)
+        public StopStep(string id, string returnValue = null)
+            : base(id)
         {
             ReturnValue = returnValue;
         }
 
-        internal string ReturnValue { get; private set; }
+        public string ReturnValue { get; private set; }
         private ValueSet outputs;
 
         public ValueSet GetOutputs()

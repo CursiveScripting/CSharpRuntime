@@ -15,7 +15,7 @@ namespace CursiveRuntime.Services
             var root = doc.CreateElement("Workspace");
             doc.AppendChild(root);
 
-            var allTypes = workspace.TypesByName.Values;
+            var allTypes = workspace.Types;
             Queue<DataType> typesToWrite = new Queue<DataType>(allTypes.Where(t => !(t is LookupType)));
             HashSet<DataType> typesWritten = new HashSet<DataType>();
 
@@ -38,18 +38,17 @@ namespace CursiveRuntime.Services
                 WriteLookupType(root, type as LookupType);
             }
 
-            foreach (var kvp in workspace.RequiredProcesses)
+            foreach (var process in workspace.RequiredProcesses)
             {
-                WriteProcess(workspace, kvp.Value, kvp.Key, root, "RequiredProcess");
+                WriteProcess(process, root, "RequiredProcess");
             }
 
-            foreach (var kvp in workspace.Processes)
+            foreach (var process in workspace.SystemProcesses)
             {
-                var process = kvp.Value;
                 if (!(process is SystemProcess))
                     continue;
 
-                WriteProcess(workspace, process, kvp.Key, root, "SystemProcess");
+                WriteProcess(process, root, "SystemProcess");
             }
 
             return doc;
@@ -105,11 +104,11 @@ namespace CursiveRuntime.Services
             parent.AppendChild(node);
         }
 
-        private static void WriteProcess(Workspace workspace, Process process, string processName, XmlElement parent, string elementName)
+        private static void WriteProcess(Process process, XmlElement parent, string elementName)
         {
             var doc = parent.OwnerDocument;
             var processNode = doc.CreateElement(elementName);
-            processNode.Attributes.Append(CreateAttribute(doc, "name", processName));
+            processNode.Attributes.Append(CreateAttribute(doc, "name", process.Name));
             parent.AppendChild(processNode);
 
             if (!string.IsNullOrEmpty(process.Folder))

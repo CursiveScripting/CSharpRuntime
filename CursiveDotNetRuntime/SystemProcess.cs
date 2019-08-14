@@ -7,8 +7,8 @@ namespace Cursive
 {
     public class SystemProcess : Process
     {
-        public SystemProcess(SystemStep operation, string description, IReadOnlyCollection<ValueKey> inputs, IReadOnlyCollection<ValueKey> outputs, IReadOnlyCollection<string> returnPaths, string folder = null)
-            : base(description, folder)
+        public SystemProcess(string name, string description, SystemStep operation, IReadOnlyCollection<ValueKey> inputs, IReadOnlyCollection<ValueKey> outputs, IReadOnlyCollection<string> returnPaths, string folder = null)
+            : base(name, description, folder)
         {
             Operation = operation;
             Inputs = inputs;
@@ -16,7 +16,6 @@ namespace Cursive
             ReturnPaths = returnPaths;
         }
 
-        public string Name { get; internal set; }
         public delegate Task<Response> SystemStep(ValueSet input);
 
         private SystemStep Operation { get; }

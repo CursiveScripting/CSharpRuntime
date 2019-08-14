@@ -8,7 +8,15 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="..\Schema\workspace.json" Link="workspace.json" />
+  </ItemGroup>
+
+  <ItemGroup>
     <EmbeddedResource Include="..\Schema\processes.json" Link="processes.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
   </ItemGroup>
 
 </Project>

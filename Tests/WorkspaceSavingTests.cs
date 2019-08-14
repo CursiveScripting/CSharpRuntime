@@ -1,14 +1,13 @@
 ﻿using Cursive;
+using Newtonsoft.Json;
+using NJsonSchema;
 using NUnit.Framework;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
-using System.Text;
+using System.IO;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using System.Xml.Schema;
 
 namespace Tests
 {
@@ -64,8 +63,6 @@ namespace Tests
         
         #endregion requirements
 
-        private static List<string> validationErrors;
-
         [OneTimeSetUp]
         public void Prepare()
         {
@@ -90,11 +87,12 @@ namespace Tests
             iValue = new ValueKey<int>("value", integer);
 
             GetDayOfWeek = new SystemProcess(
+                "Get day of week",
+                "Returns the name of the current day of the week",
                 (ValueSet inputs) =>
                 {
                     return Response.SyncTask(DateTime.Today.DayOfWeek.ToString());
                 },
-                "Returns the name of the current day of the week",
                 null, null,
                 new string[] {
                     DayOfWeek.Monday.ToString(),
@@ -108,44 +106,49 @@ namespace Tests
             );
 
             Print = new SystemProcess(
+                "Print",
+                "Write a message to the system console.",
                 (ValueSet inputs) =>
                 {
                     Console.WriteLine(inputs.Get(messageParam));
                     return Response.SyncTask();
                 },
-                "Write a message to the system console.",
                 new ValueKey[] { messageParam },
                 null,
                 null
             );
 
             EqualsText = new SystemProcess(
+                "Equals text",
+                "Test to see if two values are equal.",
                 (ValueSet inputs) =>
                 {
                     return Response.SyncTask(inputs.Get(strValue1) == inputs.Get(strValue2) ? "yes" : "no");
                 },
-                "Test to see if two values are equal.",
                 new ValueKey[] { strValue1, strValue2 },
                 null,
                 new string[] { "yes", "no" }
             );
 
             CompareIntegers = new SystemProcess(
+                "Compare",
+                "Compare two integers.",
                 (ValueSet inputs) =>
                 {
                     int value1 = inputs.Get(iValue1);
                     int value2 = inputs.Get(iValue2);
-                    
+
                     var comparison = value1.CompareTo(value2);
                     return Response.SyncTask(comparison < 0 ? "less" : comparison > 0 ? "greater" : "equal");
                 },
-                "Compare two integers.",
                 new ValueKey[] { iValue1, iValue2 },
                 null,
                 new string[] { "less", "greater", "equal" }
             );
 
             GetPropertyInteger = new SystemProcess(
+                "Get integer property",
+                "Output the named property of a given object. Returns 'error' if the property does not exist, or if getting it fails.",
                 (ValueSet inputs) =>
                 {
                     var outputs = new ValueSet();
@@ -166,13 +169,14 @@ namespace Tests
                     }
                     return Response.SyncTask("ok", outputs);
                 },
-                "Output the named property of a given object. Returns 'error' if the property does not exist, or if getting it fails.",
                 new ValueKey[] { personVal, property },
                 new ValueKey[] { iValue },
                 new string[] { "ok", "error" }
             );
 
             SetPropertyInteger = new SystemProcess(
+                "Set integer property",
+                "Set the named property of a given object to the value specified. Returns 'error' if the property does not exist, or if setting it fails.",
                 (ValueSet inputs) =>
                 {
                     var destination = inputs.Get(personVal);
@@ -190,47 +194,55 @@ namespace Tests
                     }
                     return Response.SyncTask("ok");
                 },
-                "Set the named property of a given object to the value specified. Returns 'error' if the property does not exist, or if setting it fails.",
                 new ValueKey[] { personVal, property, iValue },
                 null,
                 new string[] { "ok", "error" }
             );
 
             workspace = new Workspace();
-            workspace.AddDataType(text);
-            workspace.AddDataType(integer);
-            workspace.AddDataType(person);
-            workspace.AddDataType(car);
+            workspace.Types.Add(text);
+            workspace.Types.Add(integer);
+            workspace.Types.Add(person);
+            workspace.Types.Add(car);
 
-            workspace.AddSystemProcess("print", Print);
-            workspace.AddSystemProcess("getDay", GetDayOfWeek);
-            workspace.AddSystemProcess("compare", CompareIntegers);
-            workspace.AddSystemProcess("get", GetPropertyInteger);
+            workspace.SystemProcesses.Add(Print);
+            workspace.SystemProcesses.Add(GetDayOfWeek);
+            workspace.SystemProcesses.Add(CompareIntegers);
+            workspace.SystemProcesses.Add(GetPropertyInteger);
 
-            required = new RequiredProcess("Run basic tests",
+            required = new RequiredProcess(
+                "Test.MorningRoutine",
+                "Run basic tests",
                 new ValueKey[] { me, carParam },
-                new ValueKey[] { myAge }, null);
-            workspace.AddRequiredProcess("Test.MorningRoutine", required);
+                new ValueKey[] { myAge },
+                null
+            );
+            workspace.RequiredProcesses.Add(required);
         }
 
         [Test]
-        public void SavedWorkspaceValidates()
+        public async Task SavedWorkspaceValidates()
         {
-            validationErrors = new List<string>();
-            var doc = workspace.WriteForClient();
+            var json = JsonConvert.SerializeObject(workspace);
 
-            Assert.That(doc, Is.Not.Null);
+            Assert.That(json, Is.Not.Null);
 
-            // TODO: json schema not xml
-            doc.Schemas.Add("http://cursive.ftwinston.com", AppDomain.CurrentDomain.BaseDirectory + "workspace.json");
-            doc.Validate(ValidationEventHandler);
+            string strSchema;
 
-            Assert.That(validationErrors.Count, Is.EqualTo(0));
-        }
+            var schemaResourceName = "Cursive.workspace.json";
+            using (Stream stream = typeof(Workspace).Assembly.GetManifestResourceStream(schemaResourceName))
+            using (StreamReader reader = new StreamReader(stream))
+            {
+                strSchema = reader.ReadToEnd();
+            }
 
-        private static void ValidationEventHandler(object sender, ValidationEventArgs e)
-        {
-            validationErrors.Add(e.Message);
+            Assert.That(strSchema, Is.Not.Null);
+
+            var schema = await JsonSchema.FromJsonAsync(strSchema);
+
+            var validationErrors = schema.Validate(json);
+
+            Assert.IsEmpty(validationErrors);
         }
     }
 }

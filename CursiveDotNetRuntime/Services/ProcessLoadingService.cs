@@ -27,13 +27,15 @@ namespace CursiveRuntime.Services
             doc.Validate(ValidationEventHandler);
             validationErrors = null;
 
+            var typesByName = workspace.Types.ToDictionary(t => t.Name);
+
             var processNodes = doc.SelectNodes("/Processes/Process");
             var loadedProcesses = new List<UserProcess>();
             var allUserSteps = new List<UserStepLoadingInfo>();
             foreach (XmlElement processNode in processNodes)
             {
                 List<UserStepLoadingInfo> userSteps;
-                var process = LoadUserProcess(workspace, processNode, out userSteps, errors);
+                var process = LoadUserProcess(workspace, typesByName, processNode, out userSteps, errors);
                 if (process == null)
                 {
                     success = false;
@@ -43,19 +45,23 @@ namespace CursiveRuntime.Services
                 loadedProcesses.Add(process);
                 allUserSteps.AddRange(userSteps);
             }
-            
+
+            var allProcesses = new List<Process>(workspace.SystemProcesses);
+            allProcesses.AddRange(workspace.UserProcesses);
+            var processesByName = allProcesses.ToDictionary(p => p.Name);
+
             foreach (var step in allUserSteps)
             {
-                if (!LinkChildProcess(workspace.Processes, step, errors))
+                if (!LinkChildProcess(processesByName, step, errors))
                     success = false;
             }
 
             foreach (var required in workspace.RequiredProcesses)
             {
-                if (required.Value.ActualProcess == null)
+                if (required.Implementation == null)
                 {
                     success = false;
-                    errors.Add(string.Format("{0}: No implementation of this required process", required.Key));
+                    errors.Add(string.Format("{0}: No implementation of this required process", required.Name));
                     continue;
                 }
             }
@@ -80,7 +86,7 @@ namespace CursiveRuntime.Services
             validationErrors.Add(string.Format("schema validation error: {0}", e.Message));
         }
         
-        private static UserProcess LoadUserProcess(Workspace workspace, XmlElement processNode, out List<UserStepLoadingInfo> loadingSteps, List<string> errors)
+        private static UserProcess LoadUserProcess(Workspace workspace, Dictionary<string, DataType> typesByName, XmlElement processNode, out List<UserStepLoadingInfo> loadingSteps, List<string> errors)
         {
             var processName = processNode.GetAttribute("name");
             var desc = processNode.SelectSingleNode("Description").InnerText;
@@ -98,16 +104,14 @@ namespace CursiveRuntime.Services
             var variablesByName = new Dictionary<string, ValueKey>();
             var returnPaths = new HashSet<string>();
 
-            RequiredProcess wrapper;
-            if (!workspace.RequiredProcesses.TryGetValue(processName, out wrapper))
-                wrapper = null;
-
-            bool success = LoadProcessParameters(workspace, inputNodes, wrapper?.Inputs, inputs, inputsByName, processName, "input", errors);
-            success |= LoadProcessParameters(workspace, outputNodes, wrapper?.Outputs, outputs, outputsByName, processName, "output", errors);
+            RequiredProcess wrapper = workspace.RequiredProcesses.First(p => p.Name == processName);
+            
+            bool success = LoadProcessParameters(typesByName, inputNodes, wrapper?.Inputs, inputs, inputsByName, processName, "input", errors);
+            success |= LoadProcessParameters(typesByName, outputNodes, wrapper?.Outputs, outputs, outputsByName, processName, "output", errors);
 
             foreach (XmlElement variable in variableNodes)
             {
-                var type = workspace.GetType(variable.GetAttribute("type"));
+                var type = typesByName[variable.GetAttribute("type")];
                 var name = variable.GetAttribute("name");
                 var definition = new ValueKey(name, type);
                 if (variablesByName.ContainsKey(name))
@@ -170,7 +174,7 @@ namespace CursiveRuntime.Services
                     continue;
                 }
                 
-                stepsByName.Add(step.Name, step);
+                stepsByName.Add(step.ID, step);
             }
 
             if (firstStep == null)
@@ -189,20 +193,20 @@ namespace CursiveRuntime.Services
                 return null;
 
             UserProcess process = new UserProcess(processName, desc, inputs, outputs, returnPaths.ToArray(), defaultVariables, firstStep, stepsByName.Values);
-            workspace.Processes.Add(processName, process);
+            workspace.UserProcesses.Add(process);
 
             if (wrapper != null)
-                wrapper.ActualProcess = process;
+                wrapper.Implementation = process;
 
             return process;
         }
 
-        private static bool LoadProcessParameters(Workspace workspace, XmlNodeList parameterNodes, IReadOnlyCollection<ValueKey> requiredParams, List<ValueKey> parameters, Dictionary<string, ValueKey> parametersByName, string processName, string parameterType, List<string> errors)
+        private static bool LoadProcessParameters(Dictionary<string, DataType> typesByName, XmlNodeList parameterNodes, IReadOnlyCollection<ValueKey> requiredParams, List<ValueKey> parameters, Dictionary<string, ValueKey> parametersByName, string processName, string parameterType, List<string> errors)
         {
             bool success = true;
             foreach (XmlElement parameterNode in parameterNodes)
             {
-                var type = workspace.GetType(parameterNode.GetAttribute("type"));
+                var type = typesByName[parameterNode.GetAttribute("type")];
                 var name = parameterNode.GetAttribute("name");
                 ValueKey param;
 
@@ -267,7 +271,7 @@ namespace CursiveRuntime.Services
             Process process;
             if (!processes.TryGetValue(processName, out process))
             {
-                errors.Add(string.Format("Child process name not recognised for step {0}: {1}", step.Name, processName));
+                errors.Add(string.Format("Child process name not recognised for step {0}: {1}", step.ID, processName));
                 return false;
             }
 
@@ -279,14 +283,14 @@ namespace CursiveRuntime.Services
                 ValueKey input = process.Inputs.FirstOrDefault(p => p.Name == inputInfo.Key);
                 if (input == null)
                 {
-                    errors.Add(string.Format("Step {0} tries to map '{1}' variable to non-existant input '{2}'", step.Name, inputInfo.Value.Name, inputInfo.Key));
+                    errors.Add(string.Format("Step {0} tries to map '{1}' variable to non-existant input '{2}'", step.ID, inputInfo.Value.Name, inputInfo.Key));
                     success = false;
                     continue;
                 }
 
                 if (!inputInfo.Value.Type.IsAssignableFrom(input.Type))
                 {
-                    errors.Add(string.Format("Step {0} tries to map the '{1}' variable to the '{2}' input, but these have different types ('{3}' and '{4}')", step.Name, inputInfo.Value.Name, inputInfo.Key, inputInfo.Value.Type.Name, input.Type.Name));
+                    errors.Add(string.Format("Step {0} tries to map the '{1}' variable to the '{2}' input, but these have different types ('{3}' and '{4}')", step.ID, inputInfo.Value.Name, inputInfo.Key, inputInfo.Value.Type.Name, input.Type.Name));
                     success = false;
                     continue;
                 }
@@ -299,14 +303,14 @@ namespace CursiveRuntime.Services
                 ValueKey output = process.Outputs.FirstOrDefault(p => p.Name == outputInfo.Key);
                 if (output == null)
                 {
-                    errors.Add(string.Format("Step {0} tries to map non-existant output '{2}' to '{1}' variable", step.Name, outputInfo.Value.Name, outputInfo.Key));
+                    errors.Add(string.Format("Step {0} tries to map non-existant output '{2}' to '{1}' variable", step.ID, outputInfo.Value.Name, outputInfo.Key));
                     success = false;
                     continue;
                 }
 
                 if (!output.Type.IsAssignableFrom(outputInfo.Value.Type))
                 {
-                    errors.Add(string.Format("Step {0} step tries to map the '{2}' output to the '{1}' variable, but these have different types ('{3}' and '{4}')", step.Name, outputInfo.Value.Name, outputInfo.Key, outputInfo.Value.Type.Name, output.Type.Name));
+                    errors.Add(string.Format("Step {0} step tries to map the '{2}' output to the '{1}' variable, but these have different types ('{3}' and '{4}')", step.ID, outputInfo.Value.Name, outputInfo.Key, outputInfo.Value.Type.Name, output.Type.Name));
                     success = false;
                     continue;
                 }
@@ -467,7 +471,7 @@ namespace CursiveRuntime.Services
                 Step returnStep;
                 if (!stepsByName.TryGetValue(pathStepName, out returnStep))
                 {
-                    errors.Add(string.Format("Return path target of step {0} not recognised: {1}", step.Name, pathStepName));
+                    errors.Add(string.Format("Return path target of step {0} not recognised: {1}", step.ID, pathStepName));
                     return false;
                 }
 
@@ -477,7 +481,7 @@ namespace CursiveRuntime.Services
 
             if (step is StartStep)
             {
-                errors.Add(string.Format("Start step {0} doesn't have a single, unnamed return path", step.Name));
+                errors.Add(string.Format("Start step {0} doesn't have a single, unnamed return path", step.ID));
                 return false;
             }
 
@@ -493,19 +497,19 @@ namespace CursiveRuntime.Services
                 Step returnStep;
                 if (!stepsByName.TryGetValue(pathStepName, out returnStep))
                 {
-                    errors.Add(string.Format("'{0}' return path target of step {1} not recognised: {2}", pathName, step.Name, pathStepName));
+                    errors.Add(string.Format("'{0}' return path target of step {1} not recognised: {2}", pathName, step.ID, pathStepName));
                     success = false;
                     continue;
                 }
 
                 if (userStep.ReturnPaths.ContainsKey(pathName))
                 {
-                    errors.Add(string.Format("Step {0} contains multiple '{1}' return paths. Return path names must be unique.", step.Name, pathName));
+                    errors.Add(string.Format("Step {0} contains multiple '{1}' return paths. Return path names must be unique.", step.ID, pathName));
                     success = false;
                     continue;
                 }
 
-                userStep.AddReturnPath(pathName, returnStep);
+                userStep.ReturnPaths.Add(pathName, returnStep);
             }
 
             return success;

@@ -6,14 +6,14 @@ namespace Cursive
 {
     public abstract class Step
     {
-        protected Step(string name)
+        protected Step(string id)
         {
-            Name = name;
+            ID = id;
         }
 
         public abstract Task<Step> Run(ValueSet variables, CallStack stack);
 
-        public string Name { get; }
+        public string ID { get; }
         protected internal Dictionary<ValueKey, ValueKey> InputMapping { get; } = new Dictionary<ValueKey, ValueKey>();
         protected internal Dictionary<ValueKey, ValueKey> OutputMapping { get; } = new Dictionary<ValueKey, ValueKey>();
 

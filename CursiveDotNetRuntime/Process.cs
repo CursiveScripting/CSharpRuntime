@@ -6,12 +6,14 @@ namespace Cursive
 {
     public abstract class Process
     {
-        protected Process(string description, string folder)
+        protected Process(string name, string description, string folder)
         {
+            Name = name;
             Description = description;
             Folder = folder;
         }
         
+        public string Name { get; }
         public string Description { get; }
         public string Folder { get; }
 

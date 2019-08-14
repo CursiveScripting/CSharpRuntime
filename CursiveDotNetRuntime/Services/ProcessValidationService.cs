@@ -15,9 +15,9 @@ namespace CursiveRuntime.Services
             // 0. all steps must have unique names
             var names = new SortedSet<string>();
             foreach (var step in process.Steps)
-                if (names.Contains(step.Name))
+                if (names.Contains(step.ID))
                 {
-                    errors.Add(string.Format("More than one step uses the name '{0}' - names must be unique", step.Name));
+                    errors.Add(string.Format("More than one step uses the name '{0}' - names must be unique", step.ID));
                     success = false;
                 }
             
@@ -28,7 +28,7 @@ namespace CursiveRuntime.Services
                     foreach (var parameter in step.ChildProcess.Inputs)
                         if (!step.InputMapping.ContainsKey(parameter))
                         {
-                            errors.Add(string.Format("Step {0} requires the '{1}' input parameter, which has not been set.", step.Name, parameter.Name));
+                            errors.Add(string.Format("Step {0} requires the '{1}' input parameter, which has not been set.", step.ID, parameter.Name));
                             success = false;
                         }
 
@@ -36,7 +36,7 @@ namespace CursiveRuntime.Services
                     foreach (var parameter in step.ChildProcess.Outputs)
                         if (!step.OutputMapping.ContainsKey(parameter))
                         {
-                            errors.Add(string.Format("Step {0} requires the '{1}' output parameter, which has not been set.", step.Name, parameter.Name));
+                            errors.Add(string.Format("Step {0} requires the '{1}' output parameter, which has not been set.", step.ID, parameter.Name));
                             success = false;
                         }
             }
@@ -83,7 +83,7 @@ namespace CursiveRuntime.Services
                     foreach (var path in step.ChildProcess.ReturnPaths)
                         if (!step.ReturnPaths.ContainsKey(path))
                         {
-                            errors.Add(string.Format("Step {0} doesn't have a default return path, but doesn't map every possible output of it's function.", step.Name));
+                            errors.Add(string.Format("Step {0} doesn't have a default return path, but doesn't map every possible output of it's function.", step.ID));
                             success = false;
                         }
             }

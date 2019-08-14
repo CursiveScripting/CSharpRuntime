@@ -1,28 +1,22 @@
 ﻿using Cursive.Debugging;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Cursive
 {
     internal class UserStep : ReturningStep
     {
-        public UserStep(string name, Process process)
-            : base(name)
+        public UserStep(string id, Process process)
+            : base(id)
         {
             ChildProcess = process;
         }
 
-        internal Process ChildProcess { get; set; }
+        public Process ChildProcess { get; set; }
         
-        internal Dictionary<string, Step> ReturnPaths { get; } = new Dictionary<string, Step>();
-
-        private bool NoReturnPaths = true;
-        public void AddReturnPath(string name, Step nextStep)
-        {
-            ReturnPaths.Add(name, nextStep);
-            NoReturnPaths = false;
-        }
+        public Dictionary<string, Step> ReturnPaths { get; } = new Dictionary<string, Step>();
 
         public override async Task<Step> Run(ValueSet variables, CallStack stack)
         {
@@ -43,13 +37,13 @@ namespace Cursive
 
             if (returnPath == null)
             {
-                if (NoReturnPaths)
+                if (!ReturnPaths.Any())
                     return DefaultReturnPath;
 
                 if (ChildProcess is SystemProcess)
                     throw new CursiveRunException(stack, $"System process {(ChildProcess as SystemProcess).Name} unexpectedly returned a null value");
                 else
-                    throw new CursiveRunException(stack, $"Step {Name} unexpectedly returned a null value");
+                    throw new CursiveRunException(stack, $"Step {ID} unexpectedly returned a null value");
             }
 
             Step nextStep;
@@ -58,7 +52,7 @@ namespace Cursive
                 if (ChildProcess is SystemProcess)
                     throw new CursiveRunException(stack, $"System process {(ChildProcess as SystemProcess).Name} returned an unexpected value: {returnPath}");
                 else
-                    throw new CursiveRunException(stack, $"Step {Name} returned an unexpected value: {returnPath}");
+                    throw new CursiveRunException(stack, $"Step {ID} returned an unexpected value: {returnPath}");
             }
 
             return nextStep;

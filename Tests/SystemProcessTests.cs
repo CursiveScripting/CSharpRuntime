@@ -30,17 +30,20 @@ namespace Tests
             value3 = new ValueKey<int>("value3", number);
 
             IsEqual = new SystemProcess(
+                "Is equal",
+                "Test to see if two values are equal.",
                 (ValueSet inputs) =>
                 {
                     return Response.SyncTask(inputs.Get(value1) == inputs.Get(value2) ? "yes" : "no");
                 },
-                "Test to see if two values are equal.",
                 new Cursive.ValueKey[] { value1, value2 },
                 null,
                 new string[] { "yes", "no" }
             );
 
             Add = new SystemProcess(
+                "Add",
+                "Test to see if two values are equal.",
                 (ValueSet inputs) =>
                 {
                     var outputs = new ValueSet();
@@ -49,7 +52,6 @@ namespace Tests
                     outputs.Set(value3, i1 + i2);
                     return Response.SyncTask(outputs);
                 },
-                "Test to see if two values are equal.",
                 new Cursive.ValueKey[] { value1, value2 },
                 new Cursive.ValueKey[] { value3 },
                 null

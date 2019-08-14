@@ -1,16 +1,14 @@
 ﻿using Cursive;
+using Newtonsoft.Json;
+using NJsonSchema;
 using NUnit.Framework;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
-using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using System.Xml;
 
 namespace Tests
 {
@@ -209,53 +207,38 @@ namespace Tests
             me = new ValueKey<Person>("Me", person);
             carParam = new ValueKey<Car>("Car", car);
             myAge = new ValueKey<int>("My age", integer);
-            
-            workspace = new Workspace();
-            workspace.Types.Add(text);
-            workspace.Types.Add(integer);
-            workspace.Types.Add(person);
-            workspace.Types.Add(car);
 
-            workspace.SystemProcesses.Add(Print());
-            workspace.SystemProcesses.Add(GetDayOfWeek());
-            workspace.SystemProcesses.Add(CompareIntegers());
-            workspace.SystemProcesses.Add(GetPropertyInteger());
-
-            required = new RequiredProcess(
-                "Test.MorningRoutine",
-                "Run basic tests",
-                new ValueKey[] { me, carParam },
-                new ValueKey[] { myAge }
-                , null
-            );
-            workspace.RequiredProcesses.Add(required);
+            workspace = new Workspace
+            {
+                Types = new DataType[] { text, integer, person, car },
+                SystemProcesses = new SystemProcess[] { Print(), GetDayOfWeek(), CompareIntegers(), GetPropertyInteger() },
+                RequiredProcesses = new RequiredProcess[]
+                {
+                    new RequiredProcess(
+                        "Test.MorningRoutine",
+                        "Run basic tests",
+                        new ValueKey[] { me, carParam },
+                        new ValueKey[] { myAge }
+                        , null
+                    )
+                }
+            };
         }
         
-        /*
         [Test]
-        public void RunBasicProcess()
+        public async Task RunBasicProcess()
         {
-            XmlDocument doc = new XmlDocument();
-            var assembly = Assembly.GetExecutingAssembly();
-            var resourceName = "Tests.test.xml";
-
-            using (Stream stream = assembly.GetManifestResourceStream(resourceName))
+            string processJson;
+            var processResourceName = "Tests.test.json";
+            using (Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(processResourceName))
             using (StreamReader reader = new StreamReader(stream))
             {
-                string processXML = reader.ReadToEnd();
-                doc.LoadXml(processXML);
+                processJson = reader.ReadToEnd();
             }
 
-            List<string> errors;
-            if (!workspace.LoadProcesses(doc, out errors))
-            {
-                Console.WriteLine("Error loading processes from XML:");
-                foreach (var error in errors)
-                    Console.WriteLine(error);
+            var errors = await workspace.LoadUserProcesses(processJson);
 
-                //Console.ReadKey();
-                return;
-            }
+            Assert.IsNull(errors);
 
             var inputs = new ValueSet();
             inputs.Set(carParam, new Car());
@@ -282,6 +265,5 @@ namespace Tests
 
             Assert.That(true == false);
         }
-        */
     }
 }

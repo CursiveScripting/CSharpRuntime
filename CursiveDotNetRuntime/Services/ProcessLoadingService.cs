@@ -1,9 +1,12 @@
 ﻿using Cursive;
+using Newtonsoft.Json;
+using NJsonSchema;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Schema;
 
@@ -11,6 +14,68 @@ namespace CursiveRuntime.Services
 {
     internal static class ProcessLoadingService
     {
+        internal static async Task<IList<string>> LoadProcesses(Workspace workspace, string processJson)
+        {
+            string schemaJson;
+            var schemaResourceName = "Cursive.processes.json";
+            using (Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(schemaResourceName))
+            using (StreamReader reader = new StreamReader(stream))
+            {
+                schemaJson = reader.ReadToEnd();
+            }
+
+            var schema = await JsonSchema.FromJsonAsync(schemaJson);
+
+            var validationErrors = schema.Validate(processJson);
+
+            if (validationErrors.Any())
+            {
+                return validationErrors.Select(err => err.ToString()).ToArray();
+            }
+
+            var userProcesses = JsonConvert.DeserializeObject<UserProcess[]>(processJson);
+
+            Clear(workspace);
+
+            workspace.UserProcesses.AddRange(userProcesses);
+
+            var errors = new List<string>();
+            foreach (var required in workspace.RequiredProcesses)
+            {
+                var implementations = userProcesses.Where(p => p.Name == required.Name).ToArray();
+
+                if (implementations.Length == 0)
+                {
+                    errors.Add($"No implementation of required process: {required.Name}");
+                }
+                else if (implementations.Length > 1)
+                {
+                    errors.Add($"Multiple implementations of required process: {required.Name}");
+                }
+                else
+                {
+                    required.Implementation = implementations[0];
+                }
+            }
+
+            return errors.Any()
+                ? errors
+                : null;
+        }
+
+        public static void Clear(Workspace workspace)
+        {
+            foreach (var process in workspace.RequiredProcesses)
+                process.Implementation = null;
+
+            workspace.UserProcesses.Clear();
+        }
+
+
+
+
+
+
         internal static bool LoadProcesses(Workspace workspace, XmlDocument doc, out List<string> errors)
         {
             var success = true;

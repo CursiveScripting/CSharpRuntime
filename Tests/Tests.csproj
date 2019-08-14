@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.2</TargetFramework>
@@ -9,11 +9,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="test.xml" />
+    <None Remove="test.json" />
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="test.xml" />
+    <EmbeddedResource Include="test.json" />
   </ItemGroup>
 
   <ItemGroup>

@@ -223,24 +223,24 @@ namespace Tests
         [Test]
         public async Task SavedWorkspaceValidates()
         {
-            var json = JsonConvert.SerializeObject(workspace);
+            var workspaceJson = JsonConvert.SerializeObject(workspace);
 
-            Assert.That(json, Is.Not.Null);
+            Assert.That(workspaceJson, Is.Not.Null);
 
-            string strSchema;
+            string schemaJson;
 
             var schemaResourceName = "Cursive.workspace.json";
             using (Stream stream = typeof(Workspace).Assembly.GetManifestResourceStream(schemaResourceName))
             using (StreamReader reader = new StreamReader(stream))
             {
-                strSchema = reader.ReadToEnd();
+                schemaJson = reader.ReadToEnd();
             }
 
-            Assert.That(strSchema, Is.Not.Null);
+            Assert.That(schemaJson, Is.Not.Null);
 
-            var schema = await JsonSchema.FromJsonAsync(strSchema);
+            var schema = await JsonSchema.FromJsonAsync(schemaJson);
 
-            var validationErrors = schema.Validate(json);
+            var validationErrors = schema.Validate(workspaceJson);
 
             Assert.IsEmpty(validationErrors);
         }

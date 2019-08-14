@@ -1,0 +1,206 @@
+[
+  {
+    "name": "Test.MorningRoutine",
+    "description": "Runs a test morning routine sequence",
+    "inputs": [
+      {
+        "name": "Me",
+        "type": "person"
+      },
+      {
+        "name": "Car",
+        "type": "car"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "My age",
+        "type": "integer"
+      }
+    ],
+    "variables": [
+      {
+        "name": "who",
+        "type": "person",
+        "x": 20,
+        "y": 20
+      },
+      {
+        "name": "car",
+        "type": "car",
+        "x": 20,
+        "y": 20
+      },
+      {
+        "name": "age",
+        "type": "integer",
+        "initialValue": "99",
+        "x": 20,
+        "y": 20
+      },
+      {
+        "name": "ageID",
+        "type": "text",
+        "initialValue": "Age",
+        "x": 20,
+        "y": 20
+      },
+      {
+        "name": "lowerAgeLimit",
+        "type": "integer",
+        "initialValue": "10",
+        "x": 20,
+        "y": 20
+      },
+      {
+        "name": "breakfastMsg1",
+        "type": "text",
+        "initialValue": "Making breakfast...",
+        "x": 20,
+        "y": 20
+      },
+      {
+        "name": "breakfastMsg2",
+        "type": "text",
+        "initialValue": "Demanding breakfast... (young enough to get away with this)",
+        "x": 20,
+        "y": 20
+      },
+      {
+        "name": "breakfastMsg3",
+        "type": "text",
+        "initialValue": "Eating breakfast...",
+        "x": 20,
+        "y": 20
+      },
+      {
+        "name": "dressingMsg1",
+        "type": "text",
+        "initialValue": "Making breakfast...",
+        "x": 20,
+        "y": 20
+      },
+      {
+        "name": "carMsg1",
+        "type": "text",
+        "initialValue": "Getting in the car...",
+        "x": 20,
+        "y": 20
+      }
+    ],
+    "steps": [
+      {
+        "id": "start",
+        "x": 0,
+        "y": 1,
+        "type": "start",
+        "outputs": {
+          "Me": "who",
+          "Car": "car"
+        },
+        "returnPath": "getAge"
+      },
+      {
+        "id": "getAge",
+        "x": 20,
+        "y": 1,
+        "type": "process",
+        "process": "get",
+        "inputs": {
+          "property": "ageID",
+          "object": "who"
+        },
+        "outputs": {
+          "value": "age"
+        },
+        "returnPath": "breakfastAgeCheck"
+      },
+      {
+        "id": "breakfastAgeCheck",
+        "x": 40,
+        "y": 1,
+        "type": "process",
+        "process": "compare",
+        "inputs": {
+          "value1": "age",
+          "value2": "lowerAgeLimit"
+        },
+        "returnPaths": {
+          "greater": "makeBreakfast",
+          "equal": "makeBreakfast",
+          "error": "demandBreakfast",
+          "less": "demandBreakfast"
+        }
+      },
+      {
+        "id": "demandBreakfast",
+        "x": 60,
+        "y": 1,
+        "type": "process",
+        "process": "print",
+        "inputs": {
+          "message": "breakfastMsg2"
+        },
+        "returnPath": "eatBreakfast"
+      },
+      {
+        "id": "eatBreakfast",
+        "x": 80,
+        "y": 1,
+        "type": "process",
+        "process": "print",
+        "inputs": {
+          "message": "breakfastMsg3"
+        },
+        "returnPath": "getReady"
+      },
+      {
+        "id": "getReady",
+        "x": 100,
+        "y": 1,
+        "type": "process",
+        "process": "print",
+        "inputs": {
+          "message": "dressMsg1"
+        },
+        "returnPath": "checkDay"
+      },
+      {
+        "id": "checkDay",
+        "x": 120,
+        "y": 1,
+        "type": "process",
+        "process": "getDay",
+        "returnPaths": {
+          "Saturday": "done",
+          "Sunday": "done",
+          "Monday": "getInCar",
+          "Tuesday": "getInCar",
+          "Wednesday": "getInCar",
+          "Thursday": "getInCar",
+          "Friday": "getInCar"
+        }
+      },
+      {
+        "id": "getInCar",
+        "x": 140,
+        "y": 1,
+        "type": "process",
+        "process": "print",
+        "inputs": {
+          "message": "carMsg1"
+        },
+        "returnPath": "done"
+      },
+      {
+        "id": "done",
+        "x": 160,
+        "y": 1,
+        "type": "stop",
+        "inputs": {
+          "My Age": "age"
+        }
+      }
+    ]
+  }
+]

@@ -1,20 +1,27 @@
-﻿using Newtonsoft.Json;
+﻿using CursiveRuntime.Services;
+using Newtonsoft.Json;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Cursive
 {
     public class Workspace
     {
         [JsonProperty(PropertyName = "types")]
-        public List<DataType> Types { get; } = new List<DataType>();
+        public IList<DataType> Types { get; set; } = new List<DataType>();
 
         [JsonProperty(PropertyName = "requiredProcesses")]
-        public List<RequiredProcess> RequiredProcesses { get; } = new List<RequiredProcess>();
+        public IList<RequiredProcess> RequiredProcesses { get; set; } = new List<RequiredProcess>();
 
         [JsonProperty(PropertyName = "systemProcesses")]
-        public List<SystemProcess> SystemProcesses { get; } = new List<SystemProcess>();
+        public IList<SystemProcess> SystemProcesses { get; set; } = new List<SystemProcess>();
 
         [JsonIgnore]
         internal List<UserProcess> UserProcesses { get; } = new List<UserProcess>();
+
+        public async Task<IList<string>> LoadUserProcesses(string processJson)
+        {
+            return await ProcessLoadingService.LoadProcesses(this, processJson);
+        }
     }
 }

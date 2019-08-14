@@ -295,7 +295,7 @@ namespace CursiveRuntime.Services
                     continue;
                 }
 
-                step.MapInputParameter(input, inputInfo.Value);
+                step.InputMapping[input] = inputInfo.Value;
             }
 
             foreach (var outputInfo in stepInfo.OutputsToMap)
@@ -315,7 +315,7 @@ namespace CursiveRuntime.Services
                     continue;
                 }
 
-                step.MapOutputParameter(output, outputInfo.Value);
+                step.OutputMapping[output] = outputInfo.Value;
             }
 
             return success;
@@ -359,7 +359,7 @@ namespace CursiveRuntime.Services
                         continue;
                     }
 
-                    step.MapOutputParameter(inputParam, variableParam);
+                    step.OutputMapping[inputParam] = variableParam;
                 }
             }
             else if (stepNode.Name == "Stop")
@@ -413,7 +413,7 @@ namespace CursiveRuntime.Services
                         continue;
                     }
 
-                    step.MapInputParameter(outputParam, variableParam);
+                    step.InputMapping[outputParam] = variableParam;
                 }
             }
             else

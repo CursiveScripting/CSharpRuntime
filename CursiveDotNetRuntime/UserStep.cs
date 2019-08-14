@@ -1,4 +1,5 @@
 ﻿using Cursive.Debugging;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,8 +15,12 @@ namespace Cursive
             ChildProcess = process;
         }
 
+        [JsonIgnore]
         public Process ChildProcess { get; set; }
-        
+
+        [JsonProperty(PropertyName = "process")]
+        private string ChildProcessName => ChildProcess.Name;
+
         public Dictionary<string, Step> ReturnPaths { get; } = new Dictionary<string, Step>();
 
         public override async Task<Step> Run(ValueSet variables, CallStack stack)

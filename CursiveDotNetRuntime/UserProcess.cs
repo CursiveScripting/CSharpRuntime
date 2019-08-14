@@ -1,4 +1,5 @@
 ﻿using Cursive.Debugging;
+using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -6,7 +7,7 @@ namespace Cursive
 {
     internal class UserProcess : Process
     {
-        public UserProcess(string name, string description, IReadOnlyCollection<ValueKey> inputs, IReadOnlyCollection<ValueKey> outputs, IReadOnlyCollection<string> returnPaths, ValueSet defaultVariables, StartStep firstStep, ICollection<Step> allSteps)
+        public UserProcess(string name, string description, IReadOnlyCollection<ValueKey> inputs, IReadOnlyCollection<ValueKey> outputs, IReadOnlyCollection<string> returnPaths, ValueSet defaultVariables, StartStep firstStep, ICollection<Step> steps)
             : base(name, description, null)
         {
             Inputs = inputs;
@@ -14,15 +15,19 @@ namespace Cursive
             ReturnPaths = returnPaths;
             DefaultVariables = defaultVariables;
             FirstStep = firstStep;
-            Steps = allSteps;
+            Steps = steps;
         }
 
         public override IReadOnlyCollection<ValueKey> Inputs { get; }
         public override IReadOnlyCollection<ValueKey> Outputs { get; }
         public override IReadOnlyCollection<string> ReturnPaths { get; }
+
+        [JsonProperty(PropertyName = "variables")]
         private ValueSet DefaultVariables { get; }
 
         public StartStep FirstStep { get; }
+
+        [JsonProperty(PropertyName = "steps")]
         public ICollection<Step> Steps { get; }
 
         internal override async Task<Response> Run(ValueSet inputs, CallStack stack)

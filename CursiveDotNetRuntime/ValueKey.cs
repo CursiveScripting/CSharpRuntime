@@ -5,7 +5,6 @@ namespace Cursive
 {
     public class ValueKey : IComparable<ValueKey>, IEquatable<ValueKey>
     {
-        [JsonConstructor]
         internal ValueKey(string name, DataType type)
         {
             Name = name;

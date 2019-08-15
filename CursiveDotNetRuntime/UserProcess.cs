@@ -7,15 +7,13 @@ namespace Cursive
 {
     internal class UserProcess : Process
     {
-        public UserProcess(string name, string description, IReadOnlyCollection<ValueKey> inputs, IReadOnlyCollection<ValueKey> outputs, IReadOnlyCollection<string> returnPaths, ValueSet defaultVariables, StartStep firstStep, ICollection<Step> steps)
+        public UserProcess(string name, string description, IReadOnlyCollection<ValueKey> inputs, IReadOnlyCollection<ValueKey> outputs, IReadOnlyCollection<string> returnPaths, ValueSet defaultVariables)
             : base(name, description, null)
         {
             Inputs = inputs;
             Outputs = outputs;
             ReturnPaths = returnPaths;
             DefaultVariables = defaultVariables;
-            FirstStep = firstStep;
-            Steps = steps;
         }
 
         public override IReadOnlyCollection<ValueKey> Inputs { get; }
@@ -25,10 +23,10 @@ namespace Cursive
         [JsonProperty(PropertyName = "variables")]
         private ValueSet DefaultVariables { get; }
 
-        public StartStep FirstStep { get; }
+        public StartStep FirstStep { get; internal set; }
 
         [JsonProperty(PropertyName = "steps")]
-        public ICollection<Step> Steps { get; }
+        public List<Step> Steps { get; } = new List<Step>();
 
         internal override async Task<Response> Run(ValueSet inputs, CallStack stack)
         {

@@ -1,9 +1,8 @@
 ﻿using Cursive;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace CursiveRuntime.Services
+namespace Cursive.Serialization
 {
     internal static class ProcessValidationService
     {

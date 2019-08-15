@@ -1,38 +1,72 @@
-﻿using Cursive;
-using Newtonsoft.Json;
-using NJsonSchema;
+﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Schema;
 
-namespace CursiveRuntime.Services
+namespace Cursive.Serialization
 {
     internal static class ProcessLoadingService
     {
-        internal static async Task<IList<string>> LoadProcesses(Workspace workspace, string processJson)
+        public static IList<string> LoadProcesses(Workspace workspace, string processJson)
         {
-            var validationErrors = Schemas.Processes.Value.Validate(processJson);
+            var schemaValidationErrors = Schemas.Processes.Value.Validate(processJson);
 
-            if (validationErrors.Any())
+            if (schemaValidationErrors.Any())
             {
-                return validationErrors.Select(err => err.ToString()).ToArray();
+                return schemaValidationErrors.Select(err => err.ToString()).ToArray();
             }
 
-            var userProcesses = JsonConvert.DeserializeObject<UserProcess[]>(processJson);
+            var processData = JsonConvert.DeserializeObject<UserProcessDTO[]>(processJson);
 
-            Clear(workspace);
+            return LoadUserProcesses(workspace, processData, out List<string> loadErrors)
+                ? null
+                : loadErrors;
+        }
 
-            workspace.UserProcesses.AddRange(userProcesses);
+        private static bool LoadUserProcesses(Workspace workspace, UserProcessDTO[] processData, out List<string> errors)
+        {
+            var typesByName = workspace.Types.ToDictionary(t => t.Name);
 
-            var errors = new List<string>();
+            var processes = CreateProcesses(typesByName, processData, out errors);
+
+            if (errors != null)
+                return false;
+
+            // TODO: ensure process names are unique
+
+            var processesByName = processes.ToDictionary(p => p.Name);
+
+
+            // TODO: load steps, ensure they're valid
+
+            errors = new List<string>();
+
+
+            foreach (var process in processData)
+                foreach (var step in process.Steps.Where(s => s.Type == "process"))
+                {
+                    if (!processesByName.ContainsKey(step.ReturnPath))
+                    {
+                        errors.Add($"Unrecognised process \"{step.InnerProcess}\" in step {step.ID} of process {process.Name}");
+                    }
+                }
+
+            if (errors.Any())
+            {
+                return false;
+            }
+
+            ClearUserProcesses(workspace);
+
+            workspace.UserProcesses.AddRange(processes);
+
             foreach (var required in workspace.RequiredProcesses)
             {
-                var implementations = userProcesses.Where(p => p.Name == required.Name).ToArray();
+                var implementations = processes.Where(p => p.Name == required.Name).ToArray();
 
                 if (implementations.Length == 0)
                 {
@@ -47,13 +81,81 @@ namespace CursiveRuntime.Services
                     required.Implementation = implementations[0];
                 }
             }
-
-            return errors.Any()
-                ? errors
-                : null;
+            
+            return !errors.Any();
         }
 
-        public static void Clear(Workspace workspace)
+        private static List<UserProcess> CreateProcesses(Dictionary<string, DataType> typesByName, UserProcessDTO[] processData, out List<string> errors)
+        {
+            var creationErrors = new List<string>();
+
+            var processes = processData.Select(p => CreateProcess(p, typesByName, creationErrors)).ToList();
+
+            if (creationErrors.Any())
+            {
+                errors = creationErrors;
+                return null;
+            }
+
+            errors = null;
+            return processes;
+        }
+
+        private static UserProcess CreateProcess(UserProcessDTO processData, Dictionary<string, DataType> typesByName, List<string> errors)
+        {
+            var inputs = LoadParameters(processData.Inputs, typesByName, errors, processData, "input");
+
+            var outputs = LoadParameters(processData.Outputs, typesByName, errors, processData, "output");
+
+            var variables = LoadVariables(processData, typesByName, errors);
+
+            return new UserProcess
+            (
+                processData.Name,
+                processData.Description,
+                inputs,
+                outputs,
+                processData.ReturnPaths,
+                variables
+            );
+        }
+
+        private static ValueSet LoadVariables(UserProcessDTO process, Dictionary<string, DataType> typesByName, List<string> errors)
+        {
+            throw new NotImplementedException();
+        }
+
+        private static ValueKey[] LoadParameters(
+            IEnumerable<ParameterDTO> parameters,
+            Dictionary<string, DataType> typesByName,
+            List<string> errors,
+            UserProcessDTO process,
+            string paramType
+        )
+        {
+            var paramsWithTypes = parameters.Select(
+                i => new Tuple<ParameterDTO, DataType>
+                (
+                    i,
+                    typesByName.ContainsKey(i.Type)
+                        ? typesByName[i.Type]
+                        : null
+                )
+            ).ToArray();
+
+            var errorParams = paramsWithTypes
+                .Where(i => i.Item2 == null)
+                .Select(i => i.Item1);
+
+            foreach (var param in errorParams)
+                errors.Add($"Unrecognised type \"{param.Type}\" used by {paramType} of process {process.Name}");
+
+            return paramsWithTypes
+                .Select(i => new ValueKey(i.Item1.Name, i.Item2))
+                .ToArray();
+        }
+
+        public static void ClearUserProcesses(Workspace workspace)
         {
             foreach (var process in workspace.RequiredProcesses)
                 process.Implementation = null;
@@ -65,6 +167,16 @@ namespace CursiveRuntime.Services
 
 
 
+
+
+
+
+
+
+
+
+
+        /*
 
         internal static bool LoadProcesses(Workspace workspace, XmlDocument doc, out List<string> errors)
         {
@@ -569,5 +681,6 @@ namespace CursiveRuntime.Services
 
             return success;
         }
+        */
     }
 }

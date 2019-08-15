@@ -1,4 +1,4 @@
-﻿using CursiveRuntime.Services;
+﻿using Cursive.Serialization;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -19,9 +19,9 @@ namespace Cursive
         [JsonIgnore]
         internal List<UserProcess> UserProcesses { get; } = new List<UserProcess>();
 
-        public async Task<IList<string>> LoadUserProcesses(string processJson)
+        public IList<string> LoadUserProcesses(string processJson)
         {
-            return await ProcessLoadingService.LoadProcesses(this, processJson);
+            return ProcessLoadingService.LoadProcesses(this, processJson);
         }
     }
 }

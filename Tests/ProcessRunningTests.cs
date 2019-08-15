@@ -206,25 +206,24 @@ namespace Tests
             carParam = new ValueKey<Car>("Car", car);
             myAge = new ValueKey<int>("My age", integer);
 
+            required = new RequiredProcess(
+                "Test.MorningRoutine",
+                "Run basic tests",
+                new ValueKey[] { me, carParam },
+                new ValueKey[] { myAge }
+                , null
+            );
+
             workspace = new Workspace
             {
                 Types = new DataType[] { text, integer, person, car },
                 SystemProcesses = new SystemProcess[] { Print(), GetDayOfWeek(), CompareIntegers(), GetPropertyInteger() },
-                RequiredProcesses = new RequiredProcess[]
-                {
-                    new RequiredProcess(
-                        "Test.MorningRoutine",
-                        "Run basic tests",
-                        new ValueKey[] { me, carParam },
-                        new ValueKey[] { myAge }
-                        , null
-                    )
-                }
+                RequiredProcesses = new RequiredProcess[] { required }
             };
         }
         
         [Test]
-        public async Task RunBasicProcess()
+        public void RunBasicProcess()
         {
             string processJson;
             var processResourceName = "Tests.test.json";
@@ -234,7 +233,7 @@ namespace Tests
                 processJson = reader.ReadToEnd();
             }
 
-            var errors = await workspace.LoadUserProcesses(processJson);
+            var errors = workspace.LoadUserProcesses(processJson);
 
             Assert.IsNull(errors);
 
@@ -260,8 +259,6 @@ namespace Tests
             Console.WriteLine("Running with 'Dave' ...");
             inputs.Set(me, new Person() { Name = "Dave", Age = 34, Gender = "M" });
             Console.WriteLine(required.Run(inputs));
-
-            Assert.That(true == false);
         }
     }
 }

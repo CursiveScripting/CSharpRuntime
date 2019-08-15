@@ -21,6 +21,9 @@ namespace Cursive.Serialization
         [JsonProperty(PropertyName = "process")]
         public string InnerProcess { get; set; }
 
+        [JsonProperty(PropertyName = "name")]
+        public string PathName { get; set; }
+
         [JsonProperty(PropertyName = "inputs")]
         public Dictionary<string, string> Inputs { get; set; }
 

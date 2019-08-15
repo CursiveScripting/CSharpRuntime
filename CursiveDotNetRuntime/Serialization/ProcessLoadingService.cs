@@ -119,8 +119,8 @@ namespace Cursive.Serialization
 
             var stepsById = new Dictionary<string, Step>();
 
-            var stepsWithInputs = new List<Tuple<StepDTO, Step>>();
-            var stepsWithOutputs = new List<Tuple<StepDTO, ReturningStep>>();
+            var stepsWithInputs = new List<Tuple<StepDTO, Step, IReadOnlyCollection<ValueKey>>>();
+            var stepsWithOutputs = new List<Tuple<StepDTO, ReturningStep, IReadOnlyCollection<ValueKey>>>();
 
             foreach (var stepData in processData.Steps)
             {
@@ -135,20 +135,19 @@ namespace Cursive.Serialization
                             else
                                 errors.Add($"Process \"{stepData.InnerProcess}\" has multiple start steps");
 
-                            stepsWithOutputs.Add(new Tuple<StepDTO, ReturningStep>(stepData, step));
+                            stepsWithOutputs.Add(new Tuple<StepDTO, ReturningStep, IReadOnlyCollection<ValueKey>>(stepData, step, process.Inputs));
                             stepsById.Add(step.ID, step);
                             break;
                         }
                     case "stop":
                         {
                             var step = new StopStep(stepData.ID, stepData.PathName);
-                            stepsWithInputs.Add(new Tuple<StepDTO, Step>(stepData, step));
+                            stepsWithInputs.Add(new Tuple<StepDTO, Step, IReadOnlyCollection<ValueKey>>(stepData, step, process.Outputs));
                             stepsById.Add(step.ID, step);
                             break;
                         }
                     case "process":
                         {
-                            // TODO: need to consider system processes here as well
                             if (!processesByName.TryGetValue(stepData.InnerProcess, out Process innerProcess))
                             {
                                 errors.Add($"Unrecognised process \"{stepData.InnerProcess}\" on step {stepData.ID} in process {stepData.InnerProcess}");
@@ -156,8 +155,8 @@ namespace Cursive.Serialization
                             }
 
                             var step = new UserStep(stepData.ID, innerProcess);
-                            stepsWithInputs.Add(new Tuple<StepDTO, Step>(stepData, step));
-                            stepsWithOutputs.Add(new Tuple<StepDTO, ReturningStep>(stepData, step));
+                            stepsWithInputs.Add(new Tuple<StepDTO, Step, IReadOnlyCollection<ValueKey>>(stepData, step, innerProcess.Inputs));
+                            stepsWithOutputs.Add(new Tuple<StepDTO, ReturningStep, IReadOnlyCollection<ValueKey>>(stepData, step, innerProcess.Outputs));
                             stepsById.Add(step.ID, step);
                             break;
                         }
@@ -167,16 +166,47 @@ namespace Cursive.Serialization
                 }
             }
 
-            foreach (var step in stepsWithInputs)
+            foreach (var stepInfo in stepsWithInputs)
             {
-                // TODO: process input mappings
+                var stepData = stepInfo.Item1;
+                var step = stepInfo.Item2;
+                var parameters = stepInfo.Item3;
+
+                MapParameters(stepData.Inputs, step, parameters, "input", errors);
             }
 
-            foreach (var step in stepsWithOutputs)
+            foreach (var stepInfo in stepsWithOutputs)
             {
-                // TODO: process output mappings
+                var stepData = stepInfo.Item1;
+                var step = stepInfo.Item2;
+                var parameters = stepInfo.Item3;
+
+                MapParameters(stepData.Outputs, step, parameters, "output", errors);
 
                 // TODO: process return paths
+            }
+        }
+
+        private static void MapParameters(Dictionary<string, string> paramData, Step step, IReadOnlyCollection<ValueKey> parameters, string paramType, List<string> errors)
+        {
+            foreach (var param in paramData)
+            {
+                ValueKey paramKey = parameters.FirstOrDefault(p => p.Name == param.Key);
+                if (paramKey == null)
+                {
+                    errors.Add($"Step {step.ID} tries to map non-existent input: {param.Key}");
+                    continue;
+                }
+
+                var variableKey = new ValueKey(param.Value, /*variableType*/paramKey.Type); // TODO: can't work out how to get variable type; sort this if we don't switch to using dictionaries for variable anyway
+
+                if (!paramKey.Type.IsAssignableFrom(variableKey.Type))
+                {
+                    errors.Add($"Step {step.ID} tries to map its \"{param.Key}\" {paramType} to the \"{param.Value}\" variable, but their types are not compatible ({paramKey.Type.Name} and {variableKey.Type.Name})");
+                    continue;
+                }
+
+                step.InputMapping[paramKey] = variableKey;
             }
         }
 

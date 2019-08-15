@@ -25,19 +25,17 @@ namespace Cursive.Serialization
 
         private static bool LoadUserProcesses(Workspace workspace, UserProcessDTO[] processData, out List<string> errors)
         {
-            if (!AreNamesUnique(processData, out errors))
-                return false;
-
             var typesByName = workspace.Types.ToDictionary(t => t.Name);
 
             var processes = CreateProcesses(typesByName, processData, out errors);
-
             if (errors != null)
                 return false;
 
-            var processesByName = processes.ToDictionary(p => p.Name);
+            var processesByName = GetProcessesByName(processes, workspace.SystemProcesses, out errors);
+            if (errors != null)
+                return false;
 
-            if (!LoadProcessSteps(processData, processesByName, out errors))
+            if (!LoadSteps(processData, processesByName, out errors))
                 return false;
 
             if (!ApplyProcessesToWorkspace(workspace, processes, out errors))
@@ -45,6 +43,21 @@ namespace Cursive.Serialization
 
             errors = null;
             return true;
+        }
+
+        private static Dictionary<string, Process> GetProcessesByName(List<UserProcess> userProcesses, IList<SystemProcess> systemProcesses, out List<string> errors)
+        {
+            if (!AreNamesUnique(userProcesses, out errors))
+                return null;
+
+            var processesByName = userProcesses.ToDictionary(p => p.Name, p => p as Process);
+
+            // TODO: check for clashes with system process names
+
+            foreach (var process in systemProcesses)
+                processesByName.Add(process.Name, process);
+
+            return processesByName;
         }
 
         private static bool ApplyProcessesToWorkspace(Workspace workspace, List<UserProcess> processes, out List<string> errors)
@@ -83,35 +96,97 @@ namespace Cursive.Serialization
             return true;
         }
 
-        private static bool LoadProcessSteps(UserProcessDTO[] processData, Dictionary<string, UserProcess> processesByName, out List<string> errors)
+        private static bool LoadSteps(UserProcessDTO[] processData, Dictionary<string, Process> processesByName, out List<string> errors)
         {
-            errors = new List<string>();
+            var stepErrors = new List<string>();
 
             foreach (var process in processData)
-                foreach (var step in process.Steps.Where(s => s.Type == "process"))
-                {
-                    if (!processesByName.ContainsKey(step.ReturnPath))
-                    {
-                        errors.Add($"Unrecognised process \"{step.InnerProcess}\" in step {step.ID} of process {process.Name}");
-                    }
-                }
+                LoadProcessSteps(process, processesByName, stepErrors);
 
-            // TODO: actual loading stuff
-
-            if (errors.Any())
+            if (stepErrors.Any())
+            {
+                errors = stepErrors;
                 return false;
+            }
 
             errors = null;
             return true;
         }
 
-        private static bool AreNamesUnique(UserProcessDTO[] processData, out List<string> errors)
+        private static void LoadProcessSteps(UserProcessDTO processData, Dictionary<string, Process> processesByName, List<string> errors)
+        {
+            var process = processesByName[processData.Name] as UserProcess;
+
+            var stepsById = new Dictionary<string, Step>();
+
+            var stepsWithInputs = new List<Tuple<StepDTO, Step>>();
+            var stepsWithOutputs = new List<Tuple<StepDTO, ReturningStep>>();
+
+            foreach (var stepData in processData.Steps)
+            {
+                switch (stepData.Type)
+                {
+                    case "start":
+                        {
+                            var step = new StartStep(stepData.ID);
+
+                            if (process.FirstStep == null)
+                                process.FirstStep = step;
+                            else
+                                errors.Add($"Process \"{stepData.InnerProcess}\" has multiple start steps");
+
+                            stepsWithOutputs.Add(new Tuple<StepDTO, ReturningStep>(stepData, step));
+                            stepsById.Add(step.ID, step);
+                            break;
+                        }
+                    case "stop":
+                        {
+                            var step = new StopStep(stepData.ID, stepData.PathName);
+                            stepsWithInputs.Add(new Tuple<StepDTO, Step>(stepData, step));
+                            stepsById.Add(step.ID, step);
+                            break;
+                        }
+                    case "process":
+                        {
+                            // TODO: need to consider system processes here as well
+                            if (!processesByName.TryGetValue(stepData.InnerProcess, out Process innerProcess))
+                            {
+                                errors.Add($"Unrecognised process \"{stepData.InnerProcess}\" on step {stepData.ID} in process {stepData.InnerProcess}");
+                                break;
+                            }
+
+                            var step = new UserStep(stepData.ID, innerProcess);
+                            stepsWithInputs.Add(new Tuple<StepDTO, Step>(stepData, step));
+                            stepsWithOutputs.Add(new Tuple<StepDTO, ReturningStep>(stepData, step));
+                            stepsById.Add(step.ID, step);
+                            break;
+                        }
+                    default:
+                        errors.Add($"Invalid type \"{stepData.Type}\" on step {stepData.ID} in process {stepData.InnerProcess}");
+                        break;
+                }
+            }
+
+            foreach (var step in stepsWithInputs)
+            {
+                // TODO: process input mappings
+            }
+
+            foreach (var step in stepsWithOutputs)
+            {
+                // TODO: process output mappings
+
+                // TODO: process return paths
+            }
+        }
+
+        private static bool AreNamesUnique(List<UserProcess> processes, out List<string> errors)
         {
             errors = new List<string>();
 
             var usedNames = new HashSet<string>();
 
-            foreach (var process in processData)
+            foreach (var process in processes)
             {
                 if (usedNames.Contains(process.Name))
                 {

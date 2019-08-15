@@ -1,11 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Reflection;
-using System.Xml;
-using System.Xml.Schema;
 
 namespace Cursive.Serialization
 {
@@ -29,6 +25,9 @@ namespace Cursive.Serialization
 
         private static bool LoadUserProcesses(Workspace workspace, UserProcessDTO[] processData, out List<string> errors)
         {
+            if (!AreNamesUnique(processData, out errors))
+                return false;
+
             var typesByName = workspace.Types.ToDictionary(t => t.Name);
 
             var processes = CreateProcesses(typesByName, processData, out errors);
@@ -36,33 +35,25 @@ namespace Cursive.Serialization
             if (errors != null)
                 return false;
 
-            // TODO: ensure process names are unique
-
             var processesByName = processes.ToDictionary(p => p.Name);
 
-
-            // TODO: load steps, ensure they're valid
-
-            errors = new List<string>();
-
-
-            foreach (var process in processData)
-                foreach (var step in process.Steps.Where(s => s.Type == "process"))
-                {
-                    if (!processesByName.ContainsKey(step.ReturnPath))
-                    {
-                        errors.Add($"Unrecognised process \"{step.InnerProcess}\" in step {step.ID} of process {process.Name}");
-                    }
-                }
-
-            if (errors.Any())
-            {
+            if (!LoadProcessSteps(processData, processesByName, out errors))
                 return false;
-            }
 
+            if (!ApplyProcessesToWorkspace(workspace, processes, out errors))
+                return false;
+
+            errors = null;
+            return true;
+        }
+
+        private static bool ApplyProcessesToWorkspace(Workspace workspace, List<UserProcess> processes, out List<string> errors)
+        {
             ClearUserProcesses(workspace);
 
             workspace.UserProcesses.AddRange(processes);
+
+            errors = new List<string>();
 
             foreach (var required in workspace.RequiredProcesses)
             {
@@ -81,7 +72,56 @@ namespace Cursive.Serialization
                     required.Implementation = implementations[0];
                 }
             }
-            
+
+            if (errors.Any())
+            {
+                ClearUserProcesses(workspace);
+                return false;
+            }
+
+            errors = null;
+            return true;
+        }
+
+        private static bool LoadProcessSteps(UserProcessDTO[] processData, Dictionary<string, UserProcess> processesByName, out List<string> errors)
+        {
+            errors = new List<string>();
+
+            foreach (var process in processData)
+                foreach (var step in process.Steps.Where(s => s.Type == "process"))
+                {
+                    if (!processesByName.ContainsKey(step.ReturnPath))
+                    {
+                        errors.Add($"Unrecognised process \"{step.InnerProcess}\" in step {step.ID} of process {process.Name}");
+                    }
+                }
+
+            // TODO: actual loading stuff
+
+            if (errors.Any())
+                return false;
+
+            errors = null;
+            return true;
+        }
+
+        private static bool AreNamesUnique(UserProcessDTO[] processData, out List<string> errors)
+        {
+            errors = new List<string>();
+
+            var usedNames = new HashSet<string>();
+
+            foreach (var process in processData)
+            {
+                if (usedNames.Contains(process.Name))
+                {
+                    errors.Add($"Multiple processes have the same name: {process.Name}");
+                    continue;
+                }
+
+                usedNames.Add(process.Name);
+            }
+
             return !errors.Any();
         }
 
@@ -120,11 +160,6 @@ namespace Cursive.Serialization
             );
         }
 
-        private static ValueSet LoadVariables(UserProcessDTO process, Dictionary<string, DataType> typesByName, List<string> errors)
-        {
-            throw new NotImplementedException();
-        }
-
         private static ValueKey[] LoadParameters(
             IEnumerable<ParameterDTO> parameters,
             Dictionary<string, DataType> typesByName,
@@ -153,6 +188,38 @@ namespace Cursive.Serialization
             return paramsWithTypes
                 .Select(i => new ValueKey(i.Item1.Name, i.Item2))
                 .ToArray();
+        }
+
+        private static ValueSet LoadVariables(UserProcessDTO process, Dictionary<string, DataType> typesByName, List<string> errors)
+        {
+            var variables = new ValueSet();
+
+            var usedNames = new HashSet<string>();
+
+            foreach (var variable in process.Variables)
+            {
+                if (usedNames.Contains(variable.Name))
+                {
+                    errors.Add($"Multiple variables of process {process.Name} use the same name: {variable.Name}");
+                    continue;
+                }
+
+                if (!typesByName.TryGetValue(variable.Type, out DataType type))
+                {
+                    errors.Add($"Unrecognised type \"{variable.Type}\" used by variable {variable.Name} of process {process.Name}");
+                    continue;
+                }
+
+                usedNames.Add(variable.Name);
+
+                var definition = new ValueKey(variable.Name, type);
+
+                variables[definition] = variable.InitialValue != null && type is IDeserializable
+                    ? (type as IDeserializable).Deserialize(variable.InitialValue)
+                    : variables[definition] = type.GetDefaultValue();
+            }
+
+            return variables;
         }
 
         public static void ClearUserProcesses(Workspace workspace)

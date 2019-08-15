@@ -52,11 +52,19 @@ namespace Cursive.Serialization
 
             var processesByName = userProcesses.ToDictionary(p => p.Name, p => p as Process);
 
-            // TODO: check for clashes with system process names
-
+            errors = new List<string>();
             foreach (var process in systemProcesses)
-                processesByName.Add(process.Name, process);
+            {
+                if (processesByName.ContainsKey(process.Name))
+                    errors.Add($"Process name is already used by a system process: {process.Name}");
+                else
+                    processesByName.Add(process.Name, process);
+            }
 
+            if (errors.Any())
+                return null;
+
+            errors = null;
             return processesByName;
         }
 

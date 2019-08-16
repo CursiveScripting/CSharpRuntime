@@ -1,5 +1,4 @@
-﻿using Cursive.Debugging;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
 namespace Cursive
 {
@@ -8,17 +7,14 @@ namespace Cursive
         public StartStep(string id)
             : base(id) { }
         
-        private ValueSet inputs;
+        public ValueSet Inputs { get; set; } // TODO: do away with this, instead different Run method
 
-        public void SetInputs(ValueSet inputs)
+        public override Task<Step> Run(CallStack stack)
         {
-            this.inputs = inputs;
-        }
+            var variables = stack.CurrentVariables.Values;
 
-        public override Task<Step> Run(ValueSet variables, CallStack stack)
-        {
             foreach (var kvp in OutputMapping)
-                variables[kvp.Value] = inputs[kvp.Key];
+                variables[kvp.Value.Name] = Inputs.Values[kvp.Key];
 
             return Task.FromResult(DefaultReturnPath);
         }

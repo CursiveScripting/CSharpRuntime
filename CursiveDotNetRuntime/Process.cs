@@ -1,5 +1,4 @@
-﻿using Cursive.Debugging;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -8,11 +7,22 @@ namespace Cursive
     [JsonObject(ItemNullValueHandling = NullValueHandling.Ignore)]
     public abstract class Process
     {
-        protected Process(string name, string description, string folder)
+        protected Process(
+            string name,
+            string description,
+            string folder,
+            IReadOnlyCollection<Parameter> inputs,
+            IReadOnlyCollection<Parameter> outputs,
+            IReadOnlyCollection<string> returnPaths
+        )
         {
             Name = name;
             Description = description;
             Folder = folder;
+
+            Inputs = inputs;
+            Outputs = outputs;
+            ReturnPaths = returnPaths;
         }
         
         [JsonProperty(PropertyName = "name", Order = 1)]
@@ -24,14 +34,14 @@ namespace Cursive
         [JsonProperty(PropertyName = "folder", Order = 3)]
         public string Folder { get; }
 
-        [JsonProperty(PropertyName = "returnPaths", Order = 6)]
-        public abstract IReadOnlyCollection<string> ReturnPaths { get; }
-
         [JsonProperty(PropertyName = "inputs", Order = 4)]
-        public abstract IReadOnlyCollection<ValueKey> Inputs { get; }
+        public IReadOnlyCollection<Parameter> Inputs { get; }
 
         [JsonProperty(PropertyName = "outputs", Order = 5)]
-        public abstract IReadOnlyCollection<ValueKey> Outputs { get; }
+        public IReadOnlyCollection<Parameter> Outputs { get; }
+
+        [JsonProperty(PropertyName = "returnPaths", Order = 6)]
+        public IReadOnlyCollection<string> ReturnPaths { get; }
 
         internal abstract Task<Response> Run(ValueSet inputs, CallStack stack);
     }

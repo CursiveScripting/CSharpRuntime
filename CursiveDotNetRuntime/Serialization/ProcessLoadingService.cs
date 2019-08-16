@@ -45,7 +45,11 @@ namespace Cursive.Serialization
             return true;
         }
 
-        private static Dictionary<string, Process> GetProcessesByName(List<UserProcess> userProcesses, IList<SystemProcess> systemProcesses, out List<string> errors)
+        private static Dictionary<string, Process> GetProcessesByName(
+            List<UserProcess> userProcesses,
+            IList<SystemProcess> systemProcesses,
+            out List<string> errors
+        )
         {
             if (!AreNamesUnique(userProcesses, out errors))
                 return null;
@@ -127,8 +131,8 @@ namespace Cursive.Serialization
 
             var stepsById = new Dictionary<string, Step>();
 
-            var stepsWithInputs = new List<Tuple<StepDTO, Step, IReadOnlyCollection<ValueKey>>>();
-            var stepsWithOutputs = new List<Tuple<StepDTO, ReturningStep, IReadOnlyCollection<ValueKey>>>();
+            var stepsWithInputs = new List<Tuple<StepDTO, Step, IReadOnlyCollection<Parameter>>>();
+            var stepsWithOutputs = new List<Tuple<StepDTO, ReturningStep, IReadOnlyCollection<Parameter>>>();
 
             foreach (var stepData in processData.Steps)
             {
@@ -143,14 +147,14 @@ namespace Cursive.Serialization
                             else
                                 errors.Add($"Process \"{stepData.InnerProcess}\" has multiple start steps");
 
-                            stepsWithOutputs.Add(new Tuple<StepDTO, ReturningStep, IReadOnlyCollection<ValueKey>>(stepData, step, process.Inputs));
+                            stepsWithOutputs.Add(new Tuple<StepDTO, ReturningStep, IReadOnlyCollection<Parameter>>(stepData, step, process.Inputs));
                             stepsById.Add(step.ID, step);
                             break;
                         }
                     case "stop":
                         {
                             var step = new StopStep(stepData.ID, stepData.PathName);
-                            stepsWithInputs.Add(new Tuple<StepDTO, Step, IReadOnlyCollection<ValueKey>>(stepData, step, process.Outputs));
+                            stepsWithInputs.Add(new Tuple<StepDTO, Step, IReadOnlyCollection<Parameter>>(stepData, step, process.Outputs));
                             stepsById.Add(step.ID, step);
                             break;
                         }
@@ -163,8 +167,8 @@ namespace Cursive.Serialization
                             }
 
                             var step = new UserStep(stepData.ID, innerProcess);
-                            stepsWithInputs.Add(new Tuple<StepDTO, Step, IReadOnlyCollection<ValueKey>>(stepData, step, innerProcess.Inputs));
-                            stepsWithOutputs.Add(new Tuple<StepDTO, ReturningStep, IReadOnlyCollection<ValueKey>>(stepData, step, innerProcess.Outputs));
+                            stepsWithInputs.Add(new Tuple<StepDTO, Step, IReadOnlyCollection<Parameter>>(stepData, step, innerProcess.Inputs));
+                            stepsWithOutputs.Add(new Tuple<StepDTO, ReturningStep, IReadOnlyCollection<Parameter>>(stepData, step, innerProcess.Outputs));
                             stepsById.Add(step.ID, step);
                             break;
                         }
@@ -180,7 +184,7 @@ namespace Cursive.Serialization
                 var step = stepInfo.Item2;
                 var parameters = stepInfo.Item3;
 
-                MapParameters(stepData.Inputs, step, parameters, "input", errors);
+                MapParameters(stepData.Inputs, step, parameters, process.Variables, true, errors);
             }
 
             foreach (var stepInfo in stepsWithOutputs)
@@ -189,7 +193,7 @@ namespace Cursive.Serialization
                 var step = stepInfo.Item2;
                 var parameters = stepInfo.Item3;
 
-                MapParameters(stepData.Outputs, step, parameters, "output", errors);
+                MapParameters(stepData.Outputs, step, parameters, process.Variables, false, errors);
 
                 if (stepData.ReturnPath != null)
                 {
@@ -211,26 +215,56 @@ namespace Cursive.Serialization
             }
         }
 
-        private static void MapParameters(Dictionary<string, string> paramData, Step step, IReadOnlyCollection<ValueKey> parameters, string paramType, List<string> errors)
+        private static void MapParameters(
+            Dictionary<string, string> paramData,
+            Step step,
+            IReadOnlyCollection<Parameter> parameters,
+            Dictionary<string, Variable> variables,
+            bool isInputParam,
+            List<string> errors
+        )
         {
             foreach (var param in paramData)
             {
-                ValueKey paramKey = parameters.FirstOrDefault(p => p.Name == param.Key);
-                if (paramKey == null)
+                Parameter parameter = parameters.FirstOrDefault(p => p.Name == param.Key);
+                if (parameter == null)
                 {
-                    errors.Add($"Step {step.ID} tries to map non-existent input: {param.Key}");
+                    var paramType = isInputParam ? "input" : "output";
+                    errors.Add($"Step {step.ID} tries to map non-existent {paramType}: {param.Key}");
                     continue;
                 }
 
-                var variableKey = new ValueKey(param.Value, /*variableType*/paramKey.Type); // TODO: can't work out how to get variable type; sort this if we don't switch to using dictionaries for variable anyway
-
-                if (!paramKey.Type.IsAssignableFrom(variableKey.Type))
+                if (!variables.TryGetValue(param.Value, out Variable variable))
                 {
-                    errors.Add($"Step {step.ID} tries to map its \"{param.Key}\" {paramType} to the \"{param.Value}\" variable, but their types are not compatible ({paramKey.Type.Name} and {variableKey.Type.Name})");
+                    var paramType = isInputParam ? "input" : "output";
+                    errors.Add($"Step {step.ID} tries to map {paramType} to non-existent variable: {param.Value}");
                     continue;
                 }
 
-                step.InputMapping[paramKey] = variableKey;
+                DataType fromType, toType;
+
+                if (isInputParam)
+                {
+                    fromType = variable.Type;
+                    toType = parameter.Type;
+                }
+                else
+                {
+                    fromType = parameter.Type;
+                    toType = variable.Type;
+                }
+
+                if (!fromType.IsAssignableFrom(toType))
+                {
+                    var message = isInputParam
+                        ? $"Step {step.ID} tries to map the \"{param.Value}\" variable to its \"{param.Key}\" input, but their types are not compatible ({variable.Type.Name} and {parameter.Type.Name})"
+                        : $"Step {step.ID} tries to map its \"{param.Key}\" output to the \"{param.Value}\" variable, but their types are not compatible ({parameter.Type.Name} and {variable.Type.Name})"
+                    
+                    errors.Add(message);
+                    continue;
+                }
+
+                step.InputMapping[parameter.Name] = variable;
             }
         }
 
@@ -254,7 +288,11 @@ namespace Cursive.Serialization
             return !errors.Any();
         }
 
-        private static List<UserProcess> CreateProcesses(Dictionary<string, DataType> typesByName, UserProcessDTO[] processData, out List<string> errors)
+        private static List<UserProcess> CreateProcesses(
+            Dictionary<string, DataType> typesByName,
+            UserProcessDTO[] processData,
+            out List<string> errors
+        )
         {
             var creationErrors = new List<string>();
 
@@ -289,7 +327,7 @@ namespace Cursive.Serialization
             );
         }
 
-        private static ValueKey[] LoadParameters(
+        private static Parameter[] LoadParameters(
             IEnumerable<ParameterDTO> parameters,
             Dictionary<string, DataType> typesByName,
             List<string> errors,
@@ -315,37 +353,37 @@ namespace Cursive.Serialization
                 errors.Add($"Unrecognised type \"{param.Type}\" used by {paramType} of process {process.Name}");
 
             return paramsWithTypes
-                .Select(i => new ValueKey(i.Item1.Name, i.Item2))
+                .Select(i => new Parameter(i.Item1.Name, i.Item2))
                 .ToArray();
         }
 
-        private static ValueSet LoadVariables(UserProcessDTO process, Dictionary<string, DataType> typesByName, List<string> errors)
+        private static Dictionary<string, Variable> LoadVariables(UserProcessDTO process, Dictionary<string, DataType> typesByName, List<string> errors)
         {
-            var variables = new ValueSet();
+            var variables = new Dictionary<string, Variable>();
 
             var usedNames = new HashSet<string>();
 
-            foreach (var variable in process.Variables)
+            foreach (var variableData in process.Variables)
             {
-                if (usedNames.Contains(variable.Name))
+                if (usedNames.Contains(variableData.Name))
                 {
-                    errors.Add($"Multiple variables of process {process.Name} use the same name: {variable.Name}");
+                    errors.Add($"Multiple variables of process {process.Name} use the same name: {variableData.Name}");
                     continue;
                 }
 
-                if (!typesByName.TryGetValue(variable.Type, out DataType type))
+                if (!typesByName.TryGetValue(variableData.Type, out DataType dataType))
                 {
-                    errors.Add($"Unrecognised type \"{variable.Type}\" used by variable {variable.Name} of process {process.Name}");
+                    errors.Add($"Unrecognised type \"{variableData.Type}\" used by variable {variableData.Name} of process {process.Name}");
                     continue;
                 }
 
-                usedNames.Add(variable.Name);
+                usedNames.Add(variableData.Name);
 
-                var definition = new ValueKey(variable.Name, type);
+                var value = variableData.InitialValue != null && dataType is IDeserializable
+                    ? (dataType as IDeserializable).Deserialize(variableData.InitialValue)
+                    : dataType.GetDefaultValue();
 
-                variables[definition] = variable.InitialValue != null && type is IDeserializable
-                    ? (type as IDeserializable).Deserialize(variable.InitialValue)
-                    : variables[definition] = type.GetDefaultValue();
+                variables[variableData.Name] = new Variable(variableData.Name, dataType, value);
             }
 
             return variables;

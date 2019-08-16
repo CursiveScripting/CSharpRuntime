@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Cursive
 {
@@ -27,6 +28,7 @@ namespace Cursive
         }
 
         public string ReturnPath { get; }
+
         public ValueSet Outputs { get; }
     }
 }

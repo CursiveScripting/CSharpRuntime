@@ -1,69 +1,29 @@
-﻿using Cursive.Debugging;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-
-[assembly: System.Runtime.CompilerServices.InternalsVisibleTo("Tests")]
+﻿using System.Collections.Generic;
 
 namespace Cursive
 {
-    public class ValueSet : IEnumerable<KeyValuePair<ValueKey, object>>
+    public class ValueSet
     {
-        private CallStack Stack { get; }
-        private Dictionary<ValueKey, object> Elements { get; } = new Dictionary<ValueKey, object>();
-
-        internal ValueSet(CallStack callStack = null)
+        public ValueSet()
         {
-            Stack = callStack;
+            Values = new Dictionary<string, object>();
         }
 
-        internal object this[ValueKey key]
+        public ValueSet(Dictionary<string, object> values)
         {
-            get
-            {
-                object o;
-                if (!Elements.TryGetValue(key, out o))
-                    throw new CursiveRunException(Stack, $"Value not found: {key.Name} / {key.Type.Name}");
-                return o;
-            }
-            set
-            {
-                Elements[key] = value;
-            }
+            Values = values;
         }
 
-        public T Get<T>(ValueKey<T> key)
+        internal Dictionary<string, object> Values { get; }
+
+        public TValue Get<TValue>(Parameter<TValue> parameter)
         {
-            return (T)this[key];
+            return (TValue)Values[parameter.Name];
         }
 
-        public void Set<T>(ValueKey<T> key, T value)
+        public void Set<TValue>(Parameter<TValue> parameter, TValue value)
         {
-            this[key] = value;
-        }
-
-        public bool HasElement(ValueKey param)
-        {
-            return Elements.ContainsKey(param);
-        }
-
-        public IEnumerator<KeyValuePair<ValueKey, object>> GetEnumerator()
-        {
-            return Elements.GetEnumerator();
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return Elements.GetEnumerator();
-        }
-
-        internal ValueSet Clone()
-        {
-            ValueSet other = new ValueSet(Stack);
-            foreach (var kvp in Elements)
-                other[kvp.Key] = kvp.Value;
-            return other;
+            Values[parameter.Name] = value;
         }
     }
 }

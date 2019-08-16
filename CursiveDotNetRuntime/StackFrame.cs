@@ -1,16 +1,18 @@
-﻿namespace Cursive.Debugging
+﻿namespace Cursive
 {
-    public struct DebugStackFrame : IStackFrame
+    public struct StackFrame
     {
-        internal DebugStackFrame(Process process, Step step, ValueSet variables)
+        internal StackFrame(UserProcess process, Step step, ValueSet variables)
         {
             Process = process;
             Step = step;
             Variables = variables;
         }
 
-        public Process Process { get; }
+        internal UserProcess Process { get; }
+
         public Step Step { get; }
+
         public ValueSet Variables { get; }
     }
 }

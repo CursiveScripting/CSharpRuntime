@@ -14,19 +14,19 @@ namespace Tests
         #region requirements
         private SystemProcess GetDayOfWeek;
 
-        private ValueKey<string> messageParam;
+        private Parameter<string> messageParam;
         private SystemProcess Print;
 
-        private ValueKey<string> strValue1, strValue2;
+        private Parameter<string> strValue1, strValue2;
 
         private SystemProcess EqualsText;
 
-        private ValueKey<int> iValue1, iValue2;
+        private Parameter<int> iValue1, iValue2;
         private SystemProcess CompareIntegers;
 
-        private ValueKey<Person> personVal;
-        private ValueKey<string> property;
-        private ValueKey<int> iValue;
+        private Parameter<Person> personVal;
+        private Parameter<string> property;
+        private Parameter<int> iValue;
         private SystemProcess GetPropertyInteger, SetPropertyInteger;
 
         Workspace workspace;
@@ -36,9 +36,9 @@ namespace Tests
         static DataType<int> integer;
         static DataType<Person> person;
         static DataType<Car> car;
-        static ValueKey<Person> me;
-        static ValueKey<Car> carParam;
-        static ValueKey<int> myAge;
+        static Parameter<Person> me;
+        static Parameter<Car> carParam;
+        static Parameter<int> myAge;
 
         class Person
         {
@@ -68,20 +68,20 @@ namespace Tests
             person = new DataType<Person>("person", Color.FromKnownColor(KnownColor.Red));
             car = new DataType<Car>("car", Color.FromKnownColor(KnownColor.Blue));
 
-            me = new ValueKey<Person>("Me", person);
-            carParam = new ValueKey<Car>("Car", car);
-            myAge = new ValueKey<int>("My age", integer);
+            me = new Parameter<Person>("Me", person);
+            carParam = new Parameter<Car>("Car", car);
+            myAge = new Parameter<int>("My age", integer);
 
-            messageParam = new ValueKey<string>("message", text);
-            strValue1 = new ValueKey<string>("value1", text);
-            strValue2 = new ValueKey<string>("value2", text);
+            messageParam = new Parameter<string>("message", text);
+            strValue1 = new Parameter<string>("value1", text);
+            strValue2 = new Parameter<string>("value2", text);
 
-            iValue1 = new ValueKey<int>("value1", integer);
-            iValue2 = new ValueKey<int>("value2", integer);
+            iValue1 = new Parameter<int>("value1", integer);
+            iValue2 = new Parameter<int>("value2", integer);
 
-            personVal = new ValueKey<Person>("object", person);
-            property = new ValueKey<string>("property", text);
-            iValue = new ValueKey<int>("value", integer);
+            personVal = new Parameter<Person>("object", person);
+            property = new Parameter<string>("property", text);
+            iValue = new Parameter<int>("value", integer);
 
             GetDayOfWeek = new SystemProcess(
                 "Get day of week",
@@ -110,7 +110,7 @@ namespace Tests
                     Console.WriteLine(inputs.Get(messageParam));
                     return Response.SyncTask();
                 },
-                new ValueKey[] { messageParam },
+                new Parameter[] { messageParam },
                 null,
                 null
             );
@@ -122,7 +122,7 @@ namespace Tests
                 {
                     return Response.SyncTask(inputs.Get(strValue1) == inputs.Get(strValue2) ? "yes" : "no");
                 },
-                new ValueKey[] { strValue1, strValue2 },
+                new Parameter[] { strValue1, strValue2 },
                 null,
                 new string[] { "yes", "no" }
             );
@@ -138,7 +138,7 @@ namespace Tests
                     var comparison = value1.CompareTo(value2);
                     return Response.SyncTask(comparison < 0 ? "less" : comparison > 0 ? "greater" : "equal");
                 },
-                new ValueKey[] { iValue1, iValue2 },
+                new Parameter[] { iValue1, iValue2 },
                 null,
                 new string[] { "less", "greater", "equal" }
             );
@@ -166,8 +166,8 @@ namespace Tests
                     }
                     return Response.SyncTask("ok", outputs);
                 },
-                new ValueKey[] { personVal, property },
-                new ValueKey[] { iValue },
+                new Parameter[] { personVal, property },
+                new Parameter[] { iValue },
                 new string[] { "ok", "error" }
             );
 
@@ -191,7 +191,7 @@ namespace Tests
                     }
                     return Response.SyncTask("ok");
                 },
-                new ValueKey[] { personVal, property, iValue },
+                new Parameter[] { personVal, property, iValue },
                 null,
                 new string[] { "ok", "error" }
             );
@@ -210,8 +210,8 @@ namespace Tests
             required = new RequiredProcess(
                 "Test.MorningRoutine",
                 "Run basic tests",
-                new ValueKey[] { me, carParam },
-                new ValueKey[] { myAge },
+                new Parameter[] { me, carParam },
+                new Parameter[] { myAge },
                 null
             );
             workspace.RequiredProcesses.Add(required);

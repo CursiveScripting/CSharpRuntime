@@ -38,7 +38,7 @@ namespace Tests
         
         public static SystemProcess Print()
         {
-            ValueKey<string> messageParam = new ValueKey<string>("message", text);
+            Parameter<string> messageParam = new Parameter<string>("message", text);
 
             return new SystemProcess(
                 "Print",
@@ -48,7 +48,7 @@ namespace Tests
                     Console.WriteLine(inputs.Get(messageParam));
                     return Response.SyncTask();
                 },
-                new ValueKey[] { messageParam },
+                new Parameter[] { messageParam },
                 null,
                 null
             );
@@ -56,8 +56,8 @@ namespace Tests
 
         public static SystemProcess EqualsText()
         {
-            ValueKey<string> strValue1 = new ValueKey<string>("value1", text);
-            ValueKey<string> strValue2 = new ValueKey<string>("value2", text);
+            Parameter<string> strValue1 = new Parameter<string>("value1", text);
+            Parameter<string> strValue2 = new Parameter<string>("value2", text);
 
             return new SystemProcess(
                 "Equals text",
@@ -66,7 +66,7 @@ namespace Tests
                 {
                     return Response.SyncTask(inputs.Get(strValue1).Equals(inputs.Get(strValue2)) ? "yes" : "no");
                 },
-                new ValueKey[] { strValue1, strValue2 },
+                new Parameter[] { strValue1, strValue2 },
                 null,
                 new string[] { "yes", "no" }
             );
@@ -74,8 +74,8 @@ namespace Tests
 
         public static SystemProcess CompareIntegers()
         {
-            ValueKey<int> iValue1 = new ValueKey<int>("value1", integer);
-            ValueKey<int> iValue2 = new ValueKey<int>("value2", integer);
+            Parameter<int> iValue1 = new Parameter<int>("value1", integer);
+            Parameter<int> iValue2 = new Parameter<int>("value2", integer);
 
             return new SystemProcess(
                 "Compare integers",
@@ -88,7 +88,7 @@ namespace Tests
                     var comparison = value1.CompareTo(value2);
                     return Response.SyncTask(comparison < 0 ? "less" : comparison > 0 ? "greater" : "equal");
                 },
-                new ValueKey[] { iValue1, iValue2 },
+                new Parameter[] { iValue1, iValue2 },
                 null,
                 new string[] { "less", "greater", "equal" }
             );
@@ -96,9 +96,9 @@ namespace Tests
 
         public static SystemProcess GetPropertyInteger()
         {
-            ValueKey<object> personVal = new ValueKey<object>("object", objectType);
-            ValueKey<string> property = new ValueKey<string>("property", text);
-            ValueKey<int> iValue = new ValueKey<int>("value", integer);
+            var personVal = new Parameter<object>("object", objectType);
+            var property = new Parameter<string>("property", text);
+            var iValue = new Parameter<int>("value", integer);
 
             return new SystemProcess(
                 "Get integer property",
@@ -123,17 +123,17 @@ namespace Tests
                     }
                     return Response.SyncTask("ok", outputs);
                 },
-                new ValueKey[] { personVal, property },
-                new ValueKey[] { iValue },
+                new Parameter[] { personVal, property },
+                new Parameter[] { iValue },
                 new string[] { "ok", "error" }
             );
         }
 
         public static SystemProcess SetPropertyInteger()
         {
-            ValueKey<object> personVal = new ValueKey<object>("object", objectType);
-            ValueKey<string> property = new ValueKey<string>("property", text);
-            ValueKey<int> iValue = new ValueKey<int>("value", integer);
+            var personVal = new Parameter<object>("object", objectType);
+            var property = new Parameter<string>("property", text);
+            var iValue = new Parameter<int>("value", integer);
 
             return new SystemProcess(
                 "Set integer property",
@@ -155,7 +155,7 @@ namespace Tests
                     }
                     return Response.SyncTask("ok");
                 },
-                new ValueKey[] { personVal, property, iValue },
+                new Parameter[] { personVal, property, iValue },
                 null,
                 new string[] { "ok", "error" }
             );
@@ -170,9 +170,9 @@ namespace Tests
         static DataType<object> objectType;
         static DataType<Person> person;
         static DataType<Car> car;
-        static ValueKey<Person> me;
-        static ValueKey<Car> carParam;
-        static ValueKey<int> myAge;
+        static Parameter<Person> me;
+        static Parameter<Car> carParam;
+        static Parameter<int> myAge;
 
         class Person
         {
@@ -202,15 +202,15 @@ namespace Tests
             objectType = new DataType<object>("object", Color.FromKnownColor(KnownColor.Blue));
             car = new DataType<Car>("car", Color.FromKnownColor(KnownColor.Blue));
 
-            me = new ValueKey<Person>("Me", person);
-            carParam = new ValueKey<Car>("Car", car);
-            myAge = new ValueKey<int>("My age", integer);
+            me = new Parameter<Person>("Me", person);
+            carParam = new Parameter<Car>("Car", car);
+            myAge = new Parameter<int>("My age", integer);
 
             required = new RequiredProcess(
                 "Test.MorningRoutine",
                 "Run basic tests",
-                new ValueKey[] { me, carParam },
-                new ValueKey[] { myAge }
+                new Parameter[] { me, carParam },
+                new Parameter[] { myAge }
                 , null
             );
 

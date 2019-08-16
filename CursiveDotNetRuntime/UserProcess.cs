@@ -1,27 +1,27 @@
-﻿using Cursive.Debugging;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Cursive
 {
     internal class UserProcess : Process
     {
-        public UserProcess(string name, string description, IReadOnlyCollection<ValueKey> inputs, IReadOnlyCollection<ValueKey> outputs, IReadOnlyCollection<string> returnPaths, ValueSet defaultVariables)
-            : base(name, description, null)
+        public UserProcess(
+            string name,
+            string description,
+            IReadOnlyCollection<Parameter> inputs,
+            IReadOnlyCollection<Parameter> outputs,
+            IReadOnlyCollection<string> returnPaths,
+            Dictionary<string, Variable> variables
+        )
+            : base(name, description, null, inputs, outputs, returnPaths)
         {
-            Inputs = inputs;
-            Outputs = outputs;
-            ReturnPaths = returnPaths;
-            DefaultVariables = defaultVariables;
+            Variables = variables;
         }
 
-        public override IReadOnlyCollection<ValueKey> Inputs { get; }
-        public override IReadOnlyCollection<ValueKey> Outputs { get; }
-        public override IReadOnlyCollection<string> ReturnPaths { get; }
-
         [JsonProperty(PropertyName = "variables")]
-        private ValueSet DefaultVariables { get; }
+        public Dictionary<string, Variable> Variables { get; }
 
         public StartStep FirstStep { get; internal set; }
 
@@ -30,22 +30,21 @@ namespace Cursive
 
         internal override async Task<Response> Run(ValueSet inputs, CallStack stack)
         {
-            ValueSet variables = DefaultVariables.Clone();
+            var variableValues = new ValueSet(Variables.ToDictionary(v => v.Key, v => v.Value.InitialValue));
 
-            FirstStep.SetInputs(inputs);
+            FirstStep.Inputs = inputs;
             Step currentStep = FirstStep, lastStep = null;
 
             while (currentStep != null)
             {
                 lastStep = currentStep;
-                await stack.EnterStep(this, currentStep, variables);
-                currentStep = await currentStep.Run(variables, stack);
+                await stack.EnterStep(this, currentStep, variableValues);
+                currentStep = await currentStep.Run(stack);
                 stack.ExitStep();
             }
 
-            if (lastStep is StopStep)
+            if (lastStep is StopStep end)
             {
-                var end = lastStep as StopStep;
                 return new Response(end.ReturnValue, end.GetOutputs());
             }
 
@@ -57,8 +56,8 @@ namespace Cursive
             get
             {
                 foreach (var step in Steps)
-                    if (step is StopStep)
-                        yield return step as StopStep;
+                    if (step is StopStep end)
+                        yield return end;
             }
         }
 
@@ -67,8 +66,8 @@ namespace Cursive
             get
             {
                 foreach (var step in Steps)
-                    if (step is UserStep)
-                        yield return step as UserStep;
+                    if (step is UserStep userStep)
+                        yield return userStep;
             }
         }
     }

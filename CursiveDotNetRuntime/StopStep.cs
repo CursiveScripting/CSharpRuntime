@@ -1,4 +1,4 @@
-﻿using Cursive.Debugging;
+﻿using System.Linq;
 using System.Threading.Tasks;
 
 namespace Cursive
@@ -12,20 +12,21 @@ namespace Cursive
         }
 
         public string ReturnValue { get; private set; }
-        private ValueSet outputs;
+        private ValueSet Outputs { get; set; }
 
-        public ValueSet GetOutputs()
+        public ValueSet GetOutputs() // do away with this, instead different Run method
         {
-            ValueSet outputs = this.outputs;
-            this.outputs = null;
+            ValueSet outputs = Outputs;
+            Outputs = null;
             return outputs;
         }
 
-        public override Task<Step> Run(ValueSet variables, CallStack stack)
+        public override Task<Step> Run(CallStack stack)
         {
-            outputs = new ValueSet(stack);
-            foreach (var kvp in InputMapping)
-                outputs[kvp.Key] = variables[kvp.Value];
+            var variables = stack.CurrentVariables.Values;
+
+            Outputs = new ValueSet(InputMapping.ToDictionary(m => m.Key, m => variables[m.Value.Name]));
+
             return Task.FromResult<Step>(null);
         }
     }

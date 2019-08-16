@@ -1,11 +1,6 @@
 ﻿using Cursive;
 using NUnit.Framework;
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
@@ -15,9 +10,9 @@ namespace Tests
     public class SystemProcessTests
     {
         static DataType<int> number;
-        private static ValueKey<int> value1;
-        private static ValueKey<int> value2;
-        private static ValueKey<int> value3;
+        private static Parameter<int> value1;
+        private static Parameter<int> value2;
+        private static Parameter<int> value3;
 
         public static SystemProcess IsEqual, Add;
 
@@ -25,9 +20,9 @@ namespace Tests
         public void Prepare()
         {
             number = new FixedType<int>("number", Color.FromKnownColor(KnownColor.Red), new Regex("[0-9]+"), s => int.Parse(s));
-            value1 = new ValueKey<int>("value1", number);
-            value2 = new ValueKey<int>("value2", number);
-            value3 = new ValueKey<int>("value3", number);
+            value1 = new Parameter<int>("value1", number);
+            value2 = new Parameter<int>("value2", number);
+            value3 = new Parameter<int>("value3", number);
 
             IsEqual = new SystemProcess(
                 "Is equal",
@@ -36,7 +31,7 @@ namespace Tests
                 {
                     return Response.SyncTask(inputs.Get(value1) == inputs.Get(value2) ? "yes" : "no");
                 },
-                new Cursive.ValueKey[] { value1, value2 },
+                new Parameter[] { value1, value2 },
                 null,
                 new string[] { "yes", "no" }
             );
@@ -52,8 +47,8 @@ namespace Tests
                     outputs.Set(value3, i1 + i2);
                     return Response.SyncTask(outputs);
                 },
-                new Cursive.ValueKey[] { value1, value2 },
-                new Cursive.ValueKey[] { value3 },
+                new Parameter[] { value1, value2 },
+                new Parameter[] { value3 },
                 null
             );
         }

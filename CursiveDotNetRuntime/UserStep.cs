@@ -1,6 +1,4 @@
-﻿using Cursive.Debugging;
-using Newtonsoft.Json;
-using System;
+﻿using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -23,22 +21,22 @@ namespace Cursive
 
         public Dictionary<string, Step> ReturnPaths { get; } = new Dictionary<string, Step>();
 
-        public override async Task<Step> Run(ValueSet variables, CallStack stack)
+        public override async Task<Step> Run(CallStack stack)
         {
+            var variables = stack.CurrentVariables.Values;
+
             // map input parameters in from variables
-            ValueSet inputs = new ValueSet();
-            foreach (var kvp in InputMapping)
-                inputs[kvp.Key] = variables[kvp.Value];
-            
+            var childInputs = new ValueSet(InputMapping.ToDictionary(m => m.Key, m => variables[m.Value.Name]));
+
             // actually run the process, with the inputs named as it expects
-            var response = await ChildProcess.Run(inputs, stack);
+            var response = await ChildProcess.Run(childInputs, stack);
             string returnPath = response.ReturnPath;
-            ValueSet outputs = response.Outputs;
+            var childOutputs = response.Outputs;
 
             // map any output parameters back out into variables
-            if (outputs != null)
+            if (childOutputs != null)
                 foreach (var kvp in OutputMapping)
-                    variables[kvp.Value] = outputs[kvp.Key];
+                    variables[kvp.Value.Name] = childOutputs.Values[kvp.Key];
 
             if (returnPath == null)
             {

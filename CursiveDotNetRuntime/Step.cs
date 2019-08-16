@@ -1,5 +1,4 @@
-﻿using Cursive.Debugging;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -12,15 +11,15 @@ namespace Cursive
             ID = id;
         }
 
-        public abstract Task<Step> Run(ValueSet variables, CallStack stack);
+        public abstract Task<Step> Run(CallStack stack);
 
         [JsonProperty(PropertyName = "id")]
         public string ID { get; }
 
         [JsonProperty(PropertyName = "inputs")]
-        protected internal Dictionary<ValueKey, ValueKey> InputMapping { get; } = new Dictionary<ValueKey, ValueKey>();
+        protected internal Dictionary<string, Variable> InputMapping { get; } = new Dictionary<string, Variable>();
 
         [JsonProperty(PropertyName = "outputs")]
-        protected internal Dictionary<ValueKey, ValueKey> OutputMapping { get; } = new Dictionary<ValueKey, ValueKey>();
+        protected internal Dictionary<string, Variable> OutputMapping { get; } = new Dictionary<string, Variable>();
     }
 }

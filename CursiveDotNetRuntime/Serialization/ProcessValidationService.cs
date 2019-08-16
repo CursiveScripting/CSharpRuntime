@@ -4,6 +4,7 @@ using System.Linq;
 
 namespace Cursive.Serialization
 {
+    /*
     internal static class ProcessValidationService
     {
         internal static bool ValidateProcess(Workspace workspace, UserProcess process, out List<string> errors)
@@ -93,4 +94,5 @@ namespace Cursive.Serialization
             return success;
         }
     }
+    */
 }

@@ -6,15 +6,15 @@ namespace Cursive
     {
         public StartStep(string id)
             : base(id) { }
-        
-        public ValueSet Inputs { get; set; } // TODO: do away with this, instead different Run method
 
-        public override Task<Step> Run(CallStack stack)
+        internal override StepType StepType => StepType.Start;
+
+        public Task<Step> Run(CallStack stack, ValueSet inputs)
         {
             var variables = stack.CurrentVariables.Values;
 
             foreach (var kvp in OutputMapping)
-                variables[kvp.Value.Name] = Inputs.Values[kvp.Key];
+                variables[kvp.Value.Name] = inputs.Values[kvp.Key];
 
             return Task.FromResult(DefaultReturnPath);
         }

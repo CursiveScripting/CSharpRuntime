@@ -17,20 +17,28 @@ namespace Cursive
 
         public IReadOnlyCollection<StackFrame> Frames { get; }
 
-        public ValueSet CurrentVariables => frames.Peek().Variables;
+        public ValueSet CurrentVariables { get; private set; }
 
-        internal async Task EnterStep(UserProcess process, Step step, ValueSet variables)
+        internal async Task EnterNewProcess(UserProcess process, StartStep step, ValueSet variables)
+        {
+            CurrentVariables = variables;
+
+            await EnterStep(process, step);
+        }
+
+        internal async Task EnterStep(UserProcess process, Step step)
         {
             if (frames.Count >= MaxStackSize)
                 throw new CursiveRunException(this, $"The maximum call depth ({MaxStackSize}) has been exceeded. Possible infinite loop detected.");
 
-            var frame = CreateFrame(process, step, variables);
+            var frame = CreateFrame(process, step);
+
             await Push(frame);
         }
 
-        internal virtual StackFrame CreateFrame(UserProcess process, Step step, ValueSet variables)
+        internal virtual StackFrame CreateFrame(UserProcess process, Step step)
         {
-            return new StackFrame(process, step, variables);
+            return new StackFrame(process, step, CurrentVariables);
         }
 
         protected virtual Task Push(StackFrame frame)

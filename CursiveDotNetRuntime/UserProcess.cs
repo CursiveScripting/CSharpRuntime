@@ -20,55 +20,62 @@ namespace Cursive
             Variables = variables;
         }
 
-        [JsonProperty(PropertyName = "variables")]
         public Dictionary<string, Variable> Variables { get; }
 
         public StartStep FirstStep { get; internal set; }
-
-        [JsonProperty(PropertyName = "steps")]
-        public List<Step> Steps { get; } = new List<Step>();
 
         internal override async Task<Response> Run(ValueSet inputs, CallStack stack)
         {
             var variableValues = new ValueSet(Variables.ToDictionary(v => v.Key, v => v.Value.InitialValue));
 
-            FirstStep.Inputs = inputs;
-            Step currentStep = FirstStep, lastStep = null;
+            Step currentStep = await RunStartStep(FirstStep, inputs, stack, variableValues);
 
             while (currentStep != null)
             {
-                lastStep = currentStep;
-                await stack.EnterStep(this, currentStep, variableValues);
-                currentStep = await currentStep.Run(stack);
-                stack.ExitStep();
+                if (currentStep.StepType == StepType.Process)
+                    currentStep = await RunStep(currentStep as UserStep, stack);
+
+                else if (currentStep.StepType == StepType.Stop)
+                    return await RunStopStep(currentStep as StopStep, stack);
+
+                else
+                    throw new CursiveRunException(stack, $"Ran into unexpected step {currentStep.ID} in process {Name}");
             }
 
-            if (lastStep is StopStep end)
-            {
-                return new Response(end.ReturnValue, end.GetOutputs());
-            }
-
-            throw new CursiveRunException(stack, "The last step of a completed process wasn't a StopStep");
+            throw new CursiveRunException(stack, $"The last step of a process \"{Name}\" wasn't a stop step");
         }
 
-        public IEnumerable<StopStep> StopSteps
+        private async Task<Step> RunStartStep(StartStep step, ValueSet inputs, CallStack stack, ValueSet variableValues)
         {
-            get
-            {
-                foreach (var step in Steps)
-                    if (step is StopStep end)
-                        yield return end;
-            }
+            await stack.EnterNewProcess(this, step, variableValues);
+
+            Step nextStep = await step.Run(stack, inputs);
+
+            stack.ExitStep();
+
+            return nextStep;
         }
 
-        public IEnumerable<UserStep> UserSteps
+        private async Task<Step> RunStep(UserStep step, CallStack stack)
         {
-            get
-            {
-                foreach (var step in Steps)
-                    if (step is UserStep userStep)
-                        yield return userStep;
-            }
+            await stack.EnterStep(this, step);
+
+            var nextStep = await step.Run(stack);
+
+            stack.ExitStep();
+
+            return nextStep;
+        }
+
+        private async Task<Response> RunStopStep(StopStep step, CallStack stack)
+        {
+            await stack.EnterStep(this, step);
+
+            var outputs = await step.Run(stack);
+
+            stack.ExitStep();
+
+            return new Response(step.ReturnValue, outputs);
         }
     }
 }

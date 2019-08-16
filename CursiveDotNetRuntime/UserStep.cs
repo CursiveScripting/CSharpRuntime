@@ -13,15 +13,13 @@ namespace Cursive
             ChildProcess = process;
         }
 
-        [JsonIgnore]
-        public Process ChildProcess { get; set; }
+        internal override StepType StepType => StepType.Process;
 
-        [JsonProperty(PropertyName = "process")]
-        private string ChildProcessName => ChildProcess.Name;
+        public Process ChildProcess { get; set; }
 
         public Dictionary<string, Step> ReturnPaths { get; } = new Dictionary<string, Step>();
 
-        public override async Task<Step> Run(CallStack stack)
+        public async Task<Step> Run(CallStack stack)
         {
             var variables = stack.CurrentVariables.Values;
 
@@ -49,8 +47,7 @@ namespace Cursive
                     throw new CursiveRunException(stack, $"Step {ID} unexpectedly returned a null value");
             }
 
-            Step nextStep;
-            if (!ReturnPaths.TryGetValue(returnPath, out nextStep))
+            if (!ReturnPaths.TryGetValue(returnPath, out Step nextStep))
             {
                 if (ChildProcess is SystemProcess)
                     throw new CursiveRunException(stack, $"System process {(ChildProcess as SystemProcess).Name} returned an unexpected value: {returnPath}");

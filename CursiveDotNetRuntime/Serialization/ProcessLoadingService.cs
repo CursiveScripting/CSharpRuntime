@@ -162,7 +162,7 @@ namespace Cursive.Serialization
                         {
                             if (!processesByName.TryGetValue(stepData.InnerProcess, out Process innerProcess))
                             {
-                                errors.Add($"Unrecognised process \"{stepData.InnerProcess}\" on step {stepData.ID} in process {stepData.InnerProcess}");
+                                errors.Add($"Unrecognised process \"{stepData.InnerProcess}\" on step {stepData.ID} in process {process.Name}");
                                 break;
                             }
 
@@ -258,7 +258,7 @@ namespace Cursive.Serialization
                 {
                     var message = isInputParam
                         ? $"Step {step.ID} tries to map the \"{param.Value}\" variable to its \"{param.Key}\" input, but their types are not compatible ({variable.Type.Name} and {parameter.Type.Name})"
-                        : $"Step {step.ID} tries to map its \"{param.Key}\" output to the \"{param.Value}\" variable, but their types are not compatible ({parameter.Type.Name} and {variable.Type.Name})"
+                        : $"Step {step.ID} tries to map its \"{param.Key}\" output to the \"{param.Value}\" variable, but their types are not compatible ({parameter.Type.Name} and {variable.Type.Name})";
                     
                     errors.Add(message);
                     continue;

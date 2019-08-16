@@ -11,23 +11,17 @@ namespace Cursive
             ReturnValue = returnValue;
         }
 
-        public string ReturnValue { get; private set; }
-        private ValueSet Outputs { get; set; }
+        internal override StepType StepType => StepType.Stop;
 
-        public ValueSet GetOutputs() // do away with this, instead different Run method
-        {
-            ValueSet outputs = Outputs;
-            Outputs = null;
-            return outputs;
-        }
+        public string ReturnValue { get; }
 
-        public override Task<Step> Run(CallStack stack)
+        public Task<ValueSet> Run(CallStack stack)
         {
             var variables = stack.CurrentVariables.Values;
 
-            Outputs = new ValueSet(InputMapping.ToDictionary(m => m.Key, m => variables[m.Value.Name]));
+            var outputs = new ValueSet(InputMapping.ToDictionary(m => m.Key, m => variables[m.Value.Name]));
 
-            return Task.FromResult<Step>(null);
+            return Task.FromResult<ValueSet>(outputs);
         }
     }
 }

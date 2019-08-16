@@ -78,7 +78,7 @@ namespace Tests
             Parameter<int> iValue2 = new Parameter<int>("value2", integer);
 
             return new SystemProcess(
-                "Compare integers",
+                "compare",
                 "Compare two integers",
                 (ValueSet inputs) =>
                 {
@@ -101,7 +101,7 @@ namespace Tests
             var iValue = new Parameter<int>("value", integer);
 
             return new SystemProcess(
-                "Get integer property",
+                "get",
                 "Output the named property of a given object. Returns 'error' if the property does not exist, or if getting it fails.",
                 (ValueSet inputs) =>
                 {

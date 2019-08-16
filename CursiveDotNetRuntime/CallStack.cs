@@ -47,6 +47,15 @@ namespace Cursive
             return Task.CompletedTask;
         }
 
+        internal void ExitProcess()
+        {
+            ExitStep();
+
+            CurrentVariables = frames.Count > 0
+                ? frames.Peek().Variables
+                : null;
+        }
+
         internal void ExitStep()
         {
             frames.Pop();

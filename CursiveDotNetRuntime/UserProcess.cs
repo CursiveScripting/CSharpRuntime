@@ -73,7 +73,7 @@ namespace Cursive
 
             var outputs = await step.Run(stack);
 
-            stack.ExitStep();
+            stack.ExitProcess();
 
             return new ProcessResult(step.ReturnValue, outputs);
         }

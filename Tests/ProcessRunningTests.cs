@@ -20,7 +20,7 @@ namespace Tests
                 "Returns the name of the current day of the week",
                 (ValueSet inputs) =>
                 {
-                    return Response.SyncTask(DateTime.Today.DayOfWeek.ToString());
+                    return new ProcessResult(DateTime.Today.DayOfWeek.ToString());
                 },
                 null, null,
                 new string[] {
@@ -45,7 +45,7 @@ namespace Tests
                 (ValueSet inputs) =>
                 {
                     Console.WriteLine(inputs.Get(messageParam));
-                    return Response.SyncTask();
+                    return new ProcessResult();
                 },
                 new Parameter[] { messageParam },
                 null,
@@ -63,7 +63,7 @@ namespace Tests
                 "Test to see if two values are equal.",
                 (ValueSet inputs) =>
                 {
-                    return Response.SyncTask(inputs.Get(strValue1).Equals(inputs.Get(strValue2)) ? "yes" : "no");
+                    return new ProcessResult(inputs.Get(strValue1).Equals(inputs.Get(strValue2)) ? "yes" : "no");
                 },
                 new Parameter[] { strValue1, strValue2 },
                 null,
@@ -85,7 +85,7 @@ namespace Tests
                     int value2 = inputs.Get(iValue2);
 
                     var comparison = value1.CompareTo(value2);
-                    return Response.SyncTask(comparison < 0 ? "less" : comparison > 0 ? "greater" : "equal");
+                    return new ProcessResult(comparison < 0 ? "less" : comparison > 0 ? "greater" : "equal");
                 },
                 new Parameter[] { iValue1, iValue2 },
                 null,
@@ -110,7 +110,7 @@ namespace Tests
                     var propertyName = inputs.Get(property).ToString();
                     var prop = source.GetType().GetProperty(propertyName);
                     if (prop == null)
-                        return Response.SyncTask("error", outputs);
+                        return new ProcessResult("error", outputs);
 
                     try
                     {
@@ -118,9 +118,9 @@ namespace Tests
                     }
                     catch
                     {
-                        return Response.SyncTask("error", outputs);
+                        return new ProcessResult("error", outputs);
                     }
-                    return Response.SyncTask("ok", outputs);
+                    return new ProcessResult("ok", outputs);
                 },
                 new Parameter[] { personVal, property },
                 new Parameter[] { iValue },
@@ -142,7 +142,7 @@ namespace Tests
                     var destination = inputs.Get(personVal);
                     var prop = destination.GetType().GetProperty(inputs.Get(property));
                     if (prop == null)
-                        return Response.SyncTask("error");
+                        return new ProcessResult("error");
 
                     try
                     {
@@ -150,9 +150,9 @@ namespace Tests
                     }
                     catch
                     {
-                        return Response.SyncTask("error");
+                        return new ProcessResult("error");
                     }
-                    return Response.SyncTask("ok");
+                    return new ProcessResult("ok");
                 },
                 new Parameter[] { personVal, property, iValue },
                 null,

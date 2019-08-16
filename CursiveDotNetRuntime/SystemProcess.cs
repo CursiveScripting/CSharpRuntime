@@ -6,17 +6,23 @@ namespace Cursive
 {
     public class SystemProcess : Process
     {
-        public SystemProcess(string name, string description, SystemStep operation, IReadOnlyCollection<Parameter> inputs, IReadOnlyCollection<Parameter> outputs, IReadOnlyCollection<string> returnPaths, string folder = null)
+        public SystemProcess(string name, string description, Func<ValueSet, Task<ProcessResult>> operation, IReadOnlyCollection<Parameter> inputs, IReadOnlyCollection<Parameter> outputs, IReadOnlyCollection<string> returnPaths, string folder = null)
             : base(name, description, folder, inputs, outputs, returnPaths)
         {
             Operation = operation;
         }
 
-        public delegate Task<Response> SystemStep(ValueSet input);
+        public SystemProcess(string name, string description, Func<ValueSet, ProcessResult> operation, IReadOnlyCollection<Parameter> inputs, IReadOnlyCollection<Parameter> outputs, IReadOnlyCollection<string> returnPaths, string folder = null)
+            : base(name, description, folder, inputs, outputs, returnPaths)
+        {
+            Operation = vals => Task.FromResult(operation(vals));
+        }
 
-        private SystemStep Operation { get; }
+        public delegate Task<ProcessResult> SystemStep(ValueSet input);
 
-        internal override async Task<Response> Run(ValueSet inputs, CallStack stack = null)
+        private Func<ValueSet, Task<ProcessResult>> Operation { get; }
+
+        internal override async Task<ProcessResult> Run(ValueSet inputs, CallStack stack = null)
         {
             try
             {

@@ -29,7 +29,7 @@ namespace Tests
                 "Test to see if two values are equal.",
                 (ValueSet inputs) =>
                 {
-                    return Response.SyncTask(inputs.Get(value1) == inputs.Get(value2) ? "yes" : "no");
+                    return new ProcessResult(inputs.Get(value1) == inputs.Get(value2) ? "yes" : "no");
                 },
                 new Parameter[] { value1, value2 },
                 null,
@@ -45,7 +45,7 @@ namespace Tests
                     int i1 = inputs.Get(value1);
                     int i2 = inputs.Get(value2);
                     outputs.Set(value3, i1 + i2);
-                    return Response.SyncTask(outputs);
+                    return new ProcessResult(outputs);
                 },
                 new Parameter[] { value1, value2 },
                 new Parameter[] { value3 },

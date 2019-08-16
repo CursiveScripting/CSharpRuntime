@@ -43,6 +43,6 @@ namespace Cursive
         [JsonProperty(PropertyName = "returnPaths", Order = 6)]
         public IReadOnlyCollection<string> ReturnPaths { get; }
 
-        internal abstract Task<Response> Run(ValueSet inputs, CallStack stack);
+        internal abstract Task<ProcessResult> Run(ValueSet inputs, CallStack stack);
     }
 }

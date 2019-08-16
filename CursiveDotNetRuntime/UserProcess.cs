@@ -24,7 +24,7 @@ namespace Cursive
 
         public StartStep FirstStep { get; internal set; }
 
-        internal override async Task<Response> Run(ValueSet inputs, CallStack stack)
+        internal override async Task<ProcessResult> Run(ValueSet inputs, CallStack stack)
         {
             var variableValues = new ValueSet(Variables.ToDictionary(v => v.Key, v => v.Value.InitialValue));
 
@@ -67,7 +67,7 @@ namespace Cursive
             return nextStep;
         }
 
-        private async Task<Response> RunStopStep(StopStep step, CallStack stack)
+        private async Task<ProcessResult> RunStopStep(StopStep step, CallStack stack)
         {
             await stack.EnterStep(this, step);
 
@@ -75,7 +75,7 @@ namespace Cursive
 
             stack.ExitStep();
 
-            return new Response(step.ReturnValue, outputs);
+            return new ProcessResult(step.ReturnValue, outputs);
         }
     }
 }

@@ -30,43 +30,43 @@ namespace Tests
         [Test]
         public void DataTypeIsAssignableFromParent()
         {
-            Assert.That(dtHashtable.IsAssignableFrom(dtObject));
+            Assert.That(dtHashtable.IsAssignableTo(dtObject));
         }
 
         [Test]
         public void DataTypeIsNotAssignableFromChild()
         {
-            Assert.That(!dtObject.IsAssignableFrom(dtHashtable));
+            Assert.That(!dtObject.IsAssignableTo(dtHashtable));
         }
 
         [Test]
         public void FixedTypeIsAssignableFromParent()
         {
-            Assert.That(dtLong.IsAssignableFrom(dtInteger));
+            Assert.That(dtLong.IsAssignableTo(dtInteger));
         }
 
         [Test]
         public void FixedTypeIsNotAssignableFromChild()
         {
-            Assert.That(!dtInteger.IsAssignableFrom(dtLong));
+            Assert.That(!dtInteger.IsAssignableTo(dtLong));
         }
 
         [Test]
         public void FixedTypeIsAssignableFromGrandparent()
         {
-            Assert.That(dtLong.IsAssignableFrom(dtShort));
+            Assert.That(dtLong.IsAssignableTo(dtShort));
         }
 
         [Test]
         public void FixedTypeIsNotAssignableFromGrandchild()
         {
-            Assert.That(!dtShort.IsAssignableFrom(dtLong));
+            Assert.That(!dtShort.IsAssignableTo(dtLong));
         }
 
         [Test]
         public void DataTypeIsNotAssignableFromUnrelatedType()
         {
-            Assert.That(!dtString.IsAssignableFrom(dtHashtable));
+            Assert.That(!dtString.IsAssignableTo(dtHashtable));
         }
         
         [Test]

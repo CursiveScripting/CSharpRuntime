@@ -56,13 +56,13 @@ namespace Cursive
 
         private static T GetTypeDefault<T>() { return default(T); }
 
-        public bool IsAssignableFrom(DataType other)
+        public bool IsAssignableTo(DataType destinationType)
         {
             DataType test = this;
 
             do
             {
-                if (test == other)
+                if (test == destinationType)
                     return true;
 
                 test = test.Extends;

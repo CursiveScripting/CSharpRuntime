@@ -184,7 +184,8 @@ namespace Cursive.Serialization
                 var step = stepInfo.Item2;
                 var parameters = stepInfo.Item3;
 
-                MapParameters(stepData.Inputs, step, parameters, process.Variables, true, errors);
+                if (stepData.Inputs != null)
+                    MapParameters(stepData.Inputs, step, parameters, process.Variables, true, errors);
             }
 
             foreach (var stepInfo in stepsWithOutputs)
@@ -193,7 +194,8 @@ namespace Cursive.Serialization
                 var step = stepInfo.Item2;
                 var parameters = stepInfo.Item3;
 
-                MapParameters(stepData.Outputs, step, parameters, process.Variables, false, errors);
+                if (stepData.Outputs != null)
+                    MapParameters(stepData.Outputs, step, parameters, process.Variables, false, errors);
 
                 if (stepData.ReturnPath != null)
                 {
@@ -254,7 +256,7 @@ namespace Cursive.Serialization
                     toType = variable.Type;
                 }
 
-                if (!fromType.IsAssignableFrom(toType))
+                if (!fromType.IsAssignableTo(toType))
                 {
                     var message = isInputParam
                         ? $"Step {step.ID} tries to map the \"{param.Value}\" variable to its \"{param.Key}\" input, but their types are not compatible ({variable.Type.Name} and {parameter.Type.Name})"

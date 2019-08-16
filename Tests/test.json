@@ -74,7 +74,7 @@
         "y": 20
       },
       {
-        "name": "dressingMsg1",
+        "name": "dressMsg1",
         "type": "text",
         "initialValue": "Making breakfast...",
         "x": 20,
@@ -133,8 +133,19 @@
         }
       },
       {
-        "id": "demandBreakfast",
+        "id": "makeBreakfast",
         "x": 60,
+        "y": 1,
+        "type": "process",
+        "process": "print",
+        "inputs": {
+          "message": "breakfastMsg1"
+        },
+        "returnPath": "eatBreakfast"
+      },
+      {
+        "id": "demandBreakfast",
+        "x": 80,
         "y": 1,
         "type": "process",
         "process": "print",
@@ -145,7 +156,7 @@
       },
       {
         "id": "eatBreakfast",
-        "x": 80,
+        "x": 100,
         "y": 1,
         "type": "process",
         "process": "print",
@@ -156,7 +167,7 @@
       },
       {
         "id": "getReady",
-        "x": 100,
+        "x": 120,
         "y": 1,
         "type": "process",
         "process": "print",
@@ -167,7 +178,7 @@
       },
       {
         "id": "checkDay",
-        "x": 120,
+        "x": 140,
         "y": 1,
         "type": "process",
         "process": "getDay",
@@ -183,7 +194,7 @@
       },
       {
         "id": "getInCar",
-        "x": 140,
+        "x": 160,
         "y": 1,
         "type": "process",
         "process": "print",
@@ -194,11 +205,11 @@
       },
       {
         "id": "done",
-        "x": 160,
+        "x": 180,
         "y": 1,
         "type": "stop",
         "inputs": {
-          "My Age": "age"
+          "My age": "age"
         }
       }
     ]

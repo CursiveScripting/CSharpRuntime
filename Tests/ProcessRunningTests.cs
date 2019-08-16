@@ -6,7 +6,6 @@ using System.Drawing;
 using System.IO;
 using System.Reflection;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace Tests
 {
@@ -17,7 +16,7 @@ namespace Tests
         public static SystemProcess GetDayOfWeek()
         {
             return new SystemProcess(
-                "Get day of week",
+                "getDay",
                 "Returns the name of the current day of the week",
                 (ValueSet inputs) =>
                 {
@@ -41,7 +40,7 @@ namespace Tests
             Parameter<string> messageParam = new Parameter<string>("message", text);
 
             return new SystemProcess(
-                "Print",
+                "print",
                 "Write a message to the system console.",
                 (ValueSet inputs) =>
                 {
@@ -198,9 +197,9 @@ namespace Tests
         {
             text = new FixedType<string>("text", Color.FromKnownColor(KnownColor.Gray), new Regex(".*"), s => s, () => string.Empty);
             integer = new FixedType<int>("integer", Color.FromKnownColor(KnownColor.Green), new Regex("[0-9]+"), s => int.Parse(s));
-            person = new DataType<Person>("person", Color.FromKnownColor(KnownColor.Red));
             objectType = new DataType<object>("object", Color.FromKnownColor(KnownColor.Blue));
-            car = new DataType<Car>("car", Color.FromKnownColor(KnownColor.Blue));
+            person = new DataType<Person>("person", Color.FromKnownColor(KnownColor.Red), objectType);
+            car = new DataType<Car>("car", Color.FromKnownColor(KnownColor.Blue), objectType);
 
             me = new Parameter<Person>("Me", person);
             carParam = new Parameter<Car>("Car", car);

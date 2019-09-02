@@ -30,7 +30,7 @@ namespace Cursive
             }
             catch (Exception e)
             {
-                throw new CursiveRunException(stack, $"An error occurred running system process ${Name}", e);
+                throw new CursiveRunException(stack, $"An error occurred running system process \"{Name}\"", e);
             }
         }
     }

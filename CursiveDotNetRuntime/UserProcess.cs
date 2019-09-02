@@ -39,7 +39,7 @@ namespace Cursive
                     return await RunStopStep(currentStep as StopStep, stack);
 
                 else
-                    throw new CursiveRunException(stack, $"Ran into unexpected step {currentStep.ID} in process {Name}");
+                    throw new CursiveRunException(stack, $"Ran into unexpected step {currentStep.ID} in process \"{Name}\"");
             }
 
             throw new CursiveRunException(stack, $"The last step of a process \"{Name}\" wasn't a stop step");

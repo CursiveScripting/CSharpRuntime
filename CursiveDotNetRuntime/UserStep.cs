@@ -42,7 +42,7 @@ namespace Cursive
                     return DefaultReturnPath;
 
                 if (ChildProcess is SystemProcess)
-                    throw new CursiveRunException(stack, $"System process {(ChildProcess as SystemProcess).Name} unexpectedly returned a null value");
+                    throw new CursiveRunException(stack, $"System process \"{ChildProcess.Name}\" unexpectedly returned a null value");
                 else
                     throw new CursiveRunException(stack, $"Step {ID} unexpectedly returned a null value");
             }
@@ -50,7 +50,7 @@ namespace Cursive
             if (!ReturnPaths.TryGetValue(returnPath, out Step nextStep))
             {
                 if (ChildProcess is SystemProcess)
-                    throw new CursiveRunException(stack, $"System process {(ChildProcess as SystemProcess).Name} returned an unexpected value: {returnPath}");
+                    throw new CursiveRunException(stack, $"System process \"{ChildProcess.Name}\" returned an unexpected value: {returnPath}");
                 else
                     throw new CursiveRunException(stack, $"Step {ID} returned an unexpected value: {returnPath}");
             }

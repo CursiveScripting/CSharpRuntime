@@ -27,7 +27,7 @@ namespace Cursive
         {
             var variableValues = new ValueSet(Variables.ToDictionary(v => v.Key, v => v.Value.InitialValue));
 
-            Step currentStep = await RunStartStep(FirstStep, inputs, stack, variableValues);
+            Step currentStep = await RunStartStep(inputs, stack, variableValues);
 
             while (currentStep != null)
             {
@@ -41,11 +41,13 @@ namespace Cursive
                     throw new CursiveRunException(stack, $"Ran into unexpected step {currentStep.ID} in process \"{Name}\"");
             }
 
-            throw new CursiveRunException(stack, $"The last step of a process \"{Name}\" wasn't a stop step");
+            throw new CursiveRunException(stack, $"The last step of process \"{Name}\" wasn't a stop step");
         }
 
-        private async Task<Step> RunStartStep(StartStep step, ValueSet inputs, CallStack stack, ValueSet variableValues)
+        private async Task<Step> RunStartStep(ValueSet inputs, CallStack stack, ValueSet variableValues)
         {
+            var step = FirstStep;
+
             await stack.EnterNewProcess(this, step, variableValues);
 
             Step nextStep = await step.Run(stack, inputs);

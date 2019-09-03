@@ -43,9 +43,6 @@ namespace Cursive
         [JsonProperty(PropertyName = "validation")]
         private string ValidationPattern => Validation?.ToString();
 
-        [JsonIgnore]
-        public abstract Type SystemType { get; }
-
         public abstract object GetDefaultValue();
 
         protected static object GetTypeDefault(Type t)
@@ -82,8 +79,6 @@ namespace Cursive
         {
             GetDefault = getDefault;
         }
-
-        public override Type SystemType { get { return typeof(T); } }
 
         private Func<T> GetDefault { get; }
 

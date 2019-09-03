@@ -136,6 +136,12 @@ namespace Cursive.Serialization
 
             foreach (var stepData in processData.Steps)
             {
+                if (stepsById.ContainsKey(stepData.ID))
+                {
+                    errors.Add($"Process \"{stepData.InnerProcess}\" has multiple steps with ID {stepData.ID}");
+                    continue;
+                }
+
                 switch (stepData.Type)
                 {
                     case "start":
@@ -162,7 +168,7 @@ namespace Cursive.Serialization
                         {
                             if (!processesByName.TryGetValue(stepData.InnerProcess, out Process innerProcess))
                             {
-                                errors.Add($"Unrecognised process \"{stepData.InnerProcess}\" on step {stepData.ID} in process {process.Name}");
+                                errors.Add($"Unrecognised process \"{stepData.InnerProcess}\" on step {stepData.ID} in process \"{process.Name}\"");
                                 break;
                             }
 
@@ -173,7 +179,7 @@ namespace Cursive.Serialization
                             break;
                         }
                     default:
-                        errors.Add($"Invalid type \"{stepData.Type}\" on step {stepData.ID} in process {stepData.InnerProcess}");
+                        errors.Add($"Invalid type \"{stepData.Type}\" on step {stepData.ID} in process \"{stepData.InnerProcess}\"");
                         break;
                 }
             }
@@ -185,7 +191,7 @@ namespace Cursive.Serialization
                 var parameters = stepInfo.Item3;
 
                 if (stepData.Inputs != null)
-                    MapParameters(stepData.Inputs, step, parameters, process.Variables, true, errors);
+                    MapParameters(stepData.Inputs, step, parameters, process, true, errors);
             }
 
             foreach (var stepInfo in stepsWithOutputs)
@@ -195,24 +201,45 @@ namespace Cursive.Serialization
                 var parameters = stepInfo.Item3;
 
                 if (stepData.Outputs != null)
-                    MapParameters(stepData.Outputs, step, parameters, process.Variables, false, errors);
+                    MapParameters(stepData.Outputs, step, parameters, process, false, errors);
 
                 if (stepData.ReturnPath != null)
                 {
                     if (stepsById.TryGetValue(stepData.ReturnPath, out Step destStep))
                         step.DefaultReturnPath = destStep;
                     else
-                        errors.Add($"Step {step.ID} tries to connect to non-existent step: {stepData.ReturnPath}");
+                        errors.Add($"Step {step.ID} in process \"{process.Name}\" tries to connect to non-existent step \"{stepData.ReturnPath}\"");
                 }
                 else if (stepData.ReturnPaths != null && step is UserStep userStep)
                 {
+                    var expectedReturnPaths = step.StepType == StepType.Process
+                        ? (step as UserStep).ChildProcess.ReturnPaths
+                        : new string[] { };
+
+                    var mappedPaths = new HashSet<string>();
+
                     foreach (var returnPath in stepData.ReturnPaths)
                     {
-                        if (stepsById.TryGetValue(returnPath.Value, out Step destStep))
+                        if (!expectedReturnPaths.Contains(returnPath.Key))
+                            errors.Add($"Step {step.ID} in process \"{process.Name}\" tries to map unexpected return path \"{returnPath.Key}\"");
+                        else if (stepsById.TryGetValue(returnPath.Value, out Step destStep))
+                        {
+                            if (mappedPaths.Contains(returnPath.Key))
+                            {
+                                errors.Add($"Step {step.ID} in process \"{process.Name}\" tries to map the \"{returnPath.Key}\" return path multiple times");
+                                continue;
+                            }
+
                             userStep.ReturnPaths[returnPath.Key] = destStep;
+                            mappedPaths.Add(returnPath.Key);
+                        }
                         else
-                            errors.Add($"Step {step.ID} tries to connect to non-existent step: {returnPath.Value}");
+                            errors.Add($"Step {step.ID} tries to connect to non-existent step \"{returnPath.Value}\" in process \"{process.Name}\"");
                     }
+
+                    foreach (var path in expectedReturnPaths)
+                        if (!mappedPaths.Contains(path))
+                            errors.Add($"Step {step.ID} in process \"{process.Name}\" fails to map the \"{path}\" return path");
                 }
             }
         }
@@ -221,7 +248,7 @@ namespace Cursive.Serialization
             Dictionary<string, string> paramData,
             Step step,
             IReadOnlyCollection<Parameter> parameters,
-            Dictionary<string, Variable> variables,
+            UserProcess process,
             bool isInputParam,
             List<string> errors
         )
@@ -232,14 +259,14 @@ namespace Cursive.Serialization
                 if (parameter == null)
                 {
                     var paramType = isInputParam ? "input" : "output";
-                    errors.Add($"Step {step.ID} tries to map non-existent {paramType}: {param.Key}");
+                    errors.Add($"Step {step.ID} tries to map non-existent {paramType} \"{param.Key}\" in process \"{process.Name}\"");
                     continue;
                 }
 
-                if (!variables.TryGetValue(param.Value, out Variable variable))
+                if (!process.Variables.TryGetValue(param.Value, out Variable variable))
                 {
                     var paramType = isInputParam ? "input" : "output";
-                    errors.Add($"Step {step.ID} tries to map {paramType} to non-existent variable: {param.Value}");
+                    errors.Add($"Step {step.ID} tries to map {paramType} to non-existent variable \"{param.Value}\" in process \"{process.Name}\"");
                     continue;
                 }
 
@@ -259,15 +286,25 @@ namespace Cursive.Serialization
                 if (!fromType.IsAssignableTo(toType))
                 {
                     var message = isInputParam
-                        ? $"Step {step.ID} tries to map the \"{param.Value}\" variable to its \"{param.Key}\" input, but their types are not compatible ({variable.Type.Name} and {parameter.Type.Name})"
-                        : $"Step {step.ID} tries to map its \"{param.Key}\" output to the \"{param.Value}\" variable, but their types are not compatible ({parameter.Type.Name} and {variable.Type.Name})";
+                        ? $"Step {step.ID} tries to map the \"{param.Value}\" variable to its \"{param.Key}\" input, but their types are not compatible ({variable.Type.Name} and {parameter.Type.Name}), in process \"{process.Name}\""
+                        : $"Step {step.ID} tries to map its \"{param.Key}\" output to the \"{param.Value}\" variable, but their types are not compatible ({parameter.Type.Name} and {variable.Type.Name}), in process \"{process.Name}\"";
                     
                     errors.Add(message);
                     continue;
                 }
 
-                step.InputMapping[parameter.Name] = variable;
+                if (isInputParam)
+                    step.InputMapping[parameter.Name] = variable;
+                else
+                    step.OutputMapping[parameter.Name] = variable;
             }
+
+            if (isInputParam)
+                foreach (var param in parameters)
+                    if (!step.InputMapping.ContainsKey(param.Name))
+                    {
+                        errors.Add($"Step {step.ID} fails to map \"{param.Name}\" input parameter in process \"{process.Name}\"");
+                    }
         }
 
         private static bool AreNamesUnique(List<UserProcess> processes, out List<string> errors)

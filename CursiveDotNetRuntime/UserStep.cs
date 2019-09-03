@@ -29,12 +29,12 @@ namespace Cursive
             // actually run the process, with the inputs named as it expects
             var response = await ChildProcess.Run(childInputs, stack);
             string returnPath = response.ReturnPath;
-            var childOutputs = response.Outputs;
+            var outputs = response.Outputs;
 
             // map any output parameters back out into variables
-            if (childOutputs != null)
+            if (outputs != null)
                 foreach (var kvp in OutputMapping)
-                    variables[kvp.Value.Name] = childOutputs.Values[kvp.Key];
+                    variables[kvp.Value.Name] = outputs.Values[kvp.Key];
 
             if (returnPath == null)
             {

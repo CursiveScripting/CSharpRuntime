@@ -7,20 +7,19 @@ namespace Cursive.Serialization
 {
     internal static class ProcessLoadingService
     {
-        public static IList<string> LoadProcesses(Workspace workspace, string processJson)
+        public static bool LoadProcesses(Workspace workspace, string processJson, out List<string> errors)
         {
             var schemaValidationErrors = Schemas.Processes.Value.Validate(processJson);
 
             if (schemaValidationErrors.Any())
             {
-                return schemaValidationErrors.Select(err => err.ToString()).ToArray();
+                errors = schemaValidationErrors.Select(err => err.ToString()).ToList();
+                return false;
             }
 
             var processData = JsonConvert.DeserializeObject<UserProcessDTO[]>(processJson);
 
-            return LoadUserProcesses(workspace, processData, out List<string> loadErrors)
-                ? null
-                : loadErrors;
+            return LoadUserProcesses(workspace, processData, out errors);
         }
 
         private static bool LoadUserProcesses(Workspace workspace, UserProcessDTO[] processData, out List<string> errors)

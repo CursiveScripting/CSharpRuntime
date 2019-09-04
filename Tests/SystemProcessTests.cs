@@ -12,13 +12,13 @@ namespace Tests
         [InlineData(7, 7, "equal")]
         public async Task TestReturnPath(int val1, int val2, string returnPath)
         {
-            var compareProcess = new IntegerWorkspace().Compare;
+            var workspace = new IntegerWorkspace();
 
             var inputs = new ValueSet();
-            inputs.Set(compareProcess.Inputs[0] as Parameter<int>, val1);
-            inputs.Set(compareProcess.Inputs[1] as Parameter<int>, val2);
+            inputs.Set(workspace.CompareInput1, val1);
+            inputs.Set(workspace.CompareInput2, val2);
 
-            var result = await compareProcess.Run(inputs);
+            var result = await workspace.Compare.Run(inputs);
 
             Assert.Equal(returnPath, result.ReturnPath);
         }
@@ -29,17 +29,18 @@ namespace Tests
         [InlineData(13, 7, 20)]
         public async Task TestOutputs(int val1, int val2, int sum)
         {
-            var addProcess = new IntegerWorkspace().Add;
+            var workspace = new IntegerWorkspace();
 
             var inputs = new ValueSet();
-            inputs.Set(addProcess.Inputs[0] as Parameter<int>, val1);
-            inputs.Set(addProcess.Inputs[1] as Parameter<int>, val2);
+            inputs.Set(workspace.AddInput1, val1);
+            inputs.Set(workspace.AddInput2, val2);
 
-            var result = await addProcess.Run(inputs);
+            var result = await workspace.Add.Run(inputs);
 
             ValueSet outputs = result.Outputs;
-            var outValue = outputs.Get(addProcess.Outputs[0] as Parameter<int>);
+            var outValue = outputs.Get(workspace.AddOutput);
 
+            Assert.Null(result.ReturnPath);
             Assert.Equal(sum, outValue);
         }
     }

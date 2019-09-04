@@ -1,13 +1,30 @@
-﻿using Xunit;
+﻿using Cursive;
+using Newtonsoft.Json;
+using Xunit;
 
 namespace Tests
 {
     public class ProcessSavingTests
     {
-        [Fact]
-        public void TheseTestsNeedWritten()
+        [Theory]
+        [InlineData("Tests.IntegerProcesses.addOne.json")]
+        public void LoadAndSave(string resourceName)
         {
-            Assert.True(true);
+            string sourceProcessJson = ProcessLoadingTests.ReadJsonResource(resourceName);
+            var workspace = new IntegerWorkspace();
+            var success = workspace.LoadUserProcesses(sourceProcessJson, out _);
+
+            Assert.True(success);
+
+            var processJson = JsonConvert.SerializeObject(workspace.UserProcesses, Formatting.Indented);
+
+            Assert.NotNull(processJson);
+
+            var validationErrors = Schemas.Processes.Value.Validate(processJson);
+
+            Assert.Empty(validationErrors);
+
+            Assert.Equal(processJson, sourceProcessJson);
         }
     }
 }

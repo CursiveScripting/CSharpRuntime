@@ -13,7 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="test.json" />
+    <EmbeddedResource Include="IntegerProcesses\addOne.json" />
   </ItemGroup>
 
   <ItemGroup>

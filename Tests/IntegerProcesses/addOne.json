@@ -1,0 +1,75 @@
+[
+  {
+    "name": "Modify number",
+    "description": "Perform some operation(s) on a number",
+    "inputs": [
+      {
+        "name": "value",
+        "type": "integer"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "result",
+        "type": "integer"
+      }
+    ],
+    "variables": [
+      {
+        "name": "new integer",
+        "type": "integer",
+        "x": 216,
+        "y": 96
+      },
+      {
+        "name": "new integer 1",
+        "type": "integer",
+        "x": 192,
+        "y": 168,
+        "initialValue": "1"
+      },
+      {
+        "name": "new integer 2",
+        "type": "integer",
+        "x": 648,
+        "y": 96
+      }
+    ],
+    "steps": [
+      {
+        "type": "start",
+        "id": "1",
+        "x": 48,
+        "y": 48,
+        "outputs": {
+          "value": "new integer"
+        },
+        "returnPath": "2"
+      },
+      {
+        "type": "process",
+        "id": "2",
+        "x": 432,
+        "y": 48,
+        "process": "Add",
+        "inputs": {
+          "value 1": "new integer",
+          "value 2": "new integer 1"
+        },
+        "outputs": {
+          "result": "new integer 2"
+        },
+        "returnPath": "3"
+      },
+      {
+        "type": "stop",
+        "id": "3",
+        "x": 840,
+        "y": 48,
+        "inputs": {
+          "result": "new integer 2"
+        }
+      }
+    ]
+  }
+]

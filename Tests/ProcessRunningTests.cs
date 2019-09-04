@@ -232,8 +232,9 @@ namespace Tests
                 processJson = reader.ReadToEnd();
             }
 
-            var errors = workspace.LoadUserProcesses(processJson);
+            var result = workspace.LoadUserProcesses(processJson, out List<string> errors);
 
+            Assert.IsTrue(result);
             Assert.IsNull(errors);
 
             var inputs = new ValueSet();

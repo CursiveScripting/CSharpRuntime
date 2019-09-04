@@ -128,7 +128,6 @@
         "returnPaths": {
           "greater": "makeBreakfast",
           "equal": "makeBreakfast",
-          "error": "demandBreakfast",
           "less": "demandBreakfast"
         }
       },

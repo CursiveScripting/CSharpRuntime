@@ -112,7 +112,14 @@ namespace Cursive.Serialization
             var stepErrors = new List<string>();
 
             foreach (var process in processData)
-                LoadProcessSteps(process, processesByName, stepErrors);
+            {
+                var userProcess = processesByName[process.Name] as UserProcess;
+
+                if (LoadProcessSteps(userProcess, process.Steps, processesByName, stepErrors))
+                {
+                    CheckUnassignedVariables(userProcess, stepErrors);
+                }
+            }
 
             if (stepErrors.Any())
             {
@@ -124,16 +131,16 @@ namespace Cursive.Serialization
             return true;
         }
 
-        private static void LoadProcessSteps(UserProcessDTO processData, Dictionary<string, Process> processesByName, List<string> errors)
+        private static bool LoadProcessSteps(UserProcess process, List<StepDTO> steps, Dictionary<string, Process> processesByName, List<string> errors)
         {
-            var process = processesByName[processData.Name] as UserProcess;
-
             var stepsById = new Dictionary<string, Step>();
 
             var stepsWithInputs = new List<Tuple<StepDTO, Step, IReadOnlyCollection<Parameter>>>();
             var stepsWithOutputs = new List<Tuple<StepDTO, ReturningStep, IReadOnlyCollection<Parameter>>>();
 
-            foreach (var stepData in processData.Steps)
+            int initialErrorCount = errors.Count;
+
+            foreach (var stepData in steps)
             {
                 if (stepsById.ContainsKey(stepData.ID))
                 {
@@ -241,6 +248,8 @@ namespace Cursive.Serialization
                             errors.Add($"Step {step.ID} in process \"{process.Name}\" fails to map the \"{path}\" return path");
                 }
             }
+
+            return errors.Count == initialErrorCount;
         }
 
         private static void MapParameters(
@@ -304,6 +313,71 @@ namespace Cursive.Serialization
                     {
                         errors.Add($"Step {step.ID} fails to map \"{param.Name}\" input parameter in process \"{process.Name}\"");
                     }
+        }
+
+        private static bool CheckUnassignedVariables(UserProcess process, List<string> stepErrors)
+        {
+            var unassignedVariables = new HashSet<Variable>(
+                process.Variables.Values
+                    .Where(v => v.InitialValue == null)
+            );
+
+            var visitedSteps = new HashSet<Step>();
+
+            return CheckUnassignedVariables(process, process.FirstStep, visitedSteps, unassignedVariables, stepErrors);
+        }
+
+        private static bool CheckUnassignedVariables(UserProcess process, ReturningStep currentStep, HashSet<Step> visitedSteps, HashSet<Variable> unassignedVariables, List<string> errors)
+        {
+            visitedSteps.Add(currentStep);
+
+            unassignedVariables = new HashSet<Variable>(unassignedVariables);
+
+            // remove variables that currentStep's outputs connect to from the unassigned list
+            foreach (var variable in currentStep.OutputMapping.Values)
+                unassignedVariables.Remove(variable);
+
+            var allValid = true;
+
+            ICollection<Step> nextSteps;
+            
+            if (currentStep.DefaultReturnPath != null)
+            {
+                nextSteps = new Step[] { currentStep.DefaultReturnPath };
+            }
+            else if (currentStep.StepType == StepType.Process)
+            {
+                nextSteps = (currentStep as UserStep).ReturnPaths.Values;
+            }
+            else
+            {
+                errors.Add($"Step {currentStep.ID} in process \"{process.Name}\" has no return paths");
+                return false;
+            }
+
+            foreach (var nextStep in nextSteps)
+            {
+                if (visitedSteps.Contains(nextStep))
+                    continue; // already processed this step, don't do it again
+
+                // check each input of nextStep, if it touches anything in unassignedVariables, that's not valid
+                foreach (var variable in nextStep.InputMapping.Values)
+                {
+                    if (unassignedVariables.Contains(variable))
+                    {
+                        errors.Add($"Step {currentStep.ID} in process \"{process.Name}\" uses a variable before it is assigned: {variable.Name}");
+                        return false; // once an uninitialized variable is used, stop down this branch
+                    }
+                }
+
+                if (nextStep.StepType == StepType.Process
+                    && !CheckUnassignedVariables(process, nextStep as ReturningStep, visitedSteps, unassignedVariables, errors))
+                {
+                    allValid = false;
+                }
+            }
+
+            return allValid;
         }
 
         private static bool AreNamesUnique(List<UserProcess> processes, out List<string> errors)

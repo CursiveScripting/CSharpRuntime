@@ -1,22 +1,21 @@
 ﻿using Cursive;
 using Newtonsoft.Json;
-using NUnit.Framework;
+using Xunit;
 
 namespace Tests
 {
-    [TestFixture]
     public class WorkspaceSavingTests
     {
-        [Test]
+        [Fact]
         public void SavedWorkspaceValidates()
         {
             var workspaceJson = JsonConvert.SerializeObject(new IntegerWorkspace());
 
-            Assert.That(workspaceJson, Is.Not.Null);
+            Assert.NotNull(workspaceJson);
 
             var validationErrors = Schemas.Workspace.Value.Validate(workspaceJson);
 
-            Assert.IsEmpty(validationErrors);
+            Assert.Empty(validationErrors);
         }
     }
 }

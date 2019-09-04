@@ -1,41 +1,46 @@
 ﻿using Cursive;
-using NUnit.Framework;
 using System.Threading.Tasks;
+using Xunit;
 
 namespace Tests
 {
-    [TestFixture]
     public class SystemProcessTests
     {
-        [Test]
-        public async Task TestReturnPath()
+        [Theory]
+        [InlineData(1, 2, "less")]
+        [InlineData(5, 1, "greater")]
+        [InlineData(7, 7, "equal")]
+        public async Task TestReturnPath(int val1, int val2, string returnPath)
         {
             var compareProcess = new IntegerWorkspace().Compare;
 
             var inputs = new ValueSet();
-            inputs.Set(compareProcess.Inputs[0] as Parameter<int>, 1);
-            inputs.Set(compareProcess.Inputs[1] as Parameter<int>, 2);
+            inputs.Set(compareProcess.Inputs[0] as Parameter<int>, val1);
+            inputs.Set(compareProcess.Inputs[1] as Parameter<int>, val2);
 
             var result = await compareProcess.Run(inputs);
 
-            Assert.That(result.ReturnPath, Is.EqualTo("less"));
+            Assert.Equal(returnPath, result.ReturnPath);
         }
-        
-        [Test]
-        public async Task TestOutputs()
+
+        [Theory]
+        [InlineData(1, 2, 3)]
+        [InlineData(0, 0, 0)]
+        [InlineData(13, 7, 20)]
+        public async Task TestOutputs(int val1, int val2, int sum)
         {
-            var addProcess = new IntegerWorkspace().Compare;
+            var addProcess = new IntegerWorkspace().Add;
 
             var inputs = new ValueSet();
-            inputs.Set(addProcess.Inputs[0] as Parameter<int>, 1);
-            inputs.Set(addProcess.Inputs[1] as Parameter<int>, 2);
+            inputs.Set(addProcess.Inputs[0] as Parameter<int>, val1);
+            inputs.Set(addProcess.Inputs[1] as Parameter<int>, val2);
 
             var result = await addProcess.Run(inputs);
 
             ValueSet outputs = result.Outputs;
-            var outValue = inputs.Get(addProcess.Outputs[0] as Parameter<int>);
+            var outValue = outputs.Get(addProcess.Outputs[0] as Parameter<int>);
 
-            Assert.That(outValue, Is.EqualTo(3));
+            Assert.Equal(sum, outValue);
         }
     }
 }

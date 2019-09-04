@@ -1,30 +1,26 @@
 ﻿using Cursive;
-using NUnit.Framework;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Text.RegularExpressions;
+using Xunit;
 
 namespace Tests
 {
-    [TestFixture]
     public class ValueSetTests
     {
-        DataType<object> dtObject;
         DataType<short> dtShort;
         ValueSet values;
 
         Parameter<short> testShort;
 
-        [OneTimeSetUp]
-        public void Prepare()
+        public ValueSetTests()
         {
-            dtObject = new DataType<object>("object", Color.FromKnownColor(KnownColor.Red));
             dtShort = new FixedType<short>("short", Color.FromKnownColor(KnownColor.Yellow), new Regex("^[0-9]+$"), s => short.Parse(s));
 
             testShort = new Parameter<short>("testShort", dtShort);
         }
         
-        [Test]
+        [Fact]
         public void CanRetrieveSetValue()
         {
             values = new ValueSet();
@@ -32,15 +28,15 @@ namespace Tests
             short val = 27;
             values.Set(testShort, val);
             
-            Assert.That(values.Get(testShort), Is.EqualTo(27));
+            Assert.Equal(27, values.Get(testShort));
         }
 
-        [Test]
+        [Fact]
         public void FailToGetUnsetValue()
         {
             values = new ValueSet();
 
-            Assert.That(() => values.Get(testShort), Throws.TypeOf<KeyNotFoundException>());
+            Assert.Throws<KeyNotFoundException>(() => values.Get(testShort));
         }
     }
 }

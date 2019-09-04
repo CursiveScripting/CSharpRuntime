@@ -1,23 +1,17 @@
 ﻿using Cursive;
-using NUnit.Framework;
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
+using Xunit;
 
 namespace Tests
 {
-    [TestFixture]
     public class DataTypeTests
     {
         DataType dtObject, dtHashtable, dtShort, dtInteger, dtLong, dtString;
 
-        [OneTimeSetUp]
-        public void Prepare()
+        public DataTypeTests()
         {
             dtObject = new DataType<object>("object", Color.FromKnownColor(KnownColor.Red));
             dtHashtable = new DataType<Hashtable>("hashtable", Color.FromKnownColor(KnownColor.Orange), dtObject, () => new Hashtable());
@@ -27,127 +21,127 @@ namespace Tests
             dtString = new FixedType<string>("string", Color.FromKnownColor(KnownColor.SkyBlue), new Regex(".*"), s => s, () => string.Empty);
         }
         
-        [Test]
+        [Fact]
         public void DataTypeIsAssignableFromParent()
         {
-            Assert.That(dtHashtable.IsAssignableTo(dtObject));
+            Assert.True(dtHashtable.IsAssignableTo(dtObject));
         }
 
-        [Test]
+        [Fact]
         public void DataTypeIsNotAssignableFromChild()
         {
-            Assert.That(!dtObject.IsAssignableTo(dtHashtable));
+            Assert.False(dtObject.IsAssignableTo(dtHashtable));
         }
 
-        [Test]
+        [Fact]
         public void FixedTypeIsAssignableFromParent()
         {
-            Assert.That(dtLong.IsAssignableTo(dtInteger));
+            Assert.True(dtLong.IsAssignableTo(dtInteger));
         }
 
-        [Test]
+        [Fact]
         public void FixedTypeIsNotAssignableFromChild()
         {
-            Assert.That(!dtInteger.IsAssignableTo(dtLong));
+            Assert.False(dtInteger.IsAssignableTo(dtLong));
         }
 
-        [Test]
+        [Fact]
         public void FixedTypeIsAssignableFromGrandparent()
         {
-            Assert.That(dtLong.IsAssignableTo(dtShort));
+            Assert.True(dtLong.IsAssignableTo(dtShort));
         }
 
-        [Test]
+        [Fact]
         public void FixedTypeIsNotAssignableFromGrandchild()
         {
-            Assert.That(!dtShort.IsAssignableTo(dtLong));
+            Assert.False(dtShort.IsAssignableTo(dtLong));
         }
 
-        [Test]
+        [Fact]
         public void DataTypeIsNotAssignableFromUnrelatedType()
         {
-            Assert.That(!dtString.IsAssignableTo(dtHashtable));
+            Assert.False(dtString.IsAssignableTo(dtHashtable));
         }
         
-        [Test]
+        [Fact]
         public void UnspecifiedReferenceTypeDefaultIsNull()
         {
-            Assert.That(dtObject.GetDefaultValue() == null);
+            Assert.Null(dtObject.GetDefaultValue());
         }
 
-        [Test]
+        [Fact]
         public void ReferenceTypeDefaultIsNotNull()
         {
-            Assert.That(dtHashtable.GetDefaultValue() != null);
+            Assert.NotNull(dtHashtable.GetDefaultValue());
         }
 
-        [Test]
+        [Fact]
         public void ReferenceTypeDefaultIsCorrectType()
         {
             var defaultVal = dtHashtable.GetDefaultValue();
-            Assert.That(defaultVal, Is.TypeOf(typeof(Hashtable)));
+            Assert.IsType<Hashtable>(defaultVal);
         }
 
-        [Test]
+        [Fact]
         public void ReferenceTypeDefaultInstancesDiffer()
         {
             var defaultVal1 = dtHashtable.GetDefaultValue();
             var defaultVal2 = dtHashtable.GetDefaultValue();
-            Assert.That(defaultVal1 != defaultVal2);
+            Assert.NotSame(defaultVal1, defaultVal2);
         }
 
-        [Test]
+        [Fact]
         public void ValueTypeDefaultIsNotNull()
         {
-            Assert.That(dtLong.GetDefaultValue() != null);
+            Assert.NotNull(dtLong.GetDefaultValue());
         }
 
-        [Test]
+        [Fact]
         public void ValueTypeUsesSpecifiedDefault()
         {
-            Assert.That(dtInteger.GetDefaultValue(), Is.EqualTo(-1));
+            Assert.Equal(-1, dtInteger.GetDefaultValue());
         }
 
-        [Test]
+        [Fact]
         public void ValidateValidValue()
         {
-            Assert.That(dtInteger.Validation.IsMatch("2"));
+            Assert.Matches(dtInteger.Validation, "2");
         }
 
-        [Test]
+        [Fact]
         public void ValidateInvalidValue()
         {
-            Assert.That(!dtInteger.Validation.IsMatch("-2"));
+            Assert.DoesNotMatch(dtInteger.Validation, "-2");
         }
 
-        [Test]
+        [Fact]
         public void ValidateNullValue()
         {
-            Assert.That(() => dtInteger.Validation.IsMatch(null), Throws.TypeOf<ArgumentNullException>());
+            Assert.Throws<ArgumentNullException>(() => dtInteger.Validation.IsMatch(null));
         }
 
-        [Test]
+        [Fact]
         public void ParseValidValue()
         {
-            Assert.That(((IDeserializable)dtInteger).Deserialize("2"), Is.EqualTo(2));
+            Assert.Equal(2, ((IDeserializable)dtInteger).Deserialize("2"));
         }
 
-        [Test]
+        [Fact]
         public void ParseInvalidValue()
         {
-            Assert.That(() => ((IDeserializable)dtInteger).Deserialize("blah"), Throws.TypeOf<FormatException>());
+            Assert.Throws<FormatException>(() => ((IDeserializable)dtInteger).Deserialize("blah"));
         }
 
-        [Test]
+        [Fact]
         public void GuidanceIsPresent()
         {
-            Assert.That(() => dtInteger.Guidance, Is.Not.Null);
+            Assert.NotNull(dtInteger.Guidance);
         }
 
-        [Test]
+        [Fact]
         public void UnsetGuidanceIsNull()
         {
-            Assert.That(() => dtShort.Guidance, Is.Null);
+            Assert.Null(dtShort.Guidance);
         }
     }
 }

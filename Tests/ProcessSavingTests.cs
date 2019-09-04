@@ -1,20 +1,13 @@
-﻿using NUnit.Framework;
+﻿using Xunit;
 
 namespace Tests
 {
-    [TestFixture]
     public class ProcessSavingTests
     {
-        [OneTimeSetUp]
-        public void Prepare()
-        {
-            
-        }
-        
-        [Test]
+        [Fact]
         public void TheseTestsNeedWritten()
         {
-            Assert.That(true == true);
+            Assert.True(true);
         }
     }
 }

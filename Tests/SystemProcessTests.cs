@@ -1,7 +1,5 @@
 ﻿using Cursive;
 using NUnit.Framework;
-using System.Drawing;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Tests
@@ -9,70 +7,35 @@ namespace Tests
     [TestFixture]
     public class SystemProcessTests
     {
-        static DataType<int> number;
-        private static Parameter<int> value1;
-        private static Parameter<int> value2;
-        private static Parameter<int> value3;
-
-        public static SystemProcess IsEqual, Add;
-
-        [OneTimeSetUp]
-        public void Prepare()
-        {
-            number = new FixedType<int>("number", Color.FromKnownColor(KnownColor.Red), new Regex("[0-9]+"), s => int.Parse(s));
-            value1 = new Parameter<int>("value1", number);
-            value2 = new Parameter<int>("value2", number);
-            value3 = new Parameter<int>("value3", number);
-
-            IsEqual = new SystemProcess(
-                "Is equal",
-                "Test to see if two values are equal.",
-                (ValueSet inputs) =>
-                {
-                    return new ProcessResult(inputs.Get(value1) == inputs.Get(value2) ? "yes" : "no");
-                },
-                new Parameter[] { value1, value2 },
-                null,
-                new string[] { "yes", "no" }
-            );
-
-            Add = new SystemProcess(
-                "Add",
-                "Test to see if two values are equal.",
-                (ValueSet inputs) =>
-                {
-                    var outputs = new ValueSet();
-                    int i1 = inputs.Get(value1);
-                    int i2 = inputs.Get(value2);
-                    outputs.Set(value3, i1 + i2);
-                    return new ProcessResult(outputs);
-                },
-                new Parameter[] { value1, value2 },
-                new Parameter[] { value3 },
-                null
-            );
-        }
-
         [Test]
         public async Task TestReturnPath()
         {
-            var inputs = new ValueSet();
-            inputs.Set(value1, 1);
-            inputs.Set(value2, 2);
+            var compareProcess = new IntegerWorkspace().Compare;
 
-            Assert.That((await IsEqual.Run(inputs)).ReturnPath, Is.EqualTo("no"));
+            var inputs = new ValueSet();
+            inputs.Set(compareProcess.Inputs[0] as Parameter<int>, 1);
+            inputs.Set(compareProcess.Inputs[1] as Parameter<int>, 2);
+
+            var result = await compareProcess.Run(inputs);
+
+            Assert.That(result.ReturnPath, Is.EqualTo("less"));
         }
         
         [Test]
         public async Task TestOutputs()
         {
-            var inputs = new ValueSet();
-            inputs.Set(value1, 1);
-            inputs.Set(value2, 2);
-            
-            ValueSet outputs = (await Add.Run(inputs)).Outputs;
+            var addProcess = new IntegerWorkspace().Compare;
 
-            Assert.That(outputs.Get(value3), Is.EqualTo(3));
+            var inputs = new ValueSet();
+            inputs.Set(addProcess.Inputs[0] as Parameter<int>, 1);
+            inputs.Set(addProcess.Inputs[1] as Parameter<int>, 2);
+
+            var result = await addProcess.Run(inputs);
+
+            ValueSet outputs = result.Outputs;
+            var outValue = inputs.Get(addProcess.Outputs[0] as Parameter<int>);
+
+            Assert.That(outValue, Is.EqualTo(3));
         }
     }
 }

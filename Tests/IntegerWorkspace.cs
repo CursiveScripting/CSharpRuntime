@@ -8,17 +8,15 @@ namespace Tests
     {
         public IntegerWorkspace()
         {
-            DataType<int> integer = new FixedType<int>("integer", Color.FromKnownColor(KnownColor.Green), new Regex("[0-9]+"), s => int.Parse(s));
-
-            SystemProcess add;
+            Integer = new FixedType<int>("integer", Color.FromKnownColor(KnownColor.Green), new Regex("[0-9]+"), s => int.Parse(s));
 
             {
-                Parameter<int> in1 = new Parameter<int>("value 1", integer);
-                Parameter<int> in2 = new Parameter<int>("value 2", integer);
+                Parameter<int> in1 = new Parameter<int>("value 1", Integer);
+                Parameter<int> in2 = new Parameter<int>("value 2", Integer);
 
-                Parameter<int> result = new Parameter<int>("result", integer);
+                Parameter<int> result = new Parameter<int>("result", Integer);
 
-                add = new SystemProcess(
+                Add = new SystemProcess(
                     "Add",
                     "Adds two integers",
                     (ValueSet inputs) =>
@@ -38,15 +36,13 @@ namespace Tests
             }
 
 
-            SystemProcess subtract;
-
             {
-                Parameter<int> in1 = new Parameter<int>("value 1", integer);
-                Parameter<int> in2 = new Parameter<int>("value 2", integer);
+                Parameter<int> in1 = new Parameter<int>("value 1", Integer);
+                Parameter<int> in2 = new Parameter<int>("value 2", Integer);
 
-                Parameter<int> result = new Parameter<int>("result", integer);
+                Parameter<int> result = new Parameter<int>("result", Integer);
 
-                subtract = new SystemProcess(
+                Subtract = new SystemProcess(
                     "Subtracts",
                     "Subtracts one integer from another",
                     (ValueSet inputs) =>
@@ -66,15 +62,13 @@ namespace Tests
             }
 
 
-            SystemProcess multiply;
-
             {
-                Parameter<int> in1 = new Parameter<int>("value 1", integer);
-                Parameter<int> in2 = new Parameter<int>("value 2", integer);
+                Parameter<int> in1 = new Parameter<int>("value 1", Integer);
+                Parameter<int> in2 = new Parameter<int>("value 2", Integer);
 
-                Parameter<int> result = new Parameter<int>("result", integer);
+                Parameter<int> result = new Parameter<int>("result", Integer);
 
-                multiply = new SystemProcess(
+                Multiply = new SystemProcess(
                     "Multiply",
                     "Multiplies two integers",
                     (ValueSet inputs) =>
@@ -94,13 +88,11 @@ namespace Tests
             }
 
 
-            SystemProcess compare;
-
             {
-                Parameter<int> in1 = new Parameter<int>("value 1", integer);
-                Parameter<int> in2 = new Parameter<int>("value 2", integer);
+                Parameter<int> in1 = new Parameter<int>("value 1", Integer);
+                Parameter<int> in2 = new Parameter<int>("value 2", Integer);
 
-                compare = new SystemProcess(
+                Compare = new SystemProcess(
                     "compare",
                     "Compare two integers",
                     (ValueSet inputs) =>
@@ -121,8 +113,8 @@ namespace Tests
             RequiredProcess entryPoint;
 
             {
-                Parameter<int> in1 = new Parameter<int>("value", integer);
-                Parameter<int> out1 = new Parameter<int>("result", integer);
+                Parameter<int> in1 = new Parameter<int>("value", Integer);
+                Parameter<int> out1 = new Parameter<int>("result", Integer);
 
                 entryPoint = new RequiredProcess(
                     "Modify number",
@@ -134,9 +126,19 @@ namespace Tests
             }
 
 
-            Types = new DataType[] { integer };
-            SystemProcesses = new SystemProcess[] { add, subtract, multiply, compare };
+            Types = new DataType[] { this.Integer };
+            SystemProcesses = new SystemProcess[] { Add, Subtract, Multiply, Compare };
             RequiredProcesses = new RequiredProcess[] { entryPoint };
         }
+
+        public DataType<int> Integer { get; }
+
+        public SystemProcess Add { get; }
+
+        public SystemProcess Subtract { get; }
+
+        public SystemProcess Multiply { get; }
+
+        public SystemProcess Compare { get; }
     }
 }

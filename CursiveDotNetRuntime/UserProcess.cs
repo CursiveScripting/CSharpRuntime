@@ -9,9 +9,9 @@ namespace Cursive
         public UserProcess(
             string name,
             string description,
-            IReadOnlyCollection<Parameter> inputs,
-            IReadOnlyCollection<Parameter> outputs,
-            IReadOnlyCollection<string> returnPaths,
+            IReadOnlyList<Parameter> inputs,
+            IReadOnlyList<Parameter> outputs,
+            IReadOnlyList<string> returnPaths,
             Dictionary<string, Variable> variables
         )
             : base(name, description, null, inputs, outputs, returnPaths)

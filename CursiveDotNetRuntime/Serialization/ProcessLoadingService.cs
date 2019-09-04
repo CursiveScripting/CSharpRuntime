@@ -135,8 +135,8 @@ namespace Cursive.Serialization
         {
             var stepsById = new Dictionary<string, Step>();
 
-            var stepsWithInputs = new List<Tuple<StepDTO, Step, IReadOnlyCollection<Parameter>>>();
-            var stepsWithOutputs = new List<Tuple<StepDTO, ReturningStep, IReadOnlyCollection<Parameter>>>();
+            var stepsWithInputs = new List<Tuple<StepDTO, Step, IReadOnlyList<Parameter>>>();
+            var stepsWithOutputs = new List<Tuple<StepDTO, ReturningStep, IReadOnlyList<Parameter>>>();
 
             int initialErrorCount = errors.Count;
 
@@ -159,14 +159,14 @@ namespace Cursive.Serialization
                             else
                                 errors.Add($"Process \"{stepData.InnerProcess}\" has multiple start steps");
 
-                            stepsWithOutputs.Add(new Tuple<StepDTO, ReturningStep, IReadOnlyCollection<Parameter>>(stepData, step, process.Inputs));
+                            stepsWithOutputs.Add(new Tuple<StepDTO, ReturningStep, IReadOnlyList<Parameter>>(stepData, step, process.Inputs));
                             stepsById.Add(step.ID, step);
                             break;
                         }
                     case "stop":
                         {
                             var step = new StopStep(stepData.ID, stepData.PathName);
-                            stepsWithInputs.Add(new Tuple<StepDTO, Step, IReadOnlyCollection<Parameter>>(stepData, step, process.Outputs));
+                            stepsWithInputs.Add(new Tuple<StepDTO, Step, IReadOnlyList<Parameter>>(stepData, step, process.Outputs));
                             stepsById.Add(step.ID, step);
                             break;
                         }
@@ -179,8 +179,8 @@ namespace Cursive.Serialization
                             }
 
                             var step = new UserStep(stepData.ID, innerProcess);
-                            stepsWithInputs.Add(new Tuple<StepDTO, Step, IReadOnlyCollection<Parameter>>(stepData, step, innerProcess.Inputs));
-                            stepsWithOutputs.Add(new Tuple<StepDTO, ReturningStep, IReadOnlyCollection<Parameter>>(stepData, step, innerProcess.Outputs));
+                            stepsWithInputs.Add(new Tuple<StepDTO, Step, IReadOnlyList<Parameter>>(stepData, step, innerProcess.Inputs));
+                            stepsWithOutputs.Add(new Tuple<StepDTO, ReturningStep, IReadOnlyList<Parameter>>(stepData, step, innerProcess.Outputs));
                             stepsById.Add(step.ID, step);
                             break;
                         }
@@ -255,7 +255,7 @@ namespace Cursive.Serialization
         private static void MapParameters(
             Dictionary<string, string> paramData,
             Step step,
-            IReadOnlyCollection<Parameter> parameters,
+            IReadOnlyList<Parameter> parameters,
             UserProcess process,
             bool isInputParam,
             List<string> errors

@@ -9,9 +9,9 @@ namespace Cursive
         public RequiredProcess(
             string name,
             string description,
-            IReadOnlyCollection<Parameter> inputs,
-            IReadOnlyCollection<Parameter> outputs,
-            IReadOnlyCollection<string> returnPaths,
+            IReadOnlyList<Parameter> inputs,
+            IReadOnlyList<Parameter> outputs,
+            IReadOnlyList<string> returnPaths,
             string folder = null
         )
             : base(name, description, folder, inputs, outputs, returnPaths)

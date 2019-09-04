@@ -11,9 +11,9 @@ namespace Cursive
             string name,
             string description,
             string folder,
-            IReadOnlyCollection<Parameter> inputs,
-            IReadOnlyCollection<Parameter> outputs,
-            IReadOnlyCollection<string> returnPaths
+            IReadOnlyList<Parameter> inputs,
+            IReadOnlyList<Parameter> outputs,
+            IReadOnlyList<string> returnPaths
         )
         {
             Name = name;
@@ -35,13 +35,13 @@ namespace Cursive
         public string Folder { get; }
 
         [JsonProperty(PropertyName = "inputs", Order = 4)]
-        public IReadOnlyCollection<Parameter> Inputs { get; }
+        public IReadOnlyList<Parameter> Inputs { get; }
 
         [JsonProperty(PropertyName = "outputs", Order = 5)]
-        public IReadOnlyCollection<Parameter> Outputs { get; }
+        public IReadOnlyList<Parameter> Outputs { get; }
 
         [JsonProperty(PropertyName = "returnPaths", Order = 6)]
-        public IReadOnlyCollection<string> ReturnPaths { get; }
+        public IReadOnlyList<string> ReturnPaths { get; }
 
         internal abstract Task<ProcessResult> Run(ValueSet inputs, CallStack stack);
     }

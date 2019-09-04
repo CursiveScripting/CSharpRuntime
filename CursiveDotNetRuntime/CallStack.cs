@@ -13,9 +13,9 @@ namespace Cursive
 
         public int MaxStackSize { get; }
 
-        private readonly Stack<StackFrame> frames = new Stack<StackFrame>();
+        public readonly Stack<StackFrame> frames = new Stack<StackFrame>();
 
-        public IReadOnlyCollection<StackFrame> Frames { get; }
+        public StackFrame[] Frames => frames.ToArray();
 
         public ValueSet CurrentVariables { get; private set; }
 

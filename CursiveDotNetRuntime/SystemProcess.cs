@@ -6,13 +6,13 @@ namespace Cursive
 {
     public class SystemProcess : Process
     {
-        public SystemProcess(string name, string description, Func<ValueSet, Task<ProcessResult>> operation, IReadOnlyCollection<Parameter> inputs, IReadOnlyCollection<Parameter> outputs, IReadOnlyCollection<string> returnPaths, string folder = null)
+        public SystemProcess(string name, string description, Func<ValueSet, Task<ProcessResult>> operation, IReadOnlyList<Parameter> inputs, IReadOnlyList<Parameter> outputs, IReadOnlyList<string> returnPaths, string folder = null)
             : base(name, description, folder, inputs, outputs, returnPaths)
         {
             Operation = operation;
         }
 
-        public SystemProcess(string name, string description, Func<ValueSet, ProcessResult> operation, IReadOnlyCollection<Parameter> inputs, IReadOnlyCollection<Parameter> outputs, IReadOnlyCollection<string> returnPaths, string folder = null)
+        public SystemProcess(string name, string description, Func<ValueSet, ProcessResult> operation, IReadOnlyList<Parameter> inputs, IReadOnlyList<Parameter> outputs, IReadOnlyList<string> returnPaths, string folder = null)
             : base(name, description, folder, inputs, outputs, returnPaths)
         {
             Operation = vals => Task.FromResult(operation(vals));

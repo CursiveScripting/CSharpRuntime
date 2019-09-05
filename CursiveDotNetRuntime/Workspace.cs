@@ -18,9 +18,9 @@ namespace Cursive
         [JsonIgnore]
         internal List<UserProcess> UserProcesses { get; } = new List<UserProcess>();
 
-        public bool LoadUserProcesses(string processJson, out List<string> errors)
+        public bool LoadUserProcesses(string processJson, bool validateSchema, out List<string> errors)
         {
-            return ProcessLoadingService.LoadProcesses(this, processJson, out errors);
+            return ProcessLoadingService.LoadProcesses(this, processJson, validateSchema, out errors);
         }
     }
 }

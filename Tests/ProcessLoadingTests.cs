@@ -13,7 +13,7 @@ namespace Tests
         {
             string processJson = ReadJsonResource(resourceName);
             var workspace = new IntegerWorkspace();
-            var success = workspace.LoadUserProcesses(processJson, out List<string> errors);
+            var success = workspace.LoadUserProcesses(processJson, true, out List<string> errors);
 
             Assert.Null(errors);
             Assert.True(success);

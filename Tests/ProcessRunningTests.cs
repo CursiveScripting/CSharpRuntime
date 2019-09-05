@@ -17,14 +17,9 @@ namespace Tests
 
             Assert.True(success);
 
-            var inputs = new ValueSet();
-            inputs.Set(workspace.EntryInput, inValue);
+            var result = await workspace.ModifyNumber(inValue);
 
-            var result = await workspace.EntryProcess.Run(inputs);
-
-            Assert.Null(result.ReturnPath);
-
-            Assert.Equal(expectedResult, result.Outputs.Get(workspace.EntryOutput));
+            Assert.Equal(expectedResult, result);
         }
     }
 }

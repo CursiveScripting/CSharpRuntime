@@ -14,13 +14,9 @@ namespace Tests
         {
             var workspace = new IntegerWorkspace();
 
-            var inputs = new ValueSet();
-            inputs.Set(workspace.CompareInput1, val1);
-            inputs.Set(workspace.CompareInput2, val2);
+            var result = await workspace.Compare(val1, val2);
 
-            var result = await workspace.Compare.Run(inputs);
-
-            Assert.Equal(returnPath, result.ReturnPath);
+            Assert.Equal(returnPath, result);
         }
 
         [Theory]
@@ -31,17 +27,9 @@ namespace Tests
         {
             var workspace = new IntegerWorkspace();
 
-            var inputs = new ValueSet();
-            inputs.Set(workspace.AddInput1, val1);
-            inputs.Set(workspace.AddInput2, val2);
+            var result = await workspace.Add(val1, val2);
 
-            var result = await workspace.Add.Run(inputs);
-
-            ValueSet outputs = result.Outputs;
-            var outValue = outputs.Get(workspace.AddOutput);
-
-            Assert.Null(result.ReturnPath);
-            Assert.Equal(sum, outValue);
+            Assert.Equal(sum, result);
         }
     }
 }

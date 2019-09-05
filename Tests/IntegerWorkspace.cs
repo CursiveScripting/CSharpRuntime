@@ -1,6 +1,9 @@
 ﻿using Cursive;
+using Newtonsoft.Json;
+using System;
 using System.Drawing;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 namespace Tests
 {
@@ -8,141 +11,214 @@ namespace Tests
     {
         public IntegerWorkspace()
         {
-            Integer = new FixedType<int>("integer", Color.FromKnownColor(KnownColor.Green), new Regex("[0-9]+"), s => int.Parse(s));
+            var integer = new FixedType<int>("integer", Color.FromKnownColor(KnownColor.Green), new Regex("[0-9]+"), s => int.Parse(s));
 
 
-            AddInput1 = new Parameter<int>("value 1", Integer);
-            AddInput2 = new Parameter<int>("value 2", Integer);
+            SystemProcess add;
 
-            AddOutput = new Parameter<int>("result", Integer);
+            {
+                var input1 = new Parameter<int>("value 1", integer);
+                var input2 = new Parameter<int>("value 2", integer);
 
-            Add = new SystemProcess(
-                "Add",
-                "Adds two integers",
-                (ValueSet inputs) =>
+                var output = new Parameter<int>("result", integer);
+
+                add = new SystemProcess(
+                    "Add",
+                    "Adds two integers",
+                    (ValueSet inputs) =>
+                    {
+                        int value1 = inputs.Get(input1);
+                        int value2 = inputs.Get(input2);
+
+                        var outputs = new ValueSet();
+                        outputs.Set(output, value1 + value2);
+
+                        return new ProcessResult(outputs);
+                    },
+                    new Parameter[] { input1, input2 },
+                    new Parameter[] { output },
+                    null
+                );
+
+                Add = async (int in1, int in2) =>
                 {
-                    int value1 = inputs.Get(AddInput1);
-                    int value2 = inputs.Get(AddInput2);
+                    var inputs = new ValueSet();
 
-                    var outputs = new ValueSet();
-                    outputs.Set(AddOutput, value1 + value2);
+                    inputs.Set(input1, in1);
+                    inputs.Set(input2, in2);
 
-                    return new ProcessResult(outputs);
-                },
-                new Parameter[] { AddInput1, AddInput2 },
-                new Parameter[] { AddOutput },
-                null
-            );
+                    var result = await add.Run(inputs);
+
+                    ValueSet outputs = result.Outputs;
+                    return outputs.Get(output);
+                };
+            }
 
 
-            SubtractInput1 = new Parameter<int>("value 1", Integer);
-            SubtractInput2 = new Parameter<int>("value 2", Integer);
+            SystemProcess subtract;
 
-            SubtractOutput = new Parameter<int>("result", Integer);
+            {
+                var input1 = new Parameter<int>("value 1", integer);
+                var input2 = new Parameter<int>("value 2", integer);
 
-            Subtract = new SystemProcess(
-                "Subtracts",
-                "Subtracts one integer from another",
-                (ValueSet inputs) =>
+                var output = new Parameter<int>("result", integer);
+
+                subtract = new SystemProcess(
+                    "Subtracts",
+                    "Subtracts one integer from another",
+                    (ValueSet inputs) =>
+                    {
+                        int value1 = inputs.Get(input1);
+                        int value2 = inputs.Get(input2);
+
+                        var outputs = new ValueSet();
+                        outputs.Set(output, value1 - value2);
+
+                        return new ProcessResult(outputs);
+                    },
+                    new Parameter[] { input1, input2 },
+                    new Parameter[] { output },
+                    null
+                );
+
+                Subtract = async (int in1, int in2) =>
                 {
-                    int value1 = inputs.Get(SubtractInput1);
-                    int value2 = inputs.Get(SubtractInput2);
+                    var inputs = new ValueSet();
 
-                    var outputs = new ValueSet();
-                    outputs.Set(SubtractOutput, value1 - value2);
+                    inputs.Set(input1, in1);
+                    inputs.Set(input2, in2);
 
-                    return new ProcessResult(outputs);
-                },
-                new Parameter[] { SubtractInput1, SubtractInput2 },
-                new Parameter[] { SubtractOutput },
-                null
-            );
+                    var result = await subtract.Run(inputs);
+
+                    ValueSet outputs = result.Outputs;
+                    return outputs.Get(output);
+                };
+            }
 
 
-            MultiplyInput1 = new Parameter<int>("value 1", Integer);
-            MultiplyInput2 = new Parameter<int>("value 2", Integer);
+            SystemProcess multiply;
 
-            MultiplyOutput = new Parameter<int>("result", Integer);
+            {
+                var input1 = new Parameter<int>("value 1", integer);
+                var input2 = new Parameter<int>("value 2", integer);
 
-            Multiply = new SystemProcess(
-                "Multiply",
-                "Multiplies two integers",
-                (ValueSet inputs) =>
+                var output = new Parameter<int>("result", integer);
+
+                multiply = new SystemProcess(
+                    "Multiply",
+                    "Multiplies two integers",
+                    (ValueSet inputs) =>
+                    {
+                        int value1 = inputs.Get(input1);
+                        int value2 = inputs.Get(input2);
+
+                        var outputs = new ValueSet();
+                        outputs.Set(output, value1 * value2);
+
+                        return new ProcessResult(outputs);
+                    },
+                    new Parameter[] { input1, input2 },
+                    new Parameter[] { output },
+                    null
+                );
+
+                Multiply = async (int in1, int in2) =>
                 {
-                    int value1 = inputs.Get(MultiplyInput1);
-                    int value2 = inputs.Get(MultiplyInput2);
+                    var inputs = new ValueSet();
 
-                    var outputs = new ValueSet();
-                    outputs.Set(MultiplyOutput, value1 * value2);
+                    inputs.Set(input1, in1);
+                    inputs.Set(input2, in2);
 
-                    return new ProcessResult(outputs);
-                },
-                new Parameter[] { MultiplyInput1, MultiplyInput2 },
-                new Parameter[] { MultiplyOutput },
-                null
-            );
+                    var result = await multiply.Run(inputs);
+
+                    ValueSet outputs = result.Outputs;
+                    return outputs.Get(output);
+                };
+            }
 
 
-            CompareInput1 = new Parameter<int>("value 1", Integer);
-            CompareInput2 = new Parameter<int>("value 2", Integer);
+            SystemProcess compare;
 
-            Compare = new SystemProcess(
-                "compare",
-                "Compare two integers",
-                (ValueSet inputs) =>
+            {
+                var input1 = new Parameter<int>("value 1", integer);
+                var input2 = new Parameter<int>("value 2", integer);
+
+                compare = new SystemProcess(
+                    "compare",
+                    "Compare two integers",
+                    (ValueSet inputs) =>
+                    {
+                        int value1 = inputs.Get(input1);
+                        int value2 = inputs.Get(input2);
+
+                        var comparison = value1.CompareTo(value2);
+                        return new ProcessResult(comparison < 0 ? "less" : comparison > 0 ? "greater" : "equal");
+                    },
+                    new Parameter[] { input1, input2 },
+                    null,
+                    new string[] { "less", "greater", "equal" }
+                );
+
+                Compare = async (int in1, int in2) =>
                 {
-                    int value1 = inputs.Get(CompareInput1);
-                    int value2 = inputs.Get(CompareInput2);
+                    var inputs = new ValueSet();
 
-                    var comparison = value1.CompareTo(value2);
-                    return new ProcessResult(comparison < 0 ? "less" : comparison > 0 ? "greater" : "equal");
-                },
-                new Parameter[] { CompareInput1, CompareInput2 },
-                null,
-                new string[] { "less", "greater", "equal" }
-            );
+                    inputs.Set(input1, in1);
+                    inputs.Set(input2, in2);
 
+                    var result = await compare.Run(inputs);
 
-            EntryInput = new Parameter<int>("value", Integer);
-            EntryOutput = new Parameter<int>("result", Integer);
-
-            EntryProcess = new RequiredProcess(
-                "Modify number",
-                "Perform some operation(s) on a number",
-                new Parameter[] { EntryInput },
-                new Parameter[] { EntryOutput },
-                null
-            );
+                    return result.ReturnPath;
+                };
+            }
 
 
-            Types = new DataType[] { this.Integer };
-            SystemProcesses = new SystemProcess[] { Add, Subtract, Multiply, Compare };
-            RequiredProcesses = new RequiredProcess[] { EntryProcess };
+            RequiredProcess modifyNumber;
+
+            {
+                var input = new Parameter<int>("value", integer);
+                var output = new Parameter<int>("result", integer);
+
+                modifyNumber = new RequiredProcess(
+                    "Modify number",
+                    "Perform some operation(s) on a number",
+                    new Parameter[] { input },
+                    new Parameter[] { output },
+                    null
+                );
+
+                ModifyNumber = async (int in1) =>
+                {
+                    var inputs = new ValueSet();
+
+                    inputs.Set(input, in1);
+
+                    var result = await modifyNumber.Run(inputs);
+
+                    ValueSet outputs = result.Outputs;
+                    return outputs.Get(output);
+                };
+            }
+
+
+            Types = new DataType[] { integer };
+            SystemProcesses = new SystemProcess[] { add, subtract, multiply, compare };
+            RequiredProcesses = new RequiredProcess[] { modifyNumber };
         }
 
-        public RequiredProcess EntryProcess { get; }
-        public Parameter<int> EntryInput { get; }
-        public Parameter<int> EntryOutput { get; }
+        [JsonIgnore]
+        public Func<int, Task<int>> ModifyNumber { get; }
 
-        public DataType<int> Integer { get; }
+        [JsonIgnore]
+        public Func<int, int, Task<int>> Add { get; }
 
-        public SystemProcess Add { get; }
-        public Parameter<int> AddInput1 { get; }
-        public Parameter<int> AddInput2 { get; }
-        public Parameter<int> AddOutput { get; }
+        [JsonIgnore]
+        public Func<int, int, Task<int>> Subtract { get; }
 
-        public SystemProcess Subtract { get; }
-        public Parameter<int> SubtractInput1 { get; }
-        public Parameter<int> SubtractInput2 { get; }
-        public Parameter<int> SubtractOutput { get; }
+        [JsonIgnore]
+        public Func<int, int, Task<int>> Multiply { get; }
 
-        public SystemProcess Multiply { get; }
-        public Parameter<int> MultiplyInput1 { get; }
-        public Parameter<int> MultiplyInput2 { get; }
-        public Parameter<int> MultiplyOutput { get; }
-
-        public SystemProcess Compare { get; }
-        public Parameter<int> CompareInput1 { get; }
-        public Parameter<int> CompareInput2 { get; }
+        [JsonIgnore]
+        public Func<int, int, Task<string>> Compare { get; }
     }
 }

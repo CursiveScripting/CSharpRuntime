@@ -1,5 +1,4 @@
 ﻿using Cursive;
-using Newtonsoft.Json;
 using Xunit;
 
 namespace Tests
@@ -16,7 +15,7 @@ namespace Tests
 
             Assert.True(success);
 
-            var processJson = JsonConvert.SerializeObject(workspace.UserProcesses, Formatting.Indented);
+            var processJson = workspace.GetProcessJson(true);
 
             Assert.NotNull(processJson);
 

@@ -28,8 +28,9 @@ namespace Cursive
             return serializer.Deserialize<JsonSchema>(jsonData);
         }
 
-        public static SchemaValidationResults Validate(Lazy<JsonSchema> schema, string jsonData)
+        public static SchemaValidationResults Validate(Lazy<JsonSchema> schema, string json)
         {
+            var jsonData = JsonValue.Parse(json);
             return schema.Value.Validate(jsonData);
         }
     }

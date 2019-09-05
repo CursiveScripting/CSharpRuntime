@@ -22,5 +22,27 @@ namespace Cursive
         {
             return ProcessLoadingService.LoadProcesses(this, processJson, validateSchema, out errors);
         }
+
+        public string GetWorkspaceJson(bool prettyPrint = false)
+        {
+            var serializer = new JsonSerializer();
+
+            var jsonData = serializer.Serialize(this);
+
+            return prettyPrint
+                ? jsonData.GetIndentedString()
+                : jsonData.ToString();
+        }
+
+        public string GetProcessJson(bool prettyPrint = false)
+        {
+            var serializer = new JsonSerializer();
+
+            var jsonData = serializer.Serialize(UserProcesses);
+
+            return prettyPrint
+                ? jsonData.GetIndentedString()
+                : jsonData.ToString();
+        }
     }
 }

@@ -10,15 +10,17 @@ namespace Cursive.Serialization
     {
         public static bool LoadProcesses(Workspace workspace, string processJson, bool validateSchema, out List<string> errors)
         {
+            var serializer = new JsonSerializer();
+
+            var jsonData = JsonValue.Parse(processJson);
+
             if (validateSchema)
             {
-                var jsonData = JsonValue.Parse(processJson);
-
                 var validationResult = Schemas.Processes.Value.Validate(jsonData);
 
                 if (!validationResult.IsValid)
                 {
-                    JsonValue errorJson = validationResult.ToJson(new JsonSerializer());
+                    JsonValue errorJson = validationResult.ToJson(serializer);
 
                     errors = new List<string>
                     {
@@ -28,7 +30,7 @@ namespace Cursive.Serialization
                 }
             }
 
-            var processData = Newtonsoft.Json.JsonConvert.DeserializeObject<UserProcessDTO[]>(processJson);
+            var processData = serializer.Deserialize<UserProcessDTO[]>(jsonData);
 
             return LoadUserProcesses(workspace, processData, out errors);
         }

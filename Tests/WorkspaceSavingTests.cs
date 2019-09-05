@@ -1,5 +1,4 @@
 ﻿using Cursive;
-using Newtonsoft.Json;
 using Xunit;
 
 namespace Tests
@@ -9,7 +8,7 @@ namespace Tests
         [Fact]
         public void SavedWorkspaceValidates()
         {
-            var workspaceJson = JsonConvert.SerializeObject(new IntegerWorkspace());
+            var workspaceJson = new IntegerWorkspace().GetWorkspaceJson();
 
             Assert.NotNull(workspaceJson);
 

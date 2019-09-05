@@ -26,6 +26,7 @@ namespace Cursive
         public string GetWorkspaceJson(bool prettyPrint = false)
         {
             var serializer = new JsonSerializer();
+            serializer.Options.TypeNameSerializationBehavior = TypeNameSerializationBehavior.Never;
 
             var jsonData = serializer.Serialize(this);
 

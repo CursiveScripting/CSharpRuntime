@@ -1,4 +1,5 @@
-﻿using Manatee.Json.Serialization;
+﻿using Manatee.Json;
+using Manatee.Json.Serialization;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -7,7 +8,7 @@ using System.Text.RegularExpressions;
 
 namespace Cursive
 {
-    public abstract class DataType
+    public abstract class DataType : IJsonSerializable
     {
         protected DataType(string name, Color color, DataType extends = null, Regex validation = null, string guidance = null)
         {
@@ -18,29 +19,15 @@ namespace Cursive
             Guidance = guidance;
         }
 
-        [JsonMapTo("name")]
         public string Name { get; }
 
-        [JsonIgnore]
         public Color Color { get; }
 
-        [JsonMapTo("color")]
-        private string ColorCode => $"#{Color.R:X2}{Color.G:X2}{Color.B:X2}";
-
-        [JsonMapTo("guidance")]
         public string Guidance { get; }
 
-        [JsonIgnore]
         public DataType Extends { get; }
 
-        [JsonMapTo("extends")]
-        private string ExtendsName => Extends?.Name;
-
-        [JsonIgnore]        
         public Regex Validation { get; }
-
-        [JsonMapTo("validation")]
-        private string ValidationPattern => Validation?.ToString();
 
         public abstract object GetDefaultValue();
 
@@ -66,6 +53,10 @@ namespace Cursive
 
             return false;
         }
+
+        public void FromJson(JsonValue json, JsonSerializer serializer) => throw new NotImplementedException("Cannot deserialize data types");
+
+        public abstract JsonValue ToJson(JsonSerializer serializer);
     }
 
     public class DataType<T> : DataType
@@ -87,6 +78,31 @@ namespace Cursive
                 return GetTypeDefault(typeof(T));
             return GetDefault();
         }
+
+        protected JsonObject ToJsonObject(JsonSerializer serializer)
+        {
+            var output = new JsonObject
+            {
+                { "name", Name },
+                { "color", $"#{Color.R:X2}{Color.G:X2}{Color.B:X2}" },
+            };
+
+            if (Guidance != null)
+                output.Add("guidance", Guidance);
+
+            if (Extends != null)
+                output.Add("extends", Extends.Name);
+
+            if (Validation != null)
+                output.Add("validation", Validation?.ToString());
+
+            return output;
+        }
+
+        public override JsonValue ToJson(JsonSerializer serializer)
+        {
+            return ToJsonObject(serializer);
+        }
     }
 
     public interface IDeserializable
@@ -106,7 +122,7 @@ namespace Cursive
         {
             return DeserializationFunction(value);
         }
-        
+
         private Func<string, T> DeserializationFunction { get; }
     }
 
@@ -125,6 +141,15 @@ namespace Cursive
         public object Deserialize(string value)
         {
             return value;
+        }
+
+        public override JsonValue ToJson(JsonSerializer serializer)
+        {
+            var output = ToJsonObject(serializer);
+
+            output.Add("options", Options.ToJson());
+
+            return output;
         }
     }
 }

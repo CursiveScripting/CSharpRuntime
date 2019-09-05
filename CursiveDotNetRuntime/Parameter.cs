@@ -1,10 +1,12 @@
-﻿using Manatee.Json.Serialization;
+﻿using Manatee.Json;
+using Manatee.Json.Serialization;
+using System;
 
 [assembly: System.Runtime.CompilerServices.InternalsVisibleTo("Tests")]
 
 namespace Cursive
 {
-    public class Parameter
+    public class Parameter : IJsonSerializable
     {
         internal Parameter(string name, DataType type)
         {
@@ -12,14 +14,20 @@ namespace Cursive
             Type = type;
         }
 
-        [JsonMapTo("name")]
         public string Name { get; }
 
-        [JsonIgnore]
         public DataType Type { get; }
 
-        [JsonMapTo("type")]
-        private string TypeName => Type.Name;
+        public void FromJson(JsonValue json, JsonSerializer serializer) => throw new NotImplementedException("Cannot deserialize a parameter without having data types available");
+
+        public JsonValue ToJson(JsonSerializer serializer)
+        {
+            return new JsonObject
+            {
+                { "name", Name },
+                { "type", Type.Name },
+            };
+        }
     }
 
     public class Parameter<T> : Parameter

@@ -1,10 +1,9 @@
-﻿using Newtonsoft.Json;
+﻿using Manatee.Json.Serialization;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Cursive
 {
-    [JsonObject(ItemNullValueHandling = NullValueHandling.Ignore)]
     public abstract class Process
     {
         protected Process(
@@ -25,22 +24,22 @@ namespace Cursive
             ReturnPaths = returnPaths;
         }
         
-        [JsonProperty(PropertyName = "name", Order = 1)]
+        [JsonMapTo("name")]
         public string Name { get; }
 
-        [JsonProperty(PropertyName = "description", Order = 2)]
+        [JsonMapTo("description")]
         public string Description { get; }
 
-        [JsonProperty(PropertyName = "folder", Order = 3)]
+        [JsonMapTo("folder")]
         public string Folder { get; }
 
-        [JsonProperty(PropertyName = "inputs", Order = 4)]
+        [JsonMapTo("inputs")]
         public IReadOnlyList<Parameter> Inputs { get; }
 
-        [JsonProperty(PropertyName = "outputs", Order = 5)]
+        [JsonMapTo("outputs")]
         public IReadOnlyList<Parameter> Outputs { get; }
 
-        [JsonProperty(PropertyName = "returnPaths", Order = 6)]
+        [JsonMapTo("returnPaths")]
         public IReadOnlyList<string> ReturnPaths { get; }
 
         internal abstract Task<ProcessResult> Run(ValueSet inputs, CallStack stack);

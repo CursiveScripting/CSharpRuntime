@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+﻿using Manatee.Json.Serialization;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -7,7 +7,6 @@ using System.Text.RegularExpressions;
 
 namespace Cursive
 {
-    [JsonObject(ItemNullValueHandling = NullValueHandling.Ignore)]
     public abstract class DataType
     {
         protected DataType(string name, Color color, DataType extends = null, Regex validation = null, string guidance = null)
@@ -19,28 +18,28 @@ namespace Cursive
             Guidance = guidance;
         }
 
-        [JsonProperty(PropertyName = "name", Order = 1)]
+        [JsonMapTo("name")]
         public string Name { get; }
 
         [JsonIgnore]
         public Color Color { get; }
 
-        [JsonProperty(PropertyName = "color", Order = 2)]
+        [JsonMapTo("color")]
         private string ColorCode => $"#{Color.R:X2}{Color.G:X2}{Color.B:X2}";
 
-        [JsonProperty(PropertyName = "guidance", Order = 3)]
+        [JsonMapTo("guidance")]
         public string Guidance { get; }
 
         [JsonIgnore]
         public DataType Extends { get; }
 
-        [JsonProperty(PropertyName = "extends")]
+        [JsonMapTo("extends")]
         private string ExtendsName => Extends?.Name;
 
         [JsonIgnore]        
         public Regex Validation { get; }
 
-        [JsonProperty(PropertyName = "validation")]
+        [JsonMapTo("validation")]
         private string ValidationPattern => Validation?.ToString();
 
         public abstract object GetDefaultValue();
@@ -120,7 +119,7 @@ namespace Cursive
             Options = options.ToArray();
         }
 
-        [JsonProperty(PropertyName = "options")]
+        [JsonMapTo("options")]
         public string[] Options { get; }
 
         public object Deserialize(string value)

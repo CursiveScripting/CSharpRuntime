@@ -1,33 +1,32 @@
-﻿using Newtonsoft.Json;
+﻿using Manatee.Json.Serialization;
 using System.Collections.Generic;
 
 namespace Cursive.Serialization
 {
-    [JsonObject(ItemNullValueHandling = NullValueHandling.Ignore)]
     internal class UserProcessDTO
     {
-        [JsonProperty(PropertyName = "name")]
+        [JsonMapTo("name")]
         public string Name { get; set; }
 
-        [JsonProperty(PropertyName = "description")]
+        [JsonMapTo("description")]
         public string Description { get; set; }
 
-        [JsonProperty(PropertyName = "folder")]
+        [JsonMapTo("folder")]
         public string Folder { get; set; }
 
-        [JsonProperty(PropertyName = "inputs")]
+        [JsonMapTo("inputs")]
         public List<ParameterDTO> Inputs { get; set; }
 
-        [JsonProperty(PropertyName = "outputs")]
+        [JsonMapTo("outputs")]
         public List<ParameterDTO> Outputs { get; set; }
 
-        [JsonProperty(PropertyName = "returnPaths")]
+        [JsonMapTo("returnPaths")]
         public List<string> ReturnPaths { get; set; }
 
-        [JsonProperty(PropertyName = "variables")]
+        [JsonMapTo("variables")]
         public List<VariableDTO> Variables { get; set; }
 
-        [JsonProperty(PropertyName = "steps")]
+        [JsonMapTo("steps")]
         public List<StepDTO> Steps { get; set; }
     }
 }

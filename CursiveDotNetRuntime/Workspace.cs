@@ -1,18 +1,18 @@
 ﻿using Cursive.Serialization;
-using Newtonsoft.Json;
+using Manatee.Json.Serialization;
 using System.Collections.Generic;
 
 namespace Cursive
 {
     public class Workspace
     {
-        [JsonProperty(PropertyName = "types")]
+        [JsonMapTo("types")]
         public IList<DataType> Types { get; set; } = new List<DataType>();
 
-        [JsonProperty(PropertyName = "requiredProcesses")]
+        [JsonMapTo("requiredProcesses")]
         public IList<RequiredProcess> RequiredProcesses { get; set; } = new List<RequiredProcess>();
 
-        [JsonProperty(PropertyName = "systemProcesses")]
+        [JsonMapTo("systemProcesses")]
         public IList<SystemProcess> SystemProcesses { get; set; } = new List<SystemProcess>();
 
         [JsonIgnore]

@@ -1,39 +1,38 @@
-﻿using Newtonsoft.Json;
+﻿using Manatee.Json.Serialization;
 using System.Collections.Generic;
 
 namespace Cursive.Serialization
 {
-    [JsonObject(ItemNullValueHandling = NullValueHandling.Ignore)]
     internal class StepDTO
     {
-        [JsonProperty(PropertyName = "id")]
+        [JsonMapTo("id")]
         public string ID { get; set; }
 
-        [JsonProperty(PropertyName = "type")]
+        [JsonMapTo("type")]
         public string Type { get; set; }
 
-        [JsonProperty(PropertyName = "x")]
+        [JsonMapTo("x")]
         public int X { get; set; }
 
-        [JsonProperty(PropertyName = "y")]
+        [JsonMapTo("y")]
         public int Y { get; set; }
 
-        [JsonProperty(PropertyName = "process")]
+        [JsonMapTo("process")]
         public string InnerProcess { get; set; }
 
-        [JsonProperty(PropertyName = "name")]
+        [JsonMapTo("name")]
         public string PathName { get; set; }
 
-        [JsonProperty(PropertyName = "inputs")]
+        [JsonMapTo("inputs")]
         public Dictionary<string, string> Inputs { get; set; }
 
-        [JsonProperty(PropertyName = "outputs")]
+        [JsonMapTo("outputs")]
         public Dictionary<string, string> Outputs { get; set; }
 
-        [JsonProperty(PropertyName = "returnPaths")]
+        [JsonMapTo("returnPaths")]
         public Dictionary<string, string> ReturnPaths { get; set; }
 
-        [JsonProperty(PropertyName = "returnPath")]
+        [JsonMapTo("returnPath")]
         public string ReturnPath { get; set; }
     }
 }

@@ -1,13 +1,13 @@
-﻿using Newtonsoft.Json;
+﻿using Manatee.Json.Serialization;
 
 namespace Cursive.Serialization
 {
     internal class ParameterDTO
     {
-        [JsonProperty(PropertyName = "name")]
+        [JsonMapTo("name")]
         public string Name { get; set; }
 
-        [JsonProperty(PropertyName = "type")]
+        [JsonMapTo("type")]
         public string Type { get; set; }
     }
 }

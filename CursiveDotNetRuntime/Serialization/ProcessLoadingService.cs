@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Manatee.Json;
+using Manatee.Json.Serialization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,16 +12,23 @@ namespace Cursive.Serialization
         {
             if (validateSchema)
             {
-                var schemaValidationErrors = Schemas.Processes.Value.Validate(processJson);
+                var jsonData = JsonValue.Parse(processJson);
 
-                if (schemaValidationErrors.Any())
+                var validationResult = Schemas.Processes.Value.Validate(jsonData);
+
+                if (!validationResult.IsValid)
                 {
-                    errors = schemaValidationErrors.Select(err => err.ToString()).ToList();
+                    JsonValue errorJson = validationResult.ToJson(new JsonSerializer());
+
+                    errors = new List<string>
+                    {
+                        $"Process data failed to validate: {errorJson}"
+                    };
                     return false;
                 }
             }
 
-            var processData = JsonConvert.DeserializeObject<UserProcessDTO[]>(processJson);
+            var processData = Newtonsoft.Json.JsonConvert.DeserializeObject<UserProcessDTO[]>(processJson);
 
             return LoadUserProcesses(workspace, processData, out errors);
         }

@@ -13,9 +13,9 @@ namespace Tests
 
             Assert.NotNull(workspaceJson);
 
-            var validationErrors = Schemas.Workspace.Value.Validate(workspaceJson);
+            var validationResult = Schemas.Validate(Schemas.Workspace, workspaceJson);
 
-            Assert.Empty(validationErrors);
+            Assert.True(validationResult.IsValid);
         }
     }
 }

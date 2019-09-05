@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+﻿using Manatee.Json.Serialization;
 using System.Collections.Generic;
 
 namespace Cursive
@@ -10,16 +10,16 @@ namespace Cursive
             ID = id;
         }
 
-        [JsonProperty(PropertyName = "id")]
+        [JsonMapTo("id")]
         public string ID { get; }
 
         [JsonIgnore]
         internal abstract StepType StepType { get; }
 
-        [JsonProperty(PropertyName = "inputs")]
+        [JsonMapTo("inputs")]
         protected internal Dictionary<string, Variable> InputMapping { get; } = new Dictionary<string, Variable>();
 
-        [JsonProperty(PropertyName = "outputs")]
+        [JsonMapTo("outputs")]
         protected internal Dictionary<string, Variable> OutputMapping { get; } = new Dictionary<string, Variable>();
     }
 

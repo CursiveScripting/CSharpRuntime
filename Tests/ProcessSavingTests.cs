@@ -20,9 +20,9 @@ namespace Tests
 
             Assert.NotNull(processJson);
 
-            var validationErrors = Schemas.Processes.Value.Validate(processJson);
+            var validationResult = Schemas.Validate(Schemas.Processes, processJson);
 
-            Assert.Empty(validationErrors);
+            Assert.True(validationResult.IsValid);
 
             Assert.Equal(processJson, sourceProcessJson);
         }

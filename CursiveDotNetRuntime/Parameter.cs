@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+﻿using Manatee.Json.Serialization;
 
 [assembly: System.Runtime.CompilerServices.InternalsVisibleTo("Tests")]
 
@@ -12,13 +12,13 @@ namespace Cursive
             Type = type;
         }
 
-        [JsonProperty(PropertyName = "name")]
+        [JsonMapTo("name")]
         public string Name { get; }
 
         [JsonIgnore]
         public DataType Type { get; }
 
-        [JsonProperty(PropertyName = "type")]
+        [JsonMapTo("type")]
         private string TypeName => Type.Name;
     }
 

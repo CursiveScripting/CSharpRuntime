@@ -1,7 +1,8 @@
-﻿using NJsonSchema;
+﻿using Manatee.Json;
+using Manatee.Json.Schema;
+using Manatee.Json.Serialization;
 using System;
 using System.IO;
-using System.Threading.Tasks;
 
 namespace Cursive
 {
@@ -20,11 +21,16 @@ namespace Cursive
                 schemaJson = reader.ReadToEnd();
             }
 
-            var task = Task.Run(async () => await JsonSchema.FromJsonAsync(schemaJson));
+            var jsonData = JsonValue.Parse(schemaJson);
 
-            task.Wait();
+            var serializer = new JsonSerializer();
 
-            return task.Result;
+            return serializer.Deserialize<JsonSchema>(jsonData);
+        }
+
+        public static SchemaValidationResults Validate(Lazy<JsonSchema> schema, string jsonData)
+        {
+            return schema.Value.Validate(jsonData);
         }
     }
 }

@@ -1,17 +1,16 @@
-﻿using Newtonsoft.Json;
+﻿using Manatee.Json.Serialization;
 
 namespace Cursive.Serialization
 {
-    [JsonObject(ItemNullValueHandling = NullValueHandling.Ignore)]
     internal class VariableDTO : ParameterDTO
     {
-        [JsonProperty(PropertyName = "x")]
+        [JsonMapTo("x")]
         public int X { get; set; }
 
-        [JsonProperty(PropertyName = "y")]
+        [JsonMapTo("y")]
         public int Y { get; set; }
 
-        [JsonProperty(PropertyName = "initialValue")]
+        [JsonMapTo("initialValue")]
         public string InitialValue { get; set; }
     }
 }

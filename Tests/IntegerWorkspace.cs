@@ -64,7 +64,7 @@ namespace Tests
                 var output = new Parameter<int>("result", integer);
 
                 subtract = new SystemProcess(
-                    "Subtracts",
+                    "Subtract",
                     "Subtracts one integer from another",
                     (ValueSet inputs) =>
                     {
@@ -144,7 +144,7 @@ namespace Tests
                 var input2 = new Parameter<int>("value 2", integer);
 
                 compare = new SystemProcess(
-                    "compare",
+                    "Compare",
                     "Compare two integers",
                     (ValueSet inputs) =>
                     {

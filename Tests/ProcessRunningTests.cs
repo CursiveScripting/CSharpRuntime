@@ -1,6 +1,4 @@
-﻿using Cursive;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Xunit;
 
 namespace Tests
@@ -9,6 +7,9 @@ namespace Tests
     {
         [Theory]
         [InlineData("Tests.IntegerProcesses.addOne.json", 1, 2)]
+        [InlineData("Tests.IntegerProcesses.thresholdCheck.json", 2, 4)]
+        [InlineData("Tests.IntegerProcesses.thresholdCheck.json", 3, 3)]
+        [InlineData("Tests.IntegerProcesses.thresholdCheck.json", 6, 5)]
         public async Task RunProcess(string resourceName, int inValue, int expectedResult)
         {
             string processJson = ProcessLoadingTests.ReadJsonResource(resourceName);

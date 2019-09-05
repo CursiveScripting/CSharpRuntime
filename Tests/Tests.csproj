@@ -9,10 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="test.json" />
-  </ItemGroup>
-
-  <ItemGroup>
+    <EmbeddedResource Include="IntegerProcesses\thresholdCheck.json" />
     <EmbeddedResource Include="IntegerProcesses\addOne.json" />
   </ItemGroup>
 

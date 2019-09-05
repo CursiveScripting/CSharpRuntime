@@ -9,6 +9,7 @@ namespace Tests
     {
         [Theory]
         [InlineData("Tests.IntegerProcesses.addOne.json")]
+        [InlineData("Tests.IntegerProcesses.thresholdCheck.json")]
         public void LoadErrorFree(string resourceName)
         {
             string processJson = ReadJsonResource(resourceName);

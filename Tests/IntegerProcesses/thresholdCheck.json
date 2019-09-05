@@ -1,0 +1,132 @@
+[
+  {
+    "name": "Modify number",
+    "description": "Perform some operation(s) on a number",
+    "inputs": [
+      {
+        "name": "value",
+        "type": "integer"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "result",
+        "type": "integer"
+      }
+    ],
+    "variables": [
+      {
+        "name": "input",
+        "type": "integer",
+        "x": 192,
+        "y": 120
+      },
+      {
+        "name": "threshold",
+        "type": "integer",
+        "x": 144,
+        "y": 216,
+        "initialValue": "3"
+      },
+      {
+        "name": "multiplier",
+        "type": "integer",
+        "x": 624,
+        "y": 144,
+        "initialValue": "2"
+      },
+      {
+        "name": "multiplied",
+        "type": "integer",
+        "x": 1128,
+        "y": 96
+      },
+      {
+        "name": "subtractor",
+        "type": "integer",
+        "x": 720,
+        "y": 432,
+        "initialValue": "1"
+      },
+      {
+        "name": "subtracted",
+        "type": "integer",
+        "x": 1128,
+        "y": 384
+      }
+    ],
+    "steps": [
+      {
+        "type": "start",
+        "id": "1",
+        "x": 48,
+        "y": 48,
+        "outputs": { "value": "input" },
+        "returnPath": "2"
+      },
+      {
+        "type": "process",
+        "id": "2",
+        "x": 336,
+        "y": 48,
+        "process": "Compare",
+        "inputs": {
+          "value 1": "input",
+          "value 2": "threshold"
+        },
+        "returnPaths": {
+          "less": "4",
+          "greater": "6",
+          "equal": "3"
+        }
+      },
+      {
+        "type": "stop",
+        "id": "3",
+        "x": 576,
+        "y": 264,
+        "inputs": { "result": "input" }
+      },
+      {
+        "type": "process",
+        "id": "4",
+        "x": 816,
+        "y": 24,
+        "process": "Multiply",
+        "inputs": {
+          "value 1": "input",
+          "value 2": "multiplier"
+        },
+        "outputs": { "result": "multiplied" },
+        "returnPath": "5"
+      },
+      {
+        "type": "stop",
+        "id": "5",
+        "x": 1344,
+        "y": 48,
+        "inputs": { "result": "multiplied" }
+      },
+      {
+        "type": "process",
+        "id": "6",
+        "x": 936,
+        "y": 336,
+        "process": "Subtract",
+        "inputs": {
+          "value 1": "input",
+          "value 2": "subtractor"
+        },
+        "outputs": { "result": "subtracted" },
+        "returnPath": "7"
+      },
+      {
+        "type": "stop",
+        "id": "7",
+        "x": 1296,
+        "y": 336,
+        "inputs": { "result": "subtracted" }
+      }
+    ]
+  }
+]

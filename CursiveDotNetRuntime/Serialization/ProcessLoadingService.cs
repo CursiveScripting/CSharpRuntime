@@ -24,7 +24,7 @@ namespace Cursive.Serialization
 
                     errors = new List<string>
                     {
-                        $"Process data failed to validate: {errorJson}"
+                        $"Process data is not valid: {errorJson}"
                     };
                     return false;
                 }

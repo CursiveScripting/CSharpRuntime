@@ -12,20 +12,20 @@ namespace Cursive
             IReadOnlyList<Parameter> inputs,
             IReadOnlyList<Parameter> outputs,
             IReadOnlyList<string> returnPaths,
-            Dictionary<string, Variable> variables
+            IReadOnlyList<Variable> variables
         )
             : base(name, description, null, inputs, outputs, returnPaths)
         {
             Variables = variables;
         }
 
-        public Dictionary<string, Variable> Variables { get; }
+        public IReadOnlyList<Variable> Variables { get; }
 
         public StartStep FirstStep { get; internal set; }
 
         internal override async Task<ProcessResult> Run(ValueSet inputs, CallStack stack)
         {
-            var variableValues = new ValueSet(Variables.ToDictionary(v => v.Key, v => v.Value.InitialValue));
+            var variableValues = new ValueSet(Variables.ToDictionary(v => v.Name, v => v.InitialValue));
 
             Step currentStep = await RunStartStep(inputs, stack, variableValues);
 

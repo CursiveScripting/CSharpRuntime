@@ -203,6 +203,8 @@ namespace Cursive.Serialization
                 }
             }
 
+            var variablesByName = process.Variables.ToDictionary(v => v.Name);
+
             foreach (var stepInfo in stepsWithInputs)
             {
                 var stepData = stepInfo.Item1;
@@ -210,7 +212,7 @@ namespace Cursive.Serialization
                 var parameters = stepInfo.Item3;
 
                 if (stepData.Inputs != null)
-                    MapParameters(stepData.Inputs, step, parameters, process, true, errors);
+                    MapParameters(stepData.Inputs, step, parameters, variablesByName, process, true, errors);
             }
 
             foreach (var stepInfo in stepsWithOutputs)
@@ -220,7 +222,7 @@ namespace Cursive.Serialization
                 var parameters = stepInfo.Item3;
 
                 if (stepData.Outputs != null)
-                    MapParameters(stepData.Outputs, step, parameters, process, false, errors);
+                    MapParameters(stepData.Outputs, step, parameters, variablesByName, process, false, errors);
 
                 if (stepData.ReturnPath != null)
                 {
@@ -269,6 +271,7 @@ namespace Cursive.Serialization
             Dictionary<string, string> paramData,
             Step step,
             IReadOnlyList<Parameter> parameters,
+            Dictionary<string, Variable> variablesByName,
             UserProcess process,
             bool isInputParam,
             List<string> errors
@@ -284,7 +287,7 @@ namespace Cursive.Serialization
                     continue;
                 }
 
-                if (!process.Variables.TryGetValue(param.Value, out Variable variable))
+                if (!variablesByName.TryGetValue(param.Value, out Variable variable))
                 {
                     var paramType = isInputParam ? "input" : "output";
                     errors.Add($"Step {step.ID} tries to map {paramType} to non-existent variable \"{param.Value}\" in process \"{process.Name}\"");
@@ -331,7 +334,7 @@ namespace Cursive.Serialization
         private static bool CheckUnassignedVariables(UserProcess process, List<string> stepErrors)
         {
             var unassignedVariables = new HashSet<Variable>(
-                process.Variables.Values
+                process.Variables
                     .Where(v => v.InitialValue == null)
             );
 
@@ -461,11 +464,11 @@ namespace Cursive.Serialization
         )
         {
             var paramsWithTypes = parameters.Select(
-                i => new Tuple<ParameterDTO, DataType>
+                p => new Tuple<ParameterDTO, DataType>
                 (
-                    i,
-                    typesByName.ContainsKey(i.Type)
-                        ? typesByName[i.Type]
+                    p,
+                    typesByName.ContainsKey(p.Type)
+                        ? typesByName[p.Type]
                         : null
                 )
             ).ToArray();
@@ -482,9 +485,9 @@ namespace Cursive.Serialization
                 .ToArray();
         }
 
-        private static Dictionary<string, Variable> LoadVariables(UserProcessDTO process, Dictionary<string, DataType> typesByName, List<string> errors)
+        private static List<Variable> LoadVariables(UserProcessDTO process, Dictionary<string, DataType> typesByName, List<string> errors)
         {
-            var variables = new Dictionary<string, Variable>();
+            var variables = new List<Variable>();
 
             var usedNames = new HashSet<string>();
 
@@ -508,7 +511,7 @@ namespace Cursive.Serialization
                     ? (dataType as IDeserializable).Deserialize(variableData.InitialValue)
                     : dataType.GetDefaultValue();
 
-                variables[variableData.Name] = new Variable(variableData.Name, dataType, value);
+                variables.Add(new Variable(variableData.Name, dataType, value));
             }
 
             return variables;

@@ -34,16 +34,5 @@ namespace Cursive
                 ? jsonData.GetIndentedString()
                 : jsonData.ToString();
         }
-
-        public string GetProcessJson(bool prettyPrint = false)
-        {
-            var serializer = new JsonSerializer();
-
-            var jsonData = serializer.Serialize(UserProcesses);
-
-            return prettyPrint
-                ? jsonData.GetIndentedString()
-                : jsonData.ToString();
-        }
     }
 }

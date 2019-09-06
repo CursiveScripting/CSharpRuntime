@@ -39,7 +39,7 @@ namespace Cursive
 
         public IReadOnlyList<string> ReturnPaths { get; }
 
-        public void FromJson(JsonValue json, JsonSerializer serializer) => throw new NotImplementedException("Cannot deserialize non-user processes types");
+        public void FromJson(JsonValue json, JsonSerializer serializer) => throw new NotImplementedException("Cannot directly deserialize processes");
 
         public JsonValue ToJson(JsonSerializer serializer)
         {

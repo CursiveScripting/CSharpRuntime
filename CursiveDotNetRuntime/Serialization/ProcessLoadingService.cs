@@ -499,13 +499,13 @@ namespace Cursive.Serialization
                     continue;
                 }
 
+                usedNames.Add(variableData.Name);
+
                 if (!typesByName.TryGetValue(variableData.Type, out DataType dataType))
                 {
                     errors.Add($"Unrecognised type \"{variableData.Type}\" used by variable {variableData.Name} of process {process.Name}");
                     continue;
                 }
-
-                usedNames.Add(variableData.Name);
 
                 var value = variableData.InitialValue != null && dataType is IDeserializable
                     ? (dataType as IDeserializable).Deserialize(variableData.InitialValue)

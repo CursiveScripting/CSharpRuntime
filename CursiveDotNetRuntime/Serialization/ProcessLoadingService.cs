@@ -157,7 +157,7 @@ namespace Cursive.Serialization
             {
                 if (stepsById.ContainsKey(stepData.ID))
                 {
-                    errors.Add($"Process \"{stepData.InnerProcess}\" has multiple steps with ID {stepData.ID}");
+                    errors.Add($"Process \"{process.Name}\" has multiple steps with ID {stepData.ID}");
                     continue;
                 }
 
@@ -170,7 +170,7 @@ namespace Cursive.Serialization
                             if (process.FirstStep == null)
                                 process.FirstStep = step;
                             else
-                                errors.Add($"Process \"{stepData.InnerProcess}\" has multiple start steps");
+                                errors.Add($"Process \"{process.Name}\" has multiple start steps");
 
                             stepsWithOutputs.Add(new Tuple<StepDTO, ReturningStep, IReadOnlyList<Parameter>>(stepData, step, process.Inputs));
                             stepsById.Add(step.ID, step);
@@ -198,7 +198,7 @@ namespace Cursive.Serialization
                             break;
                         }
                     default:
-                        errors.Add($"Invalid type \"{stepData.Type}\" on step {stepData.ID} in process \"{stepData.InnerProcess}\"");
+                        errors.Add($"Invalid type \"{stepData.Type}\" on step {stepData.ID} in process \"{process.Name}\"");
                         break;
                 }
             }

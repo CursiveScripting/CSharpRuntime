@@ -233,9 +233,7 @@ namespace Cursive.Serialization
                 }
                 else if (stepData.ReturnPaths != null && step is UserStep userStep)
                 {
-                    var expectedReturnPaths = step.StepType == StepType.Process
-                        ? (step as UserStep).ChildProcess.ReturnPaths
-                        : new string[] { };
+                    var expectedReturnPaths = userStep.ChildProcess.ReturnPaths;
 
                     var mappedPaths = new HashSet<string>();
 

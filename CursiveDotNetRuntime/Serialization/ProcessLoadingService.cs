@@ -288,21 +288,24 @@ namespace Cursive.Serialization
                 if (!variablesByName.TryGetValue(param.Value, out Variable variable))
                 {
                     var paramType = isInputParam ? "input" : "output";
-                    errors.Add($"Step {step.ID} tries to map {paramType} to non-existent variable \"{param.Value}\" in process \"{process.Name}\"");
+                    errors.Add($"Step {step.ID} tries to map an {paramType} to non-existent variable \"{param.Value}\" in process \"{process.Name}\"");
                     continue;
                 }
 
                 DataType fromType, toType;
+                Dictionary<string, Variable> mapping;
 
                 if (isInputParam)
                 {
                     fromType = variable.Type;
                     toType = parameter.Type;
+                    mapping = step.InputMapping;
                 }
                 else
                 {
                     fromType = parameter.Type;
                     toType = variable.Type;
+                    mapping = step.OutputMapping;
                 }
 
                 if (!fromType.IsAssignableTo(toType))
@@ -315,10 +318,7 @@ namespace Cursive.Serialization
                     continue;
                 }
 
-                if (isInputParam)
-                    step.InputMapping[parameter.Name] = variable;
-                else
-                    step.OutputMapping[parameter.Name] = variable;
+                mapping[parameter.Name] = variable;
             }
 
             if (isInputParam)

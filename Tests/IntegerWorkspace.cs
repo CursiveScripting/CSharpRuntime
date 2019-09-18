@@ -11,7 +11,7 @@ namespace Tests
     {
         public IntegerWorkspace()
         {
-            var integer = new FixedType<int>("integer", Color.FromKnownColor(KnownColor.Green), new Regex("[0-9]+"), s => int.Parse(s));
+            var integer = new FixedType<int>("integer", Color.FromKnownColor(KnownColor.Green), new Regex("^[0-9]+$"), s => int.Parse(s));
 
 
             SystemProcess add;

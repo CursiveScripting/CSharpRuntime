@@ -94,9 +94,39 @@ namespace Cursive
                 output.Add("extends", Extends.Name);
 
             if (Validation != null)
-                output.Add("validation", Validation?.ToString());
+            {
+                var validationData = new JsonObject
+                {
+                    { "pattern", Validation.ToString() }
+                };
+
+                var options = RegexOptionsToString(Validation.Options);
+
+                if (options != null)
+                    validationData.Add("flags", options);
+
+                output.Add("validation", validationData);
+            }
 
             return output;
+        }
+
+        private string RegexOptionsToString(RegexOptions options)
+        {
+            var output = string.Empty;
+
+            if (Validation.Options.HasFlag(RegexOptions.IgnoreCase))
+                output += "i";
+
+            if (Validation.Options.HasFlag(RegexOptions.Multiline))
+                output += "m";
+
+            if (Validation.Options.HasFlag(RegexOptions.Singleline))
+                output += "s";
+
+            return output.Length > 0
+                ? output
+                : null;
         }
 
         public override JsonValue ToJson(JsonSerializer serializer)
